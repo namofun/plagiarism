@@ -338,3 +338,6 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+
+# Antlr4 generated sources
+/src/Plag.Frontend.*/Grammars
