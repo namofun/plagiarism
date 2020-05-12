@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Antlr4.Runtime;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace Plag
     /// <summary>
     /// Token list implemented by JPlag
     /// </summary>
-    public class Structure
+    public class Structure : IAntlrErrorListener<IToken>
     {
         private readonly List<Token> tokens = new List<Token>();
         private int files = 0;
@@ -21,6 +22,19 @@ namespace Plag
         public int Size => tokens.Count;
 
         public Token this[int index] => tokens[index];
+
+        public int ErrorsCount { get; private set; }
+
+        public bool Errors => ErrorsCount > 0;
+
+        public StringBuilder ErrorInfo { get; } = new StringBuilder();
+
+        public StringBuilder OtherInfo { get; } = new StringBuilder();
+
+        public void SyntaxError(TextWriter output, IRecognizer recognizer, IToken offendingSymbol, int line, int charPositionInLine, string msg, RecognitionException e)
+        {
+            ErrorsCount++;
+        }
 
         public void CreateHashes(int? size, Func<Structure, HashTable?, int> creation)
         {

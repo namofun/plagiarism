@@ -16,10 +16,6 @@ namespace Plag
 
 		Structure Parse(string fileName, Func<Stream> streamFactory);
 
-		bool Errors { get; }
-
-		int ErrorsCount { get; }
-
 		bool SupportsColumns { get; }
 
 		bool IsPreformated { get; }

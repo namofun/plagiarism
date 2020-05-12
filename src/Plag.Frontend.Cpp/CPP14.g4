@@ -422,8 +422,6 @@ declaration
    | namespaceDefinition
    | emptyDeclaration
    | attributeDeclaration
-   | Directive
-   | MultiLineMacro
    ;
 
 blockDeclaration

@@ -3,11 +3,17 @@ using Antlr4.Runtime;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace Plag.Frontend.Cpp
 {
-    public class Language : ILanguage, IAntlrErrorListener<IToken>
+    public class Language : LanguageImpl<JplagListener>
+    {
+        private static readonly Func<Structure, JplagListener> FactoryImpl = s => new JplagListener(s);
+
+        public Language() : base(FactoryImpl) { }
+    }
+
+    public class LanguageImpl<T> : ILanguage where T : class, ICPP14Listener
     {
         public IReadOnlyCollection<string> Suffixes { get; } = new[] { ".CPP", ".H", ".C", ".HPP", ".CC" };
 
@@ -17,41 +23,36 @@ namespace Plag.Frontend.Cpp
 
         public int MinimalTokenMatch => 12;
 
-        public bool Errors => ErrorsCount > 0;
+        public Func<Structure, T> ListenerFactory { get; }
 
-        public int ErrorsCount { get; private set; }
-
-        public bool SupportsColumns => false;
+        public bool SupportsColumns => true;
 
         public bool IsPreformated => true;
 
-        public bool UsesIndex => false;
+        public bool UsesIndex => true;
 
         public int CountOfTokens => (int)TokenConstants.NUM_DIFF_TOKENS;
 
-        public StringBuilder ErrorInfo { get; } = new StringBuilder();
-
-        public StringBuilder OtherInfo { get; } = new StringBuilder();
+        public LanguageImpl(Func<Structure, T> listenerImpl)
+        {
+            ListenerFactory = listenerImpl;
+        }
 
         public Structure Parse(string fileName, Func<Stream> streamFactory)
         {
             var structure = new Structure();
-            var outputWriter = new StringWriter(OtherInfo);
-            var errorWriter = new StringWriter(ErrorInfo);
+            var outputWriter = new StringWriter(structure.OtherInfo);
+            var errorWriter = new StringWriter(structure.ErrorInfo);
             var lexer = new CPP14Lexer(CharStreams.fromStream(streamFactory()), outputWriter, errorWriter);
-            var parser = new CPP14Parser(new BufferedTokenStream(lexer), outputWriter, errorWriter);
-            var listener = new Listener(structure);
-            parser.AddErrorListener(this);
+            var parser = new CPP14Parser(new CommonTokenStream(lexer), outputWriter, errorWriter);
+            var listener = ListenerFactory(structure);
+            parser.ErrorHandler = new ErrorStrategy();
+            parser.AddErrorListener(structure);
             parser.AddParseListener(listener);
             var root = parser.TranslationUnit();
             parser.ErrorListeners.Clear();
             parser.ParseListeners.Clear();
             return structure;
-        }
-
-        public void SyntaxError(TextWriter output, IRecognizer recognizer, IToken offendingSymbol, int line, int charPositionInLine, string msg, RecognitionException e)
-        {
-            ErrorsCount++;
         }
 
         public string TypeName(int type) => Token.TypeToString((TokenConstants)type);

@@ -1,21 +1,17 @@
 ﻿using Antlr4.Grammar.Cpp;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace Plag.Frontend.Cpp
 {
-    public class Listener : CPP14BaseListener
+    public class JplagListener : CPP14BaseListener
     {
         public Structure Structure { get; }
 
         public int Errors { get; private set; }
 
-        public Listener(Structure structure)
+        public JplagListener(Structure structure)
         {
             Structure = structure;
         }
