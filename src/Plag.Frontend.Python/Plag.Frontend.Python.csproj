@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Plag.Common\Plag.Common.csproj" />
+  </ItemGroup>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="java -jar $(SolutionDir)packages\antlr-4.8.jar -Dlanguage=CSharp -package Antlr4.Grammar.Python -o Grammars Python3.g4" />
+  </Target>
+
+</Project>
