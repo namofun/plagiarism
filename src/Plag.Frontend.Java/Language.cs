@@ -1,26 +1,27 @@
-﻿using Antlr4.Grammar.Cpp;
+﻿using Antlr4.Grammar.Java;
 using Antlr4.Runtime;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
-namespace Plag.Frontend.Cpp
+namespace Plag.Frontend.Java
 {
     public class Language : ILanguage
     {
-        public IReadOnlyCollection<string> Suffixes { get; } = new[] { ".CPP", ".H", ".C", ".HPP", ".CC" };
+        public IReadOnlyCollection<string> Suffixes { get; } = new[] { ".JAVA" };
+        
+        public string Name => "Java9";
 
-        public string Name => "C++14";
-
-        public string ShortName => "cpp14";
+        public string ShortName => "java9";
 
         public int MinimalTokenMatch => 12;
-
-        public Func<Structure, ICPP14Listener> ListenerFactory { get; }
 
         public bool SupportsColumns => true;
 
         public bool IsPreformated => true;
+
+        public Func<Structure, IJava9Listener> ListenerFactory { get; }
 
         public bool UsesIndex => true;
 
@@ -30,9 +31,9 @@ namespace Plag.Frontend.Cpp
         {
         }
 
-        public Language(Func<Structure, ICPP14Listener> listenerImpl)
+        public Language(Func<Structure, IJava9Listener> factory)
         {
-            ListenerFactory = listenerImpl;
+            ListenerFactory = factory;
         }
 
         public Structure Parse(string fileName, Func<Stream> streamFactory)
@@ -40,13 +41,12 @@ namespace Plag.Frontend.Cpp
             var structure = new Structure();
             var outputWriter = new StringWriter(structure.OtherInfo);
             var errorWriter = new StringWriter(structure.ErrorInfo);
-            var lexer = new CPP14Lexer(CharStreams.fromStream(streamFactory()), outputWriter, errorWriter);
-            var parser = new CPP14Parser(new CommonTokenStream(lexer), outputWriter, errorWriter);
+            var lexer = new Java9Lexer(CharStreams.fromStream(streamFactory()), outputWriter, errorWriter);
+            var parser = new Java9Parser(new BufferedTokenStream(lexer), outputWriter, errorWriter);
             var listener = ListenerFactory(structure);
-            parser.ErrorHandler = new ErrorStrategy();
             parser.AddErrorListener(structure);
             parser.AddParseListener(listener);
-            var root = parser.TranslationUnit();
+            var root = parser.CompilationUnit();
             parser.ErrorListeners.Clear();
             parser.ParseListeners.Clear();
             return structure;

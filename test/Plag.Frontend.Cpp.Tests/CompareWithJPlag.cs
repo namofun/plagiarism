@@ -96,7 +96,7 @@ int main()
 		[TestMethod]
 		public void ByDefault(string input, string output)
         {
-            var lang = new LanguageImpl<JplagListener>(s => new JplagListener(s));
+            var lang = new Language(s => new JplagListener(s));
             var result = lang.Parse("main.cpp", () => new MemoryStream(Encoding.UTF8.GetBytes(input)));
             Assert.IsFalse(result.Errors);
             Assert.AreEqual(output, result.ToString());
