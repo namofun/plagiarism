@@ -13,11 +13,12 @@ namespace Plag
     public class Structure : IAntlrErrorListener<IToken>
     {
         private readonly List<Token> tokens = new List<Token>();
-        private int files = 0;
 
         public int HashLength { get; private set; } = -1;
 
         public HashTable Table { get; private set; } = null;
+
+        public int Files { get; private set; } = 0;
 
         public int Size => tokens.Count;
 
@@ -30,6 +31,8 @@ namespace Plag
         public StringBuilder ErrorInfo { get; } = new StringBuilder();
 
         public StringBuilder OtherInfo { get; } = new StringBuilder();
+
+        public bool EndWithEof => tokens.Count == 0 || tokens[^1].Type == (int)TokenConstants.FILE_END;
 
         public void SyntaxError(TextWriter output, IRecognizer recognizer, IToken offendingSymbol, int line, int charPositionInLine, string msg, RecognitionException e)
         {
@@ -47,11 +50,17 @@ namespace Plag
         public void AddToken(Token token)
         {
             if (tokens.Any())
-                if (tokens[^1].Line > token.Line)
-                    token.Line = tokens[^1].Line;
+            {
+                var last = tokens[^1];
+                if (last.Line > token.Line)
+                    token.Line = last.Line;
+                if (last.Column > token.Column)
+                    token.Column = last.Column;
+            }
+
             tokens.Add(token);
             if (token.Type == (int)TokenConstants.FILE_END)
-                files++;
+                Files++;
         }
 
         public override string ToString()

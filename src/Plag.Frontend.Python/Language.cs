@@ -41,13 +41,15 @@ namespace Plag.Frontend.Python
             var outputWriter = new StringWriter(structure.OtherInfo);
             var errorWriter = new StringWriter(structure.ErrorInfo);
             var lexer = new Python3Lexer(CharStreams.fromStream(streamFactory()), outputWriter, errorWriter);
-            var parser = new Python3Parser(new BufferedTokenStream(lexer), outputWriter, errorWriter);
+            var parser = new Python3Parser(new CommonTokenStream(lexer), outputWriter, errorWriter);
             var listener = ListenerFactory(structure);
             parser.AddErrorListener(structure);
             parser.AddParseListener(listener);
             var root = parser.FileInput();
             parser.ErrorListeners.Clear();
             parser.ParseListeners.Clear();
+            if (!structure.EndWithEof)
+                structure.AddToken(new Token(TokenConstants.FILE_END, 0, 0, 0));
             return structure;
         }
 

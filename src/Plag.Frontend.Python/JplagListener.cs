@@ -55,8 +55,10 @@ namespace Plag.Frontend.Python
             => Act(TokenConstants.TRY_BEGIN, context.Start);
         public override void EnterBreakStmt(BreakStmtContext context)
             => Act(TokenConstants.BREAK, context.Start);
-        public override void EnterTestlistComp(TestlistCompContext context)
-            => Act(context.COMMA().Length > 0 ? TokenConstants.ARRAY : TokenConstants.NUM_DIFF_TOKENS, context.Start);
+        public override void EnterTestlistCompArray(TestlistCompArrayContext context)
+            => Act(TokenConstants.ARRAY, context.Start);
+        public override void EnterTestlistCompLambda(TestlistCompLambdaContext context)
+            => Act(TokenConstants.LAMBDA, context.Start);
         public override void EnterIfStmt(IfStmtContext context)
             => Act(TokenConstants.IF_BEGIN, context.Start);
         public override void ExitIfStmt(IfStmtContext context)

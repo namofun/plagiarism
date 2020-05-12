@@ -250,7 +250,10 @@ atom: ('(' (yieldExpr|testlistComp)? ')' |
        '[' (testlistComp)? ']' |
        '{' (dictOrSetMaker)? '}' |
        NAME | NUMBER | STRING+ | '...' | 'None' | 'True' | 'False');
-testlistComp: (test|starExpr) ( compFor | (',' (test|starExpr))* (',')? );
+testlistComp: testlistCompSingle | testlistCompLambda | testlistCompArray;
+testlistCompSingle: (test|starExpr);
+testlistCompLambda: (test|starExpr) compFor;
+testlistCompArray: (test|starExpr) (',' (test|starExpr))* (',')?;
 trailer: '(' (argList)? ')' | '[' subscriptList ']' | '.' NAME;
 subscriptList: subscript (',' subscript)* (',')?;
 subscript: test | (test)? ':' (test)? (sliceOp)?;
