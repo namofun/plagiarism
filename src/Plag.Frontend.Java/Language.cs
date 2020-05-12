@@ -15,7 +15,7 @@ namespace Plag.Frontend.Java
 
         public string ShortName => "java9";
 
-        public int MinimalTokenMatch => 12;
+        public int MinimalTokenMatch => 9;
 
         public bool SupportsColumns => true;
 
@@ -42,7 +42,7 @@ namespace Plag.Frontend.Java
             var outputWriter = new StringWriter(structure.OtherInfo);
             var errorWriter = new StringWriter(structure.ErrorInfo);
             var lexer = new Java9Lexer(CharStreams.fromStream(streamFactory()), outputWriter, errorWriter);
-            var parser = new Java9Parser(new BufferedTokenStream(lexer), outputWriter, errorWriter);
+            var parser = new Java9Parser(new CommonTokenStream(lexer), outputWriter, errorWriter);
             var listener = ListenerFactory(structure);
             parser.AddErrorListener(structure);
             parser.AddParseListener(listener);
