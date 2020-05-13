@@ -29,7 +29,16 @@ base_type
 	: simple_type
 	| class_type  // represents types: enum, class, interface, delegate, type_parameter
 	| VOID '*'
+	| tuple_type
 	;
+
+tuple_type
+    : '(' tuple_element (',' tuple_element)+ ')'
+    ;
+
+tuple_element
+    : type_ identifier?
+    ;
 
 simple_type 
 	: numeric_type
@@ -77,12 +86,13 @@ argument_list
 	;
 
 argument
-	: (identifier ':')? refout=(REF | OUT)? (VAR | type_)? expression
+	: (identifier ':')? refout=(REF | OUT | IN)? (VAR | type_)? expression
 	;
 
 expression
 	: assignment
 	| non_assignment_expression
+	| REF non_assignment_expression
 	;
 
 non_assignment_expression
@@ -100,11 +110,11 @@ assignment_operator
 	;
 
 conditional_expression
-	: null_coalescing_expression ('?' expression ':' expression)?
+	: null_coalescing_expression ('?' throwable_expression ':' throwable_expression)?
 	;
 
 null_coalescing_expression
-	: conditional_or_expression ('??' null_coalescing_expression)?
+	: conditional_or_expression ('??' (null_coalescing_expression | throw_expression))?
 	;
 
 conditional_or_expression
@@ -182,14 +192,24 @@ primary_expression_start
 	             | rank_specifier+ array_initializer)
 	      | anonymous_object_initializer
 	      | rank_specifier array_initializer)                       #objectCreationExpression
+	| OPEN_PARENS argument ( ',' argument )+ CLOSE_PARENS           #tupleExpression
 	| TYPEOF OPEN_PARENS (unbound_type_name | type_ | VOID) CLOSE_PARENS   #typeofExpression
 	| CHECKED OPEN_PARENS expression CLOSE_PARENS                   #checkedExpression
 	| UNCHECKED OPEN_PARENS expression CLOSE_PARENS                 #uncheckedExpression
-	| DEFAULT OPEN_PARENS type_ CLOSE_PARENS                         #defaultValueExpression
+	| DEFAULT (OPEN_PARENS type_ CLOSE_PARENS)?                     #defaultValueExpression
 	| ASYNC? DELEGATE (OPEN_PARENS explicit_anonymous_function_parameter_list? CLOSE_PARENS)? block #anonymousMethodExpression
 	| SIZEOF OPEN_PARENS type_ CLOSE_PARENS                          #sizeofExpression
 	// C# 6: https://msdn.microsoft.com/en-us/library/dn986596.aspx
 	| NAMEOF OPEN_PARENS (identifier '.')* identifier CLOSE_PARENS  #nameofExpression
+	;
+
+throw_expression
+	: THROW expression
+	;
+
+throwable_expression
+	: expression
+	| throw_expression
 	;
 
 member_access
@@ -267,7 +287,7 @@ generic_dimension_specifier
 	;
 
 isType
-	: base_type (rank_specifier | '*')* '?'?
+	: base_type (rank_specifier | '*')* '?'? identifier?
 	;
 
 lambda_expression
@@ -286,7 +306,7 @@ explicit_anonymous_function_parameter_list
 	;
 
 explicit_anonymous_function_parameter
-	: refout=(REF | OUT)? type_ identifier
+	: refout=(REF | OUT | IN)? type_ identifier
 	;
 
 implicit_anonymous_function_parameter_list
@@ -294,7 +314,7 @@ implicit_anonymous_function_parameter_list
 	;
 
 anonymous_function_body
-	: expression
+	: throwable_expression
 	| block
 	;
 
@@ -349,10 +369,34 @@ query_continuation
 
 //B.2.5 Statements
 statement
-	: labeled_Statement			                                     #labeledStatement
-	| (local_variable_declaration | local_constant_declaration) ';'  #declarationStatement
-	| embedded_statement                                             #embeddedStatement
+	: labeled_Statement
+	| declarationStatement
+	| embedded_statement
 	;
+
+declarationStatement
+	: local_variable_declaration ';'
+	| local_constant_declaration ';'
+	| local_function_declaration
+	;
+
+local_function_declaration
+    : local_function_header local_function_body
+    ;
+
+local_function_header
+    : local_function_modifiers? return_type identifier type_parameter_list?
+        OPEN_PARENS formal_parameter_list? CLOSE_PARENS type_parameter_constraints_clauses?
+    ;
+
+local_function_modifiers
+    : (ASYNC | UNSAFE)
+    ;
+
+local_function_body
+    : block
+    | right_arrow throwable_expression ';'
+    ;
 
 labeled_Statement
 	: identifier ':' statement  
@@ -399,17 +443,18 @@ simple_embedded_statement
 block
 	: OPEN_BRACE statement_list? CLOSE_BRACE
 	;
+
 local_variable_declaration
-	: local_variable_type local_variable_declarator ( ','  local_variable_declarator)*
+	: (REF | REF READONLY)? local_variable_type local_variable_declarator ( ','  local_variable_declarator)*
 	;
 
 local_variable_type 
 	: VAR
 	| type_
-;
+	;
 
 local_variable_declarator
-	: identifier ('=' local_variable_initializer)?
+	: identifier ('=' REF? local_variable_initializer)?
 	;
 
 local_variable_initializer
@@ -432,8 +477,12 @@ switch_section
 	;
 
 switch_label
-	: CASE expression ':'
+	: CASE expression case_guard? ':'
 	| DEFAULT ':'
+	;
+
+case_guard
+	: WHEN expression
 	;
 
 statement_list
@@ -610,7 +659,7 @@ common_member_declaration
 	: constant_declaration
 	| typed_member_declaration
 	| event_declaration
-	| conversion_operator_declarator (body | right_arrow expression ';') // C# 6
+	| conversion_operator_declarator (body | right_arrow throwable_expression ';') // C# 6
 	| constructor_declaration
 	| VOID method_declaration
 	| class_definition
@@ -621,7 +670,7 @@ common_member_declaration
 	;
 
 typed_member_declaration
-	: type_
+	: (REF | READONLY REF | REF READONLY)? type_
 	  ( namespace_or_type_name '.' indexer_declaration
 	  | method_declaration
 	  | property_declaration
@@ -683,6 +732,9 @@ fixed_parameter
 parameter_modifier
 	: REF
 	| OUT
+	| IN
+	| REF THIS
+	| IN THIS
 	| THIS
 	;
 
@@ -816,7 +868,7 @@ interface_body
 
 interface_member_declaration
 	: attributes? NEW?
-	  (UNSAFE? type_
+	  (UNSAFE? (REF | REF READONLY | READONLY REF)? type_
 	    ( identifier type_parameter_list? OPEN_PARENS formal_parameter_list? CLOSE_PARENS type_parameter_constraints_clauses? ';'
 	    | identifier OPEN_BRACE interface_accessors CLOSE_BRACE
 	    | THIS '[' formal_parameter_list ']' OPEN_BRACE interface_accessors CLOSE_BRACE)
@@ -922,6 +974,7 @@ literal
 	| string_literal
 	| INTEGER_LITERAL
 	| HEX_INTEGER_LITERAL
+	| BIN_INTEGER_LITERAL
 	| REAL_LITERAL
 	| CHARACTER_LITERAL
 	| NULL
@@ -1055,7 +1108,7 @@ class_definition
 	;
 
 struct_definition
-	: STRUCT identifier type_parameter_list? struct_interfaces? type_parameter_constraints_clauses?
+	: (READONLY | REF)? STRUCT identifier type_parameter_list? struct_interfaces? type_parameter_constraints_clauses?
 	    struct_body ';'?
 	;
 
@@ -1082,7 +1135,7 @@ field_declaration
 	;
 
 property_declaration // Property initializer & lambda in properties C# 6
-	: member_name (OPEN_BRACE accessor_declarations CLOSE_BRACE ('=' variable_initializer ';')? | right_arrow expression ';')
+	: member_name (OPEN_BRACE accessor_declarations CLOSE_BRACE ('=' variable_initializer ';')? | right_arrow throwable_expression ';')
 	;
 
 constant_declaration
@@ -1090,7 +1143,7 @@ constant_declaration
 	;
 
 indexer_declaration // lamdas from C# 6
-	: THIS '[' formal_parameter_list ']' (OPEN_BRACE accessor_declarations CLOSE_BRACE | right_arrow expression ';')
+	: THIS '[' formal_parameter_list ']' (OPEN_BRACE accessor_declarations CLOSE_BRACE | right_arrow throwable_expression ';')
 	;
 
 destructor_definition
@@ -1103,7 +1156,7 @@ constructor_declaration
 
 method_declaration // lamdas from C# 6
 	: method_member_name type_parameter_list? OPEN_PARENS formal_parameter_list? CLOSE_PARENS
-	    type_parameter_constraints_clauses? (method_body | right_arrow expression ';')
+	    type_parameter_constraints_clauses? (method_body | right_arrow throwable_expression ';')
 	;
 
 method_member_name
@@ -1111,8 +1164,8 @@ method_member_name
 	;
 
 operator_declaration // lamdas form C# 6
-	: OPERATOR overloadable_operator OPEN_PARENS arg_declaration
-	       (',' arg_declaration)? CLOSE_PARENS (body | right_arrow expression ';')
+	: OPERATOR overloadable_operator OPEN_PARENS IN? arg_declaration
+	       (',' IN? arg_declaration)? CLOSE_PARENS (body | right_arrow throwable_expression ';')
 	;
 
 arg_declaration

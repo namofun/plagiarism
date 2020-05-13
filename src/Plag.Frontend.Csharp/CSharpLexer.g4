@@ -121,6 +121,7 @@ UNCHECKED:     'unchecked';
 UNSAFE:        'unsafe';
 USHORT:        'ushort';
 USING:         'using';
+VAR:           'var';
 VIRTUAL:       'virtual';
 VOID:          'void';
 VOLATILE:      'volatile';
@@ -136,10 +137,11 @@ IDENTIFIER:          '@'? IdentifierOrKeyword;
 
 //B.1.8 Literals
 // 0.Equals() would be parsed as an invalid real (1. branch) causing a lexer error
-LITERAL_ACCESS:      [0-9]+ IntegerTypeSuffix? '.' '@'? IdentifierOrKeyword;
-INTEGER_LITERAL:     [0-9]+ IntegerTypeSuffix?;
-HEX_INTEGER_LITERAL: '0' [xX] HexDigit+ IntegerTypeSuffix?;
-REAL_LITERAL:        [0-9]* '.' [0-9]+ ExponentPart? [FfDdMm]? | [0-9]+ ([FfDdMm] | ExponentPart [FfDdMm]?);
+LITERAL_ACCESS:      [0-9] ('_'* [0-9])* IntegerTypeSuffix? '.' '@'? IdentifierOrKeyword;
+INTEGER_LITERAL:     [0-9] ('_'* [0-9])* IntegerTypeSuffix?;
+HEX_INTEGER_LITERAL: '0' [xX] ('_'* HexDigit)+ IntegerTypeSuffix?;
+BIN_INTEGER_LITERAL: '0' [bB] ('_'* [01])+ IntegerTypeSuffix?;
+REAL_LITERAL:        ([0-9] ('_'* [0-9])*)? '.' [0-9] ('_'* [0-9])* ExponentPart? [FfDdMm]? | [0-9] ('_'* [0-9])* ([FfDdMm] | ExponentPart [FfDdMm]?);
 
 CHARACTER_LITERAL:                   '\'' (~['\\\r\n\u0085\u2028\u2029] | CommonCharacter) '\'';
 REGULAR_STRING:                      '"'  (~["\\\r\n\u0085\u2028\u2029] | CommonCharacter)* '"';
@@ -301,7 +303,7 @@ fragment NewLineCharacter
 	;
 
 fragment IntegerTypeSuffix:         [lL]? [uU] | [uU]? [lL];
-fragment ExponentPart:              [eE] ('+' | '-')? [0-9]+;
+fragment ExponentPart:              [eE] ('+' | '-')? [0-9] ('_'* [0-9])*;
 
 fragment CommonCharacter
 	: SimpleEscapeSequence
