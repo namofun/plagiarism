@@ -969,5 +969,168 @@ class CSharp72
             var stu = lang.Parse(new SubmissionString("A.cs", content));
             Assert.IsFalse(stu.Errors, stu.ErrorInfo.ToString());
         }
+
+
+        [DataRow(@"
+class CSharp73
+{
+    void Blittable<T>(T value) where T : unmanaged
+    {
+        var unmanaged = 666;
+    }
+
+    unsafe struct IndexingMovableFixed
+    {
+        public fixed int myFixedField[10];
+    }
+
+    static IndexingMovableFixed s;
+
+    public unsafe void IndexingMovableFixedFields()
+    {
+        int* ptr = s.myFixedField;
+        int t = s.myFixedField[5];
+    }
+
+    public void PatternBasedFixed()
+    {
+        fixed(byte* ptr = byteArray)
+        {
+           // ptr is a native pointer to the first element of the array
+           // byteArray is protected from being moved/collected by the GC for the duration of this block 
+        }
+    }
+
+    public void StackallocArrayInitializer()
+    {
+        Span<int> a = stackalloc int[3];               // currently allowed
+        Span<int> a = stackalloc int[3] { 1, 2, 3 };
+        Span<int> a = stackalloc int[] { 1, 2, 3 };
+        Span<int> a = stackalloc[] { 1, 2, 3 };
+    }
+
+    public void TupleEquality()
+    {
+        (int, (int, int)) t1, t2;
+        var res = t1 == (1, (2, 3));
+    }
+}
+")]
+
+        [TestMethod]
+        public void Version73(string content)
+        {
+            var lang = new Language();
+            var stu = lang.Parse(new SubmissionString("A.cs", content));
+            Assert.IsFalse(stu.Errors, stu.ErrorInfo.ToString());
+        }
+
+
+        [DataRow(@"
+class CSharp80
+{
+    void ReferenceNullable()
+    {
+        var? x = E;
+        x!.ToString();
+        string? wtf = null;
+        int?[]? hello;
+    }
+
+    void Patterns()
+    {
+        if (o is string { Length: 5 } s) Do();
+        
+        return lang.CountOfTokens switch
+        {
+            1 => 100,
+            2 => 200,
+            _ => throw new global::System.Exception()
+        };
+
+        var newState = (GetState(), action, hasKey) switch
+        {
+            (DoorState.Closed, Action.Open, _) => DoorState.Opened,
+            (DoorState.Opened, Action.Close, _) => DoorState.Closed,
+            (DoorState.Closed, Action.Lock, true) => DoorState.Locked,
+            (DoorState.Locked, Action.Unlock, true) => DoorState.Closed,
+            (var state, _, _) => state
+        };
+    }
+
+    async Task AsyncStreams()
+    {
+        await foreach (var item in asyncEnumerables)
+        {
+        }
+    }
+
+    void Ranges()
+    {
+        var thirdItem = list[2];                // list[2]
+        var lastItem = list[^1];                // list[Index.CreateFromEnd(1)]
+        var multiDimensional = list[3, ^2];     // list[3, Index.CreateFromEnd(2)]
+
+        var slice1 = list[2..^3];               // list[Range.Create(2, Index.CreateFromEnd(3))]
+        var slice2 = list[..^3];                // list[Range.ToEnd(Index.CreateFromEnd(3))]
+        var slice3 = list[2..];                 // list[Range.FromStart(2)]
+        var slice4 = list[..];                  // list[Range.All]
+        var multiDimensional = list[1..2, ..];  // list[Range.Create(1, 2), Range.All]
+    }
+
+    void UsingDeclarators()
+    {
+        using var item = new FileStream(""./.f"");
+        fixed char* ch = ""hell"";
+        item.Dispose(); // no!
+    }
+
+    void StaticLocalFunction()
+    {
+        static unsafe void Func1() {}
+        static unsafe void Func1() {}
+        async static void Func2() {}
+        static async void Func2() {}
+    }
+
+    void NullCoalescingAssignment()
+    {
+        var item = a ??= b ??= c ??= d ??= throw new Exception();
+    }
+
+    public readonly float Hello()
+    {
+        return 0.1f;
+    }
+}
+
+interface IA
+{
+    void M() { WriteLine(""IA.M""); }
+}
+
+interface IA
+{
+    void M() { WriteLine(""IA.M""); }
+}
+
+interface IB : IA
+{
+    override void IA.M() { WriteLine(""IB.M""); } // explicitly named
+}
+
+interface IC : IA
+{
+    override void M() { WriteLine(""IC.M""); } // implicitly named
+}
+")]
+
+        [TestMethod]
+        public void Version80(string content)
+        {
+            var lang = new Language();
+            var stu = lang.Parse(new SubmissionString("A.cs", content));
+            Assert.IsFalse(stu.Errors, stu.ErrorInfo.ToString());
+        }
     }
 }

@@ -103,6 +103,7 @@ non_assignment_expression
 
 assignment
 	: unary_expression assignment_operator expression
+	| unary_expression '??=' throwable_expression
 	;
 
 assignment_operator
@@ -154,8 +155,28 @@ additive_expression
 	;
 
 multiplicative_expression
-	: unary_expression (('*' | '/' | '%')  unary_expression)*
+	: switch_expression (('*' | '/' | '%')  switch_expression)*
 	;
+
+switch_expression
+    : range_expression
+    | range_expression 'switch' '{' '}'
+    | range_expression 'switch' '{' switch_expression_arms ','? '}'
+    ;
+
+switch_expression_arms
+    : switch_expression_arm
+    | switch_expression_arms ',' switch_expression_arm
+    ;
+
+switch_expression_arm
+    : expression case_guard? right_arrow throwable_expression
+    ;
+
+range_expression
+    : unary_expression
+    | unary_expression? OP_RANGE unary_expression?
+    ;
 
 // https://msdn.microsoft.com/library/6a71f45d(v=vs.110).aspx
 unary_expression
@@ -170,11 +191,12 @@ unary_expression
 	| AWAIT unary_expression // C# 5
 	| '&' unary_expression
 	| '*' unary_expression
+	| '^' unary_expression // C# 8 ranges
 	;
 
 primary_expression  // Null-conditional operators C# 6: https://msdn.microsoft.com/en-us/library/dn986595.aspx
-	: pe=primary_expression_start bracket_expression*
-	  ((member_access | method_invocation | '++' | '--' | '->' identifier) bracket_expression*)*
+	: pe=primary_expression_start '!'? bracket_expression* '!'?
+	  (((member_access | method_invocation | '++' | '--' | '->' identifier) '!'?) bracket_expression* '!'?)*
 	;
 
 primary_expression_start
@@ -287,7 +309,15 @@ generic_dimension_specifier
 	;
 
 isType
-	: base_type (rank_specifier | '*')* '?'? identifier?
+	: base_type (rank_specifier | '*')* '?'? isTypePatternArms? identifier?
+	;
+	
+isTypePatternArms
+	: '{' isTypePatternArm (',' isTypePatternArm)* '}'
+	;
+
+isTypePatternArm
+	: identifier ':' expression
 	;
 
 lambda_expression
@@ -390,7 +420,8 @@ local_function_header
     ;
 
 local_function_modifiers
-    : (ASYNC | UNSAFE)
+    : (ASYNC | UNSAFE) STATIC?
+	| STATIC (ASYNC | UNSAFE)
     ;
 
 local_function_body
@@ -419,7 +450,7 @@ simple_embedded_statement
 	| WHILE OPEN_PARENS expression CLOSE_PARENS embedded_statement                                        #whileStatement
 	| DO embedded_statement WHILE OPEN_PARENS expression CLOSE_PARENS ';'                                 #doStatement
 	| FOR OPEN_PARENS for_initializer? ';' expression? ';' for_iterator? CLOSE_PARENS embedded_statement  #forStatement
-	| FOREACH OPEN_PARENS local_variable_type identifier IN expression CLOSE_PARENS embedded_statement    #foreachStatement
+	| AWAIT? FOREACH OPEN_PARENS local_variable_type identifier IN expression CLOSE_PARENS embedded_statement    #foreachStatement
 
     // jump statements
 	| BREAK ';'                                                   #breakStatement
@@ -445,7 +476,8 @@ block
 	;
 
 local_variable_declaration
-	: (REF | REF READONLY)? local_variable_type local_variable_declarator ( ','  local_variable_declarator)*
+	: (USING | REF | REF READONLY)? local_variable_type local_variable_declarator ( ','  local_variable_declarator)*
+	| FIXED pointer_type fixed_pointer_declarators
 	;
 
 local_variable_type 
@@ -460,7 +492,7 @@ local_variable_declarator
 local_variable_initializer
 	: expression
 	| array_initializer
-	| local_variable_initializer_unsafe
+	| stackalloc_initializer
 	;
 
 local_constant_declaration
@@ -606,8 +638,9 @@ type_parameter_constraints
 
 primary_constraint
 	: class_type
-	| CLASS
+	| CLASS '?'?
 	| STRUCT
+	| UNMANAGED
 	;
 
 // namespace_or_type_name includes identifier
@@ -862,7 +895,7 @@ interface_base
 	: ':' interface_type_list
 	;
 
-interface_body
+interface_body // ignored in csharp 8
 	: OPEN_BRACE interface_member_declaration* CLOSE_BRACE
 	;
 
@@ -946,17 +979,18 @@ fixed_pointer_declarator
 
 fixed_pointer_initializer
 	: '&'? expression
-	| local_variable_initializer_unsafe
+	| stackalloc_initializer
 	;
 
 fixed_size_buffer_declarator
 	: identifier '[' expression ']'
 	;
 
-local_variable_initializer_unsafe
+stackalloc_initializer
 	: STACKALLOC type_ '[' expression ']'
+	| STACKALLOC type_? '[' expression? ']' OPEN_BRACE expression (',' expression)* ','? CLOSE_BRACE
 	;
-
+	
 right_arrow
 	: first='=' second='>' {$first.index + 1 == $second.index}? // Nothing between the tokens?
 	;
@@ -1091,6 +1125,7 @@ keyword
 	| UINT
 	| ULONG
 	| UNCHECKED
+	| UNMANAGED
 	| UNSAFE
 	| USHORT
 	| USING
@@ -1114,7 +1149,7 @@ struct_definition
 
 interface_definition
 	: INTERFACE identifier variant_type_parameter_list? interface_base?
-	    type_parameter_constraints_clauses? interface_body ';'?
+	    type_parameter_constraints_clauses? class_body ';'?
 	;
 
 enum_definition
@@ -1205,6 +1240,7 @@ identifier
 	| REMOVE
 	| SELECT
 	| SET
+	| UNMANAGED
 	| VAR
 	| WHEN
 	| WHERE

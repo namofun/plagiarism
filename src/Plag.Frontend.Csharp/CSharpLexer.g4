@@ -118,6 +118,7 @@ TYPEOF:        'typeof';
 UINT:          'uint';
 ULONG:         'ulong';
 UNCHECKED:     'unchecked';
+UNMANAGED:     'unmanaged';
 UNSAFE:        'unsafe';
 USHORT:        'ushort';
 USING:         'using';
@@ -234,6 +235,8 @@ OP_OR_ASSIGNMENT:         '|=';
 OP_XOR_ASSIGNMENT:        '^=';
 OP_LEFT_SHIFT:            '<<';
 OP_LEFT_SHIFT_ASSIGNMENT: '<<=';
+OP_COALESCING_ASSIGNMENT: '??=';
+OP_RANGE:                 '..';
 
 // https://msdn.microsoft.com/en-us/library/dn961160.aspx
 mode INTERPOLATION_STRING;
@@ -271,6 +274,7 @@ WARNING:                       'warning' Whitespace+            -> channel(DIREC
 REGION:                        'region' Whitespace*             -> channel(DIRECTIVE), mode(DIRECTIVE_TEXT);
 ENDREGION:                     'endregion' Whitespace*          -> channel(DIRECTIVE), mode(DIRECTIVE_TEXT);
 PRAGMA:                        'pragma' Whitespace+             -> channel(DIRECTIVE), mode(DIRECTIVE_TEXT);
+NULLABLE:                      'nullable' Whitespace+           -> channel(DIRECTIVE), mode(DIRECTIVE_TEXT);
 DIRECTIVE_DEFAULT:             'default'                        -> channel(DIRECTIVE), type(DEFAULT);
 DIRECTIVE_HIDDEN:              'hidden'                         -> channel(DIRECTIVE);
 DIRECTIVE_OPEN_PARENS:         '('                              -> channel(DIRECTIVE), type(OPEN_PARENS);
