@@ -1,7 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.IO;
-using System.Text;
 
 namespace Plag.Integration.Tests
 {
@@ -328,8 +326,8 @@ int main()
         public void DefaultCompare(string submit1, string submit2, Type language)
         {
             var lang = (ILanguage)Activator.CreateInstance(language);
-            var sub1 = new Submission(lang, "A.cpp", submit1.Length, () => new MemoryStream(Encoding.UTF8.GetBytes(submit1)));
-            var sub2 = new Submission(lang, "B.cpp", submit2.Length, () => new MemoryStream(Encoding.UTF8.GetBytes(submit2)));
+            var sub1 = new Submission(lang, new SubmissionString("A.cpp", submit1));
+            var sub2 = new Submission(lang, new SubmissionString("B.cpp", submit2));
             var compareResult = GSTiling.Compare(sub1, sub2, lang.MinimalTokenMatch);
         }
     }

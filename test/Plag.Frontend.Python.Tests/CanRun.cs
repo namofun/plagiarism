@@ -999,7 +999,7 @@ if __name__ == '__main__':
         public void Parse(string content)
         {
             var lang = new Language();
-            var stu = lang.Parse("A.py", () => new MemoryStream(Encoding.UTF8.GetBytes(content)));
+            var stu = lang.Parse(new SubmissionString("A.py", content));
             Assert.IsFalse(stu.Errors, stu.ErrorInfo.ToString());
         }
     }

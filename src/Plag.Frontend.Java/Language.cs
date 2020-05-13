@@ -36,19 +36,26 @@ namespace Plag.Frontend.Java
             ListenerFactory = factory;
         }
 
-        public Structure Parse(string fileName, Func<Stream> streamFactory)
+        public Structure Parse(ISubmissionFile file)
         {
             var structure = new Structure();
             var outputWriter = new StringWriter(structure.OtherInfo);
             var errorWriter = new StringWriter(structure.ErrorInfo);
-            var lexer = new Java9Lexer(CharStreams.fromStream(streamFactory()), outputWriter, errorWriter);
-            var parser = new Java9Parser(new CommonTokenStream(lexer), outputWriter, errorWriter);
             var listener = ListenerFactory(structure);
-            parser.AddErrorListener(structure);
-            parser.AddParseListener(listener);
-            var root = parser.CompilationUnit();
-            parser.ErrorListeners.Clear();
-            parser.ParseListeners.Clear();
+
+            foreach (var item in SubmissionComposite.ExtendToLeaf(file))
+            {
+                var lexer = new Java9Lexer(item.Open(), outputWriter, errorWriter);
+                var parser = new Java9Parser(new CommonTokenStream(lexer), outputWriter, errorWriter);
+
+                parser.AddErrorListener(structure);
+                parser.AddParseListener(listener);
+
+                var root = parser.CompilationUnit();
+                parser.ErrorListeners.Clear();
+                parser.ParseListeners.Clear();
+            }
+
             return structure;
         }
 

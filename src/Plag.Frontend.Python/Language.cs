@@ -35,21 +35,28 @@ namespace Plag.Frontend.Python
             ListenerFactory = factory;
         }
 
-        public Structure Parse(string fileName, Func<Stream> streamFactory)
+        public Structure Parse(ISubmissionFile file)
         {
             var structure = new Structure();
             var outputWriter = new StringWriter(structure.OtherInfo);
             var errorWriter = new StringWriter(structure.ErrorInfo);
-            var lexer = new Python3Lexer(CharStreams.fromStream(streamFactory()), outputWriter, errorWriter);
-            var parser = new Python3Parser(new CommonTokenStream(lexer), outputWriter, errorWriter);
             var listener = ListenerFactory(structure);
-            parser.AddErrorListener(structure);
-            parser.AddParseListener(listener);
-            var root = parser.FileInput();
-            parser.ErrorListeners.Clear();
-            parser.ParseListeners.Clear();
-            if (!structure.EndWithEof)
-                structure.AddToken(new Token(TokenConstants.FILE_END, 0, 0, 0));
+
+            foreach (var item in SubmissionComposite.ExtendToLeaf(file))
+            {
+                var lexer = new Python3Lexer(item.Open(), outputWriter, errorWriter);
+                var parser = new Python3Parser(new CommonTokenStream(lexer), outputWriter, errorWriter);
+
+                parser.AddErrorListener(structure);
+                parser.AddParseListener(listener);
+
+                var root = parser.FileInput();
+                parser.ErrorListeners.Clear();
+                parser.ParseListeners.Clear();
+                if (!structure.EndWithEof)
+                    structure.AddToken(new Token(TokenConstants.FILE_END, 0, 0, 0));
+            }
+
             return structure;
         }
 

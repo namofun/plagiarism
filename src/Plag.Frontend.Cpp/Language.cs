@@ -35,20 +35,28 @@ namespace Plag.Frontend.Cpp
             ListenerFactory = listenerImpl;
         }
 
-        public Structure Parse(string fileName, Func<Stream> streamFactory)
+        public Structure Parse(ISubmissionFile files)
         {
             var structure = new Structure();
             var outputWriter = new StringWriter(structure.OtherInfo);
             var errorWriter = new StringWriter(structure.ErrorInfo);
-            var lexer = new CPP14Lexer(CharStreams.fromStream(streamFactory()), outputWriter, errorWriter);
-            var parser = new CPP14Parser(new CommonTokenStream(lexer), outputWriter, errorWriter);
             var listener = ListenerFactory(structure);
-            parser.ErrorHandler = new ErrorStrategy();
-            parser.AddErrorListener(structure);
-            parser.AddParseListener(listener);
-            var root = parser.TranslationUnit();
-            parser.ErrorListeners.Clear();
-            parser.ParseListeners.Clear();
+            var errorHandler = new ErrorStrategy();
+
+            foreach (var item in SubmissionComposite.ExtendToLeaf(files))
+            {
+                var lexer = new CPP14Lexer(item.Open(), outputWriter, errorWriter);
+                var parser = new CPP14Parser(new CommonTokenStream(lexer), outputWriter, errorWriter);
+            
+                parser.AddErrorListener(structure);
+                parser.AddParseListener(listener);
+                parser.ErrorHandler = errorHandler;
+
+                var root = parser.TranslationUnit();
+                parser.ErrorListeners.Clear();
+                parser.ParseListeners.Clear();
+            }
+
             return structure;
         }
 

@@ -43,7 +43,7 @@ void f() {
         public void Parse(string content)
         {
             var lang = new Language();
-            var stu = lang.Parse("A.cpp", () => new MemoryStream(Encoding.UTF8.GetBytes(content)));
+            var stu = lang.Parse(new SubmissionString("A.cpp", content));
             Assert.IsFalse(stu.Errors, stu.ErrorInfo.ToString());
         }
     }

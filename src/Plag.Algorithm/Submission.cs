@@ -7,18 +7,15 @@ namespace Plag
     {
         public Structure IL { get; }
 
-        public string FileName { get; }
+        public ISubmissionFile File { get; }
 
         public ILanguage Language { get; }
-
-        public int FileSize { get; }
-
-        public Submission(ILanguage lang, string fileName, int size, Func<Stream> func)
+        
+        public Submission(ILanguage lang, ISubmissionFile file)
         {
-            IL = lang.Parse(fileName, func);
-            FileName = fileName;
             Language = lang;
-            FileSize = size;
+            File = file;
+            IL = lang.Parse(file);
         }
     }
 }

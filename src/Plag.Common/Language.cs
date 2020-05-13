@@ -14,7 +14,7 @@ namespace Plag
 
 		int MinimalTokenMatch { get; }
 
-		Structure Parse(string fileName, Func<Stream> streamFactory);
+		Structure Parse(ISubmissionFile files);
 
 		bool SupportsColumns { get; }
 

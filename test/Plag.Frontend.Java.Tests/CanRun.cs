@@ -700,7 +700,7 @@ public @interface Bean {
         public void Parse(string content)
         {
             var lang = new Language();
-            var stu = lang.Parse("A.java", () => new MemoryStream(Encoding.UTF8.GetBytes(content)));
+            var stu = lang.Parse(new SubmissionString("A.java", content));
             Assert.IsFalse(stu.Errors, stu.ErrorInfo.ToString());
         }
     }
