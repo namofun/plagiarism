@@ -3,14 +3,11 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AntlrGeneratedNamespace>Antlr4.Grammar.Cpp</AntlrGeneratedNamespace>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Plag.Common\Plag.Common.csproj" />
   </ItemGroup>
-
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="java -jar $(SolutionDir)packages\antlr-4.8.jar -Dlanguage=CSharp -package Antlr4.Grammar.Cpp -o Grammars CPP14.g4" />
-  </Target>
 
 </Project>

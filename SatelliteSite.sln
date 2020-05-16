@@ -29,9 +29,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plag.Frontend.Python", "src
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plag.Frontend.Python.Tests", "test\Plag.Frontend.Python.Tests\Plag.Frontend.Python.Tests.csproj", "{B48F4E46-DF66-425A-8D44-A296BB4A0F28}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plag.Frontend.Csharp", "src\Plag.Frontend.Csharp\Plag.Frontend.Csharp.csproj", "{00768907-E025-4074-ACD4-ECB2B542293F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plag.Frontend.Csharp", "src\Plag.Frontend.Csharp\Plag.Frontend.Csharp.csproj", "{00768907-E025-4074-ACD4-ECB2B542293F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plag.Frontend.Csharp.Tests", "test\Plag.Frontend.Csharp.Tests\Plag.Frontend.Csharp.Tests.csproj", "{9BAF815F-3109-4A0C-A26E-A22498009C2F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plag.Frontend.Csharp.Tests", "test\Plag.Frontend.Csharp.Tests\Plag.Frontend.Csharp.Tests.csproj", "{9BAF815F-3109-4A0C-A26E-A22498009C2F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AA316FAF-F049-48CA-B491-82DA1D576DF3}"
+	ProjectSection(SolutionItems) = preProject
+		src\Directory.Build.targets = src\Directory.Build.targets
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
