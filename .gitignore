@@ -341,3 +341,12 @@ healthchecksdb
 
 # Antlr4 generated sources
 /src/Plag.Frontend.*/Grammars
+/src/SatelliteSite/wwwroot/lib/ace
+/src/SatelliteSite/wwwroot/lib/bootstrap
+/src/SatelliteSite/wwwroot/lib/d3
+/src/SatelliteSite/wwwroot/lib/datatables
+/src/SatelliteSite/wwwroot/lib/font-awesome
+/src/SatelliteSite/wwwroot/lib/jquery
+/src/SatelliteSite/wwwroot/lib/jquery-validation
+/src/SatelliteSite/wwwroot/lib/nvd3
+/src/SatelliteSite/wwwroot/lib/jquery-validation-unobtrusive

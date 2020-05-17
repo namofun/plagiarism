@@ -1,48 +1,105 @@
-﻿<!DOCTYPE html>
+﻿<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - SatelliteSite</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" />
+    <meta charset="utf-8">
+    <title>@ViewData["Title"] - @ViewData["BigTitle"]</title>
+    <meta name="viewport" content="initial-scale=1, user-scalable=no">
+    <!-- jquery --><script src="~/lib/jquery/jquery.min.js"></script>
+    <!-- twitter-bootstrap --><link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" /><script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- font-awesome --><link rel="stylesheet" href="~/lib/font-awesome/css/all.min.css" />
+    <!-- DOMjudge style and scripts -->
+    <link rel="stylesheet" href="~/lib/xylab/domjudge.css" />
+    <script src="~/lib/xylab/domjudge.js"></script>
+    <script src="~/lib/xylab/xylab.js"></script>
+    <!-- datatables --><link rel="stylesheet" href="~/lib/datatables/css/dataTables.bootstrap4.min.css"><script src="~/lib/datatables/js/jquery.dataTables.min.js"></script><script src="~/lib/datatables/js/dataTables.bootstrap4.min.js"></script>
+    <!-- nvd3 --><link rel="stylesheet" href="~/lib/nvd3/nv.d3.min.css" /><script src="~/lib/d3/d3.min.js"></script><script src="~/lib/nvd3/nv.d3.min.js"></script>
+    <!-- ace editor --><script src="~/lib/ace/ace.js"></script><script src="~/lib/ace/ext-modelist.js"></script>
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">SatelliteSite</a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2020 - SatelliteSite - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+<body>
+    <div id="append-parent"></div>
+    <!-- #header start -->
+    @{ var theme = ViewData.ContainsKey("UseLightTheme") ? "light" : "dark"; }
+    <nav class="navbar navbar-expand-md navbar-@theme bg-@theme fixed-top">
+        <a class="navbar-brand mr-0 mr-md-2" aria-label="Logo" href="/">
+            <span>@ViewData["BigTitle"]</span>
+        </a>
+
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#menuDefault"
+                aria-controls="menuDefault" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="menuDefault" data-update-url="@ViewData["AjaxUpdateUrl"]">
+
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="/">
+                        <i class="fas fa-shield-alt"></i> Plagiarism
+                    </a>
+                </li>
+            </ul>
+
+            @RenderSection("Clocking", required: false)
+
+            <ul class="navbar-nav">
+                <li class="ajax-loader-container">
+                    <div class="spinner-border spinner-border-sm ajax-loader" style="display: none;" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </li>
+            </ul>
         </div>
-    </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    </nav>
+    <!-- #content start -->
+    @RenderSection("Banner", required: false)
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
+                @RenderSection("Header", required: false)
+                @if (!ViewData.ContainsKey("RefreshSpan"))
+                {
+                    @RenderBody()
+                }
+                else
+                {
+                    <div data-ajax-refresh-target data-ajax-refresh-after="@ViewData["RefreshAfter"]" data-ajax-refresh-before="@ViewData["RefreshBefore"]" class="@ViewData["DataAjaxClass"]">
+                        @RenderBody()
+                    </div>
+                }
+                @RenderSection("Footer", required: false)
+            </div>
+        </div>
+    </div>
+    @RenderSection("BannerFooter", required: false)
+    <!-- #content end -->
+    <div id="ajax_append"></div>
+    <aside class="col-md-4 col-xl-3 pb-3" id="notification-box"></aside>
+
+    <razor asp-viewdata-key="RefreshSpan">
+        <script>
+            $(function () {
+                /* toggle refresh if set */
+                $('#refresh-navitem').on('click', function() {
+                    toggleRefresh('@Html.Raw(ViewData["RefreshUrl"])', @ViewData["RefreshSpan"], 1);
+                });
+
+                /* Enable page refresh if set if wanted by the page, and wanted by the user */
+                enableRefresh('@Html.Raw(ViewData["RefreshUrl"])', @ViewData["RefreshSpan"], 1);
+            });
+        </script>
+    </razor>
+
+    <razor asp-viewdata-key="AjaxUpdateUrl">
+        <script>
+            $(function () {
+                updateMenuAlerts();
+                setInterval(updateMenuAlerts, 20000);
+            });
+        </script>
+    </razor>
+
     @RenderSection("Scripts", required: false)
 </body>
 </html>
