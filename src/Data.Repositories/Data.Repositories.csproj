@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <RootNamespace>SatelliteSite.Data</RootNamespace>
+    <AssemblyName>SatelliteSite.Data</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Data.Abstraction\Data.Abstraction.csproj" />
+  </ItemGroup>
+
+</Project>

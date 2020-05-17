@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PlagiarismDetect", "PlagiarismDetect", "{18FBAD56-8711-4FFC-850E-AF00006573E3}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plagiarism Detect", "Plagiarism Detect", "{18FBAD56-8711-4FFC-850E-AF00006573E3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SatelliteSite", "src\SatelliteSite\SatelliteSite.csproj", "{54B78B4D-6059-439B-86BB-69B8E61C0A44}"
 EndProject
@@ -38,7 +38,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		src\Directory.Build.targets = src\Directory.Build.targets
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frontend.Mvc", "src\Frontend.Mvc\Frontend.Mvc.csproj", "{C90D511D-8ED9-46F3-80E0-A008F1A717B2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Frontend.Mvc", "src\Frontend.Mvc\Frontend.Mvc.csproj", "{C90D511D-8ED9-46F3-80E0-A008F1A717B2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Website", "Website", "{FA7ADDA0-6CEC-48F3-8163-2054A313FFC6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data.Abstraction", "src\Data.Abstraction\Data.Abstraction.csproj", "{6CB23582-887D-43E3-A67D-496256552B72}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data.Repositories", "src\Data.Repositories\Data.Repositories.csproj", "{58B93171-AEA7-4C0A-8B0D-BC1A2BB1E17B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -98,11 +104,20 @@ Global
 		{C90D511D-8ED9-46F3-80E0-A008F1A717B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C90D511D-8ED9-46F3-80E0-A008F1A717B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C90D511D-8ED9-46F3-80E0-A008F1A717B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CB23582-887D-43E3-A67D-496256552B72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CB23582-887D-43E3-A67D-496256552B72}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CB23582-887D-43E3-A67D-496256552B72}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CB23582-887D-43E3-A67D-496256552B72}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58B93171-AEA7-4C0A-8B0D-BC1A2BB1E17B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58B93171-AEA7-4C0A-8B0D-BC1A2BB1E17B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58B93171-AEA7-4C0A-8B0D-BC1A2BB1E17B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58B93171-AEA7-4C0A-8B0D-BC1A2BB1E17B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{54B78B4D-6059-439B-86BB-69B8E61C0A44} = {FA7ADDA0-6CEC-48F3-8163-2054A313FFC6}
 		{277271A3-95DF-4395-B4DB-F9165DEBF665} = {C6B49B4C-FEB2-477D-986D-F2216E34BA9C}
 		{72A19AF5-CC55-43E7-866B-BECD115E1BAB} = {C6B49B4C-FEB2-477D-986D-F2216E34BA9C}
 		{C6B49B4C-FEB2-477D-986D-F2216E34BA9C} = {18FBAD56-8711-4FFC-850E-AF00006573E3}
@@ -116,6 +131,9 @@ Global
 		{B48F4E46-DF66-425A-8D44-A296BB4A0F28} = {47AFCF7A-6593-4310-9130-9B4B9C76E3C6}
 		{00768907-E025-4074-ACD4-ECB2B542293F} = {C6B49B4C-FEB2-477D-986D-F2216E34BA9C}
 		{9BAF815F-3109-4A0C-A26E-A22498009C2F} = {47AFCF7A-6593-4310-9130-9B4B9C76E3C6}
+		{C90D511D-8ED9-46F3-80E0-A008F1A717B2} = {FA7ADDA0-6CEC-48F3-8163-2054A313FFC6}
+		{6CB23582-887D-43E3-A67D-496256552B72} = {FA7ADDA0-6CEC-48F3-8163-2054A313FFC6}
+		{58B93171-AEA7-4C0A-8B0D-BC1A2BB1E17B} = {FA7ADDA0-6CEC-48F3-8163-2054A313FFC6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2AA9BAB4-9C10-43E7-8722-DEBB04D9924A}
