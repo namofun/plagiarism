@@ -1,13 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using SatelliteSite.Data;
 
 namespace SatelliteSite
 {
@@ -26,11 +25,18 @@ namespace SatelliteSite
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllersWithViews();
+            services.AddControllersWithViews(options =>
+            {
+                options.Conventions.Add(
+                    new RouteTokenTransformerConvention(new SlugifyParameterTransformer()));
+            });
 
             if (Environment.IsDevelopment())
                 services.AddControllersWithViews()
                     .AddRazorRuntimeCompilation();
+
+            services.AddDbContext<DemoContext>(options => options
+                .UseCosmos(Configuration.GetSection("DatabaseConnection"), "Items"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

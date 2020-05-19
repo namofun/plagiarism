@@ -9,7 +9,8 @@ using SatelliteSite.Models;
 
 namespace SatelliteSite.Controllers
 {
-    public class HomeController : Controller
+    [Route("[action]")]
+    public class HomeController : Controller2
     {
         private readonly ILogger<HomeController> _logger;
 
@@ -18,16 +19,20 @@ namespace SatelliteSite.Controllers
             _logger = logger;
         }
 
+        [HttpGet("/")]
+        [HttpGet("/[action]")]
         public IActionResult Index()
         {
             return View();
         }
 
+        [HttpGet]
         public IActionResult Privacy()
         {
             return View();
         }
 
+        [HttpGet]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
