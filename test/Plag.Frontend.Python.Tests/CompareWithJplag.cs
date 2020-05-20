@@ -26,7 +26,7 @@ for z in range(T):
             var lang = new Language(s => new JplagListener(s));
             var result = lang.Parse(new SubmissionString("main.py", input));
             Assert.IsFalse(result.Errors);
-            Assert.AreEqual(output, result.ToString());
+            Assert.AreEqual(output.Replace("\r\n", "\n"), result.ToString().Replace("\r\n", "\n"));
         }
     }
 }
