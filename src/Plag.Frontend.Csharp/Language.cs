@@ -53,6 +53,8 @@ namespace Plag.Frontend.Csharp
                 var root = parser.CompilationUnit();
                 parser.ErrorListeners.Clear();
                 parser.ParseListeners.Clear();
+                if (!structure.EndWithEof)
+                    structure.AddToken(new Token(TokenConstants.FILE_END, 0, 0, 0));
             }
 
             return structure;

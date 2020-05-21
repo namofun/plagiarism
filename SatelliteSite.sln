@@ -42,9 +42,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Frontend.Mvc", "src\Fronten
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Website", "Website", "{FA7ADDA0-6CEC-48F3-8163-2054A313FFC6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data.Abstraction", "src\Data.Abstraction\Data.Abstraction.csproj", "{6CB23582-887D-43E3-A67D-496256552B72}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data.Abstraction", "src\Data.Abstraction\Data.Abstraction.csproj", "{6CB23582-887D-43E3-A67D-496256552B72}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data.Repositories", "src\Data.Repositories\Data.Repositories.csproj", "{58B93171-AEA7-4C0A-8B0D-BC1A2BB1E17B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data.Repositories", "src\Data.Repositories\Data.Repositories.csproj", "{58B93171-AEA7-4C0A-8B0D-BC1A2BB1E17B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,0 +1,28 @@
+﻿
+@{
+    ViewData["Title"] = "List";
+}
+
+@using System.IO;
+@using System.IO.Compression;
+<h1>files:</h1>
+
+@foreach (var file in Directory.GetFiles(Directory.GetCurrentDirectory() + "/wwwroot/file/"))
+{
+    <h4>@file:</h4>
+    <pre>
+        @using (ZipArchive archive = ZipFile.OpenRead(file))
+        {
+            foreach (ZipArchiveEntry entry in archive.Entries)
+            {
+                if (entry.FullName.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))
+                {
+                    using (StreamReader writer = new StreamReader(entry.Open()))
+                    {
+                        <p>@writer.ReadToEnd()</p>
+                    }
+                }
+            }
+        }
+    </pre>
+}

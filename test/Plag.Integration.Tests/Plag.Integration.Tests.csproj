@@ -17,6 +17,7 @@
     <ProjectReference Include="..\..\src\Plag.Algorithm\Plag.Algorithm.csproj" />
     <ProjectReference Include="..\..\src\Plag.Common\Plag.Common.csproj" />
     <ProjectReference Include="..\..\src\Plag.Frontend.Cpp\Plag.Frontend.Cpp.csproj" />
+    <ProjectReference Include="..\..\src\Plag.Frontend.Csharp\Plag.Frontend.Csharp.csproj" />
   </ItemGroup>
 
 </Project>

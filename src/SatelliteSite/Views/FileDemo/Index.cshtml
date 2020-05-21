@@ -1,0 +1,66 @@
+﻿
+@{
+    ViewData["Title"] = "Files";
+}
+
+<a class="btn btn-info" asp-controller="FileDemo" asp-action="List">
+    FileDetail
+</a>
+
+<a class="btn btn-info" asp-controller="FileDemo" asp-action="Compair">
+    Compair
+</a>
+
+<h1>Files:</h1>
+
+@foreach (var f in (string[])ViewData["FileList"])
+{
+    <li>@f</li>
+}
+
+
+<h1>Upload File:</h1>
+<form asp-action="Upload" asp-controller="FileDemo"
+      enctype="multipart/form-data" onsubmit="AJAXSubmit(this);return false;"
+      method="post">
+    <dl>
+        <dt>
+            <label for="FileUpload_FormFile">File</label>
+        </dt>
+        <dd>
+            <input id="FileUpload_FormFile" type="file"
+                   name="FileUpload" />
+        </dd>
+    </dl>
+
+    <input class="btn btn-success" type="submit" value="Upload" />
+
+    <div style="margin-top:15px">
+        <output name="result"></output>
+    </div>
+</form>
+
+
+
+<script>
+    async function AJAXSubmit(oFormElement) {
+        var resultElement = oFormElement.elements.namedItem("result");
+        const formData = new FormData(oFormElement);
+
+        try {
+            const response = await fetch(oFormElement.action, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                window.location.href = '/FileDemo';
+            }
+
+            resultElement.value = 'Result: ' + response.status + ' ' +
+                response.statusText;
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+</script>

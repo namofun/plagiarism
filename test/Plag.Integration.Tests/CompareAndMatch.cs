@@ -322,6 +322,57 @@ int main()
 }",
             typeof(Plag.Frontend.Cpp.Language))]
 
+        [DataRow(
+            @"using System;
+
+namespace Problem1
+{
+    public enum Suits
+    {
+        Clubs,Diamonds,Hearts,Spades
+    }
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var AllSuits = Enum.GetValues(typeof(Suits));
+            Console.WriteLine(""Card Suits: "");
+            foreach(var a in AllSuits)
+            {
+                Console.WriteLine(""Ordinal Value: {0},Name Value: {1}"", (int)a, a.ToString());
+            }
+        }
+    }
+}
+",
+            @"using System;
+
+namespace Problem_1
+{
+    public enum Suit
+    {
+        Clubs,
+        Diamonds,
+        Hearts,
+        Spades,
+    }
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine(""Card Suits: "");
+            foreach (var t in Enum.GetValues(typeof(Suit)))
+            {
+
+				Console.WriteLine(""Ordinal value:{0}; Name value:{1}"", (int)t, t.ToString());
+
+			}
+		}
+    }
+}
+",
+            typeof(Plag.Frontend.Csharp.Language))]
+
         [TestMethod]
         public void DefaultCompare(string submit1, string submit2, Type language)
         {
