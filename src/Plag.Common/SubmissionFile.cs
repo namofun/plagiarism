@@ -12,6 +12,8 @@ namespace Plag
 
         ICharStream Open();
 
+        int Id { get; }
+
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

@@ -6,9 +6,10 @@ namespace Plag
 {
     public class SubmissionZipArchiveEntry : ISubmissionFile
     {
-        public SubmissionZipArchiveEntry(ZipArchiveEntry entry)
+        public SubmissionZipArchiveEntry(ZipArchiveEntry entry, int id)
         {
             Entry = entry;
+            Id = id;
         }
 
         public IEnumerator<ISubmissionFile> GetEnumerator()
@@ -21,6 +22,8 @@ namespace Plag
         public ZipArchiveEntry Entry { get; }
 
         public bool IsLeaf => true;
+
+        public int Id { get; }
 
         public ICharStream Open() => new AntlrInputStream(Entry.Open()) { name = Path };
     }

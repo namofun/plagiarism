@@ -21,7 +21,7 @@ namespace Plag.Frontend.Java
         private bool Act(TokenConstants token, IToken symbol, IToken? symbol2 = null)
         {
             if (token == TokenConstants.NUM_DIFF_TOKENS) return false;
-            Structure.AddToken(new Token(token, symbol.Line, symbol.StartIndex, (symbol2?.StopIndex ?? symbol.StopIndex) + 1));
+            Structure.AddToken(new Token(token, symbol.Line, symbol.StartIndex, (symbol2?.StopIndex ?? symbol.StopIndex) + 1, Structure.FileId));
             return true;
         }
 

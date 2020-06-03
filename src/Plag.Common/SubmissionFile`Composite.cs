@@ -10,6 +10,8 @@ namespace Plag
 
         public bool IsLeaf => false;
 
+        public int Id => -1;
+
         public ICharStream Open() => throw new InvalidOperationException();
 
         public static IEnumerable<ISubmissionFile> ExtendToLeaf(ISubmissionFile file)

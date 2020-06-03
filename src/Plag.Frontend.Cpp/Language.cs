@@ -49,15 +49,23 @@ namespace Plag.Frontend.Cpp
             
                 parser.AddErrorListener(structure);
                 parser.AddParseListener(listener);
+                structure.FileId = item.Id;
 
                 var root = parser.TranslationUnit();
                 parser.ErrorListeners.Clear();
                 parser.ParseListeners.Clear();
+                if (!structure.EndWithEof)
+                    structure.AddToken(new Token(TokenConstants.FILE_END, 0, 0, 0, item.Id));
             }
 
             return structure;
         }
 
         public string TypeName(int type) => Token.TypeToString((TokenConstants)type);
+
+        public Plag.Token CreateToken(int type, int line, int column, int length, int fileId)
+        {
+            return new Token((TokenConstants)type, line, column, column + length - 1, fileId);
+        }
     }
 }

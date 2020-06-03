@@ -19,6 +19,8 @@ namespace SatelliteSite.Data
 
             public bool IsLeaf => true;
 
+            public int Id => ConcreteFile.FileId;
+
             public IEnumerator<ISubmissionFile> GetEnumerator()
             {
                 yield return this;
@@ -37,6 +39,8 @@ namespace SatelliteSite.Data
         public string Path => "./";
 
         public bool IsLeaf => true;
+
+        public int Id => -1;
 
         public ICharStream Open() => throw new InvalidOperationException();
 

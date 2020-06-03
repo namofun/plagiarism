@@ -1,5 +1,4 @@
 ﻿using Antlr4.Runtime;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace Plag
@@ -22,6 +21,8 @@ namespace Plag
         public string Content { get; }
 
         public bool IsLeaf => true;
+
+        public int Id => 1;
 
         public ICharStream Open() => new AntlrInputStream(Content) { name = Path };
     }

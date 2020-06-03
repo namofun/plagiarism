@@ -94,7 +94,7 @@ namespace SatelliteSite.Controllers
             var tok = new List<Data.Submit.Token>();
             for(var i = 0;i<submission.IL.Size;i++)
             {
-                tok.Add(new Data.Submit.Token(submission.IL[i].Type, submission.IL[i].Line, submission.IL[i].Column, submission.IL[i].Length));
+                tok.Add(submission.IL[i]);
             }
 
             var sub = new Data.Submit.Submission

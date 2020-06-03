@@ -9,7 +9,7 @@ namespace SatelliteSite.Data
     {
         public virtual DbSet<Family> Families { get; set; }
         public virtual DbSet<Submission> Submissions { get; set; }
-        public virtual DbSet<Result> Results { get; set; }
+        public virtual DbSet<Report> Results { get; set; }
 
         public DemoContext(DbContextOptions options) : base(options)
         {
@@ -30,6 +30,7 @@ namespace SatelliteSite.Data
 
                 family.OwnsOne(e => e.Address);
             });
+
             modelBuilder.Entity<Submission>(Submission =>
             {
                 Submission.HasKey(e => e.Id);
@@ -38,12 +39,12 @@ namespace SatelliteSite.Data
 
                 Submission.OwnsOne(e => e.Files);
             });
-            modelBuilder.Entity<Result>(result =>
+
+            modelBuilder.Entity<Report>(result =>
             {
                 result.HasKey(e => e.Id);
 
-                result.OwnsMany(e => e.matchPairs);
-
+                result.OwnsMany(e => e.MatchPairs);
             });
         }
     }

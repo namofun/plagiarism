@@ -21,7 +21,7 @@ namespace Plag.Frontend.Python
         private bool Act(TokenConstants token, IToken symbol)
         {
             if (token == TokenConstants.NUM_DIFF_TOKENS) return false;
-            Structure.AddToken(new Token(token, symbol.Line, symbol.StartIndex, symbol.StopIndex + 1));
+            Structure.AddToken(new Token(token, symbol.Line, symbol.StartIndex, symbol.StopIndex + 1, Structure.FileId));
             return true;
         }
 

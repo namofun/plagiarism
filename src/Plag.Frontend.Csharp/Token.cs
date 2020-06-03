@@ -3,10 +3,11 @@
 namespace Plag.Frontend.Csharp
 {
 	public class Token : Plag.Token
-    {
-        public Token(TokenConstants type, int line, int start, int end) : base((int)type, line, start, end - start + 1) { }
+	{
+		public Token(TokenConstants type, int line, int start, int end, int fid) :
+			base((int)type, line, start, end - start + 1, fid) { }
 
-        public new TokenConstants Type => (TokenConstants)base.Type;
+		public new TokenConstants Type => (TokenConstants)base.Type;
 
 		public override string ToString() => TypeToString(Type);
 
