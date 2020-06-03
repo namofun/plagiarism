@@ -249,7 +249,7 @@ shiftExpression
    ;
 
 shiftOperator
-  : RightShift
+  : rightShift
   | LeftShift
   ;
 
@@ -312,7 +312,7 @@ assignmentOperator
    | '%='
    | '+='
    | '-='
-   | RightShiftAssign
+   | rightShiftAssign
    | LeftShiftAssign
    | '&='
    | '^='
@@ -1556,19 +1556,17 @@ LeftShift
    : '<<'
    ;
 
-RightShift
-   :
-   '>>'
-   ;
+rightShift
+	: first='>' second='>' {$first.index + 1 == $second.index}? // Nothing between the tokens?
+	;
 
 LeftShiftAssign
    : '<<='
    ;
-
-RightShiftAssign
-   :
-   '>>='
-   ;
+   
+rightShiftAssign
+	: first='>' second='>=' {$first.index + 1 == $second.index}? // Nothing between the tokens?
+	;
 
 Equal
    : '=='
@@ -1672,8 +1670,8 @@ theOperator
    | '&='
    | '|='
    | LeftShift
-   | RightShift
-   | RightShiftAssign
+   | rightShift
+   | rightShiftAssign
    | LeftShiftAssign
    | '=='
    | '!='

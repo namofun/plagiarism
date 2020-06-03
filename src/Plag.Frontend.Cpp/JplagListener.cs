@@ -24,6 +24,11 @@ namespace Plag.Frontend.Cpp
             return true;
         }
 
+        public override void EnterRightShiftAssign(CPP14Parser.RightShiftAssignContext context)
+        {
+            Act(TokenConstants.C_ASSIGN, context.Start);
+        }
+
         public override void VisitTerminal(ITerminalNode node)
         {
             Act(node.Symbol.Type switch
@@ -41,7 +46,6 @@ namespace Plag.Frontend.Cpp
                 CPP14Lexer.ModAssign => TokenConstants.C_ASSIGN,
                 CPP14Lexer.OrAssign => TokenConstants.C_ASSIGN,
                 CPP14Lexer.PlusAssign => TokenConstants.C_ASSIGN,
-                CPP14Lexer.RightShiftAssign => TokenConstants.C_ASSIGN,
                 CPP14Lexer.StarAssign => TokenConstants.C_ASSIGN,
                 CPP14Lexer.XorAssign => TokenConstants.C_ASSIGN,
                 CPP14Lexer.PlusPlus => TokenConstants.C_ASSIGN,
