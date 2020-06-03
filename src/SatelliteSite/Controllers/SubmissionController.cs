@@ -100,14 +100,9 @@ namespace SatelliteSite.Controllers
             var sub = new Data.Submit.Submission
             {
                 Id = Guid.NewGuid().ToString(),
-                File = new Data.Submit.ZipFile
-                {
-                    FilePath = Directory.GetCurrentDirectory() + "/wwwroot/file/",
-                    FileName = FileUpload.FileName,
-                    Files = tp,
-                },
+                Files = tp,
                 Language = submission.Language.Name,
-                tokens = tok
+                Tokens = tok
             };
             var item = Context.Submissions.Add(sub);
             await Context.SaveChangesAsync();

@@ -9,8 +9,8 @@ namespace SatelliteSite.Data.Submit
     {
         [JsonProperty(PropertyName = "id")]
         public string Id { get; set; }
-        public ZipFile File{ get; set; }
-        public ICollection<Token> tokens { set; get; }
+        public List<File> Files { get; set; }
+        public ICollection<Token> Tokens { set; get; }
         public string Language { get; set; }
         public override string ToString()
         {
