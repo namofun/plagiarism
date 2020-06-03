@@ -41,7 +41,6 @@ namespace Plag.Frontend.Cpp
             var outputWriter = new StringWriter(structure.OtherInfo);
             var errorWriter = new StringWriter(structure.ErrorInfo);
             var listener = ListenerFactory(structure);
-            var errorHandler = new ErrorStrategy();
 
             foreach (var item in SubmissionComposite.ExtendToLeaf(files))
             {
@@ -50,7 +49,6 @@ namespace Plag.Frontend.Cpp
             
                 parser.AddErrorListener(structure);
                 parser.AddParseListener(listener);
-                parser.ErrorHandler = errorHandler;
 
                 var root = parser.TranslationUnit();
                 parser.ErrorListeners.Clear();
