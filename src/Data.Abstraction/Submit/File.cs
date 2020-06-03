@@ -1,13 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace SatelliteSite.Data.Submit
+﻿namespace SatelliteSite.Data.Submit
 {
+    /// <summary>
+    /// 代码中的文件
+    /// </summary>
     public class File
     {
-        public string FilePath { set; get; }
-        public string FileName { set; get; }
-        public string Content { set; get; }
+        /// <summary>
+        /// 文件编号
+        /// </summary>
+        public int FileId { get; set; }
+
+        /// <summary>
+        /// 文件路径
+        /// </summary>
+        public string FilePath { get; set; }
+        
+        /// <summary>
+        /// 文件名称
+        /// </summary>
+        public string FileName { get; set; }
+
+        /// <summary>
+        /// 文件内容
+        /// </summary>
+        public string Content { get; set; }
     }
 }
