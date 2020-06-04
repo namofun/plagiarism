@@ -10,6 +10,8 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading.Tasks;
 using System.IO.Compression;
+using System.Linq;
+using SatelliteSite.Models;
 
 namespace SatelliteSite.Controllers
 {
@@ -24,18 +26,20 @@ namespace SatelliteSite.Controllers
             Context = context;
             Util = util;
         }
-        [HttpGet]
-        public async Task<IActionResult> Index()
-        {
-            var submissions = await Context.Submissions.ToListAsync();
-            return View("List", submissions.PrettyJson());
-        }
 
-        [HttpGet]
+        [HttpGet("/[controller]")]
         public async Task<IActionResult> List()
         {
-            var submissions = await Context.Submissions.ToListAsync();
-            return View("List", submissions.PrettyJson());
+            var lst = await Context.Submissions
+                .AsNoTracking()
+                .Select(s => new SubmissionListModel
+                {
+                    Id = s.Id,
+                    Language = s.Language
+                })
+                .ToListAsync();
+
+            return View(lst);
         }
 
         [HttpGet]
@@ -76,6 +80,21 @@ namespace SatelliteSite.Controllers
 
             StatusMessage = "File Upload Succeed.";
             return RedirectToAction(nameof(List));
+        }
+
+        [HttpGet("/[controller]/{sid}")]
+        public async Task<IActionResult> Detail(string sid)
+        {
+            var ss = await Context.Submissions
+                .AsNoTracking()
+                .Where(s => s.Id == sid)
+                .Select(s => new { s.Files, s.Language })
+                .SingleOrDefaultAsync();
+
+            if (ss == null) return NotFound();
+            ViewBag.Language = ss.Language;
+            ViewBag.Id = sid;
+            return View(ss.Files);
         }
     }
 }

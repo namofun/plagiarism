@@ -1,49 +1,13 @@
-﻿
+﻿@using SatelliteSite.Models
+@model IEnumerable<SubmissionListModel>
 @{
-    ViewData["Title"] = "List";
+    ViewData["Title"] = "List submissions";
 }
 
-<h1>List</h1>
+<h2 class="mt-2">@ViewData["Title"]</h2>
 
-<h1>Upload File:</h1>
-<form asp-action="Upload" asp-controller="Submission"
-      enctype="multipart/form-data" onsubmit="AJAXSubmit(this);return false;"
-      method="post">
-    <dl>
-    <dt>
-        <label for="FileUpload_FormFile">File</label>
-    </dt>
-    <dd>
-        <input id="FileUpload_FormFile" type="file"name="FileUpload" />
-    </dd>
-    </dl>
-    <input class="btn btn-success" type="submit" value="Upload" 
-</form>
+<datatable data="Model" />
 
-<pre>
-@Model
-</pre>
-<a class="btn btn-danger" asp-action="Delete">Delete</a>
-
-<script>
-    async function AJAXSubmit(oFormElement) {
-        var resultElement = oFormElement.elements.namedItem("result");
-        const formData = new FormData(oFormElement);
-
-        try {
-            const response = await fetch(oFormElement.action, {
-                method: 'POST',
-                body: formData
-            });
-
-            if (response.ok) {
-                window.location.href = '/Submission/List';
-            }
-
-            resultElement.value = 'Result: ' + response.status + ' ' +
-                response.statusText;
-        } catch (error) {
-            console.error('Error:', error);
-        }
-    }
-</script>
+<p>
+    <a class="btn btn-danger" asp-action="Delete">Delete</a>
+</p>

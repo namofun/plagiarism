@@ -1,0 +1,52 @@
+﻿@model string
+@{
+    ViewData["Title"] = "Compare submission";
+    ViewData["MaxWidth"] = "60rem";
+    Layout = "_WindowLayout";
+}
+
+<div class="container-fluid code-review">
+    <div class="row">
+        <div class="col-md-6">
+            @Guid.NewGuid().ToString()
+            <figure class="highlight">
+                <pre><code class="language-html" data-lang="html"><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"https://code.jquery.com/jquery-3.5.1.slim.min.js"</span> <span class="na">integrity=</span><span class="s">"sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"</span> <span class="na">crossorigin=</span><span class="s">"anonymous"</span><span class="nt">&gt;&lt;/script&gt;</span>
+<span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"</span> <span class="na">integrity=</span><span class="s">"sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"</span> <span class="na">crossorigin=</span><span class="s">"anonymous"</span><span class="nt">&gt;&lt;/script&gt;</span>
+<span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"</span> <span class="na">integrity=</span><span class="s">"sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"</span> <span class="na">crossorigin=</span><span class="s">"anonymous"</span><span class="nt">&gt;&lt;/script&gt;</span></code></pre>
+            </figure>
+        </div>
+        <div class="col-md-6">
+            @Guid.NewGuid().ToString()
+            <figure class="highlight">
+                <pre><code class="language-html" data-lang="html"><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"https://code.jquery.com/jquery-3.5.1.slim.min.js"</span> integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" <span class="na">crossorigin=</span><span class="s">"anonymous"</span><span class="nt">&gt;&lt;/script&gt;</span>
+&lt;script src="https://cdn.jsdelivr.net/npm/po<span style="color:red;background:#ffeeee">pper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"&gt;&lt;/script&gt;
+&lt;script src</span>=<span class="s">"https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"</span> <span class="na">integrity=</span><span class="s">"sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"</span> <span class="na">crossorigin=</span><span class="s">"anonymous"</span><span class="nt">&gt;&lt;/script&gt;</span></code></pre>
+            </figure>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <style>
+        .highlight {
+            padding: 1rem;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            background-color: #f8f9fa;
+            -ms-overflow-style: -ms-autohiding-scrollbar;
+        }
+            .highlight pre {
+                padding: 0;
+                margin-top: 0;
+                margin-bottom: 0;
+                background-color: transparent;
+                border: 0;
+                white-space: pre-wrap;
+            }
+
+                .highlight pre code {
+                    font-size: inherit;
+                    color: #212529;
+                }
+    </style>
+}
