@@ -17,7 +17,7 @@ namespace SatelliteSite.Data.Submit
         /// <summary>
         /// 代码提交中的所有文件
         /// </summary>
-        public List<File> Files { get; set; }
+        public ICollection<File> Files { get; set; }
         
         /// <summary>
         /// 代码的所有Token

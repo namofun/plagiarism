@@ -18,9 +18,11 @@ namespace SatelliteSite.Controllers
     {
         private DemoContext Context { get; }
 
-        public SubmissionController(DemoContext context)
+        private DataUtil Util { get; }
+        public SubmissionController(DemoContext context,DataUtil util)
         {
             Context = context;
+            Util = util;
         }
         [HttpGet]
         public async Task<IActionResult> Index()
@@ -39,11 +41,11 @@ namespace SatelliteSite.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete()
         {
-            var families = await Context.Submissions.ToListAsync();
+            var submissions = await Context.Submissions.ToListAsync();
             
-            if (families.Count > 0)
+            if (submissions.Count > 0)
             {
-                var item = families[new Random().Next(0, families.Count)];
+                var item = submissions[new Random().Next(0, submissions.Count)];
                 Context.Submissions.Remove(item);
                 await Context.SaveChangesAsync();
                 StatusMessage = "Item remove.";
@@ -60,50 +62,18 @@ namespace SatelliteSite.Controllers
         public async Task<IActionResult> Upload(IFormFile FileUpload)
         {
             if (FileUpload == null) return BadRequest();
-
-            //var wpath = Directory.GetCurrentDirectory() + "/wwwroot/file/" + FileUpload.FileName;
-
-            //using (var stream = System.IO.File.Create(wpath))
-            //{
-            //    await FileUpload.CopyToAsync(stream);
-            //}
-
-
+            //TO DO 语言选择
             var lang = (ILanguage)Activator.CreateInstance(typeof(Plag.Frontend.Csharp.Language));
             var zip = new ZipArchive(FileUpload.OpenReadStream(), ZipArchiveMode.Read);
-            var submission = new Plag.Submission(lang, new SubmissionZipArchive(zip,lang.Suffixes));
 
-            var tp = new List<Data.Submit.File>();
-            foreach(var i in zip.Entries)
-            {
-                string con;
-                using (StreamReader writer = new StreamReader(i.Open()))
-                {
-                     con = writer.ReadToEnd();
-                }
-                tp.Add(new Data.Submit.File
-                {
-                    FileName = i.Name,
-                    FilePath = i.FullName,
-                    Content = con
-                });
-            }
+            var task = Util.StoreSubmission(zip);
 
-            var tok = new List<Data.Submit.Token>();
-            for(var i = 0;i<submission.IL.Size;i++)
-            {
-                tok.Add(submission.IL[i]);
-            }
+            var submission = new Plag.Submission(lang, new SubmissionZipArchive(zip, lang.Suffixes));
 
-            var sub = new Data.Submit.Submission
-            {
-                Id = Guid.NewGuid().ToString(),
-                Files = tp,
-                Language = submission.Language.Name,
-                Tokens = tok
-            };
-            var item = Context.Submissions.Add(sub);
-            await Context.SaveChangesAsync();
+            var sub = await task;
+
+            await Util.StoreTokens(sub,submission);
+
             StatusMessage = "File Upload Succeed.";
             return RedirectToAction(nameof(List));
         }

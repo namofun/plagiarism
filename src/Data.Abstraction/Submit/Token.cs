@@ -16,6 +16,11 @@
         public int Line { get;  set; }
 
         /// <summary>
+        /// 对应文件号
+        /// </summary>
+        public int FileId { get; set; }
+
+        /// <summary>
         /// 对应文件的字符地址
         /// </summary>
         public int Column { get;  set; }
@@ -37,6 +42,7 @@
                 Length = token.Length,
                 Line = token.Line,
                 Type = token.Type,
+                FileId = token.FileId
             };
         }
     }

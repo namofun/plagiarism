@@ -37,6 +37,7 @@ namespace SatelliteSite
 
             services.AddDbContext<DemoContext>(options => options
                 .UseCosmos(Configuration.GetSection("DatabaseConnection"), "Items"));
+            services.AddScoped<DataUtil>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

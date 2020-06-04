@@ -26,49 +26,40 @@ namespace SatelliteSite.Controllers
         public IActionResult Compare()
         {
             var dir = Directory.GetFiles(Directory.GetCurrentDirectory() + "/wwwroot/file/");
-
+            //TO DO 语言选择 文件选择
             var lang = (ILanguage)Activator.CreateInstance(typeof(Plag.Frontend.Csharp.Language));
             var zip1 = System.IO.Compression.ZipFile.OpenRead(dir[0]);
             var zip2 = System.IO.Compression.ZipFile.OpenRead(dir[2]);
+
             var submission1 = new Plag.Submission(lang, new SubmissionZipArchive(zip1, lang.Suffixes));
             var submission2 = new Plag.Submission(lang, new SubmissionZipArchive(zip2, lang.Suffixes));
-            var tp1 = new List<SatelliteSite.Data.Submit.File>();
-            foreach (var i in zip1.Entries)
+
+            var tp1 = new Data.Submit.Submission()
             {
-                string con;
-                using (StreamReader writer = new StreamReader(i.Open()))
-                {
-                    con = writer.ReadToEnd();
-                }
-                tp1.Add(new SatelliteSite.Data.Submit.File
+                Id = Guid.NewGuid().ToString(),
+                Files = zip1.Entries.Select(i => new Data.Submit.File
                 {
                     FileName = i.Name,
                     FilePath = i.FullName,
-                    Content = con
-                });
-            }
-            var tp2 = new List<SatelliteSite.Data.Submit.File>();
-            foreach (var i in zip2.Entries)
+                    Content = new StreamReader(i.Open()).ReadToEnd()
+                }).ToList()
+            };
+            var tp2 = new Data.Submit.Submission()
             {
-                string con;
-                using (StreamReader writer = new StreamReader(i.Open()))
-                {
-                    con = writer.ReadToEnd();
-                }
-                tp2.Add(new SatelliteSite.Data.Submit.File
+                Id = Guid.NewGuid().ToString(),
+                Files = zip2.Entries.Select(i => new Data.Submit.File
                 {
                     FileName = i.Name,
                     FilePath = i.FullName,
-                    Content = con
-                });
-            }
+                    Content = new StreamReader(i.Open()).ReadToEnd()
+                }).ToList()
+            };
             if (submission1.IL.Size > submission2.IL.Size) (tp1, tp2) = (tp2, tp1);
             var compareResult = GSTiling.Compare(submission1, submission2, lang.MinimalTokenMatch);
-            ViewBag.tp1 = tp1;
-            ViewBag.tp2 = tp2;
-            Result res = new Result(compareResult);
+            ViewBag.Content1 = tp1.Files.First().Content;
+            ViewBag.Content2 = tp2.Files.First().Content;
+            Report res = Report.Create(compareResult);
             ViewBag.Result = res;
-
             return View();
         }
         [HttpPost]

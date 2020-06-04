@@ -1,9 +1,11 @@
-﻿
+﻿@using SatelliteSite.Data.Match;
+@using System.Linq;
 @{
     ViewData["Title"] = "Compare";
-    var tp1 = ViewBag.tp1;
-    var tp2 = ViewBag.tp2;
+    var Content1 = ViewBag.Content1;
+    var Content2 = ViewBag.Content2;
     var Result = ViewBag.Result;
+    var MatchPairs = (List<MatchPair>)Result.MatchPairs;
 }
 <style>
     .xx {
@@ -17,32 +19,32 @@
 <pre>
 @{
     int x = 0;
-    for (var i = 0; i < tp1[0].Content.Length; i++)
+    for (var i = 0; i < Content1.Length; i++)
     {
-        if (x < Result.matchPairs.Count && i >= Result.matchPairs[x].ContentStartA && i < Result.matchPairs[x].ContentEndA)
+        if (x < MatchPairs.Count && i >= MatchPairs[x].ContentStartA && i < MatchPairs[x].ContentEndA)
         {
-            if (i == Result.matchPairs[x].ContentEndA)
+            if (i == MatchPairs[x].ContentEndA)
             {
                 x++;
-            }<span class="xx">@tp1[0].Content[i]</span>}
+            }<span class="xx">@Content1[i]</span>}
         else
-        {<span>@tp1[0].Content[i]</span>}
+        {<span>@Content1[i]</span>}
     }
 }
 </pre>
 <pre>
 @{
     int y = 0;
-    for (var i = 0; i < tp2[0].Content.Length; i++)
+    for (var i = 0; i < Content2.Length; i++)
     {
-        if (y < Result.matchPairs.Count && i >= Result.matchPairs[y].ContentStartB && i < Result.matchPairs[y].ContentEndB)
+        if (y < MatchPairs.Count && i >= MatchPairs[y].ContentStartB && i < MatchPairs[y].ContentEndB)
         {
-            if (i == Result.matchPairs[y].ContentEndB)
+            if (i == MatchPairs[y].ContentEndB)
             {
                 y++;
-            }<span class="xx">@tp2[0].Content[i]</span>}
+            }<span class="xx">@Content2[i]</span>}
         else
-        {<span>@tp2[0].Content[i]</span>}
+        {<span>@Content2[i]</span>}
     }
 }
 </pre>
