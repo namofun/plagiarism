@@ -2,12 +2,13 @@
 {
     public abstract class Token
     {
-        public Token(int type, int line, int column = -1, int length = -1)
+        public Token(int type, int line, int column, int length, int fileId)
         {
             Type = type;
             Line = line > 0 ? line : 1;
             Column = column;
             Length = length;
+            FileId = fileId;
         }
 
         public bool Marked { get; set; }
@@ -16,6 +17,7 @@
         public virtual int Line { get; internal set; }
         public virtual int Column { get; internal set; }
         public virtual int Length { get; internal set; }
+        public virtual int FileId { get; internal set; }
 
         protected virtual int Index => -1;
 

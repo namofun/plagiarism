@@ -18,6 +18,8 @@ namespace Plag
 
         public HashTable Table { get; private set; } = null;
 
+        public int FileId { get; set; }
+
         public int Files { get; private set; } = 0;
 
         public int Size => tokens.Count;
@@ -56,11 +58,18 @@ namespace Plag
                     token.Line = last.Line;
                 if (last.Column > token.Column)
                     token.Column = last.Column;
+                if (token.Length < 0)
+                    token.Length = 0;
             }
 
             tokens.Add(token);
             if (token.Type == (int)TokenConstants.FILE_END)
                 Files++;
+        }
+
+        public void AddTokens(IEnumerable<Token> newcomers)
+        {
+            tokens.AddRange(newcomers);
         }
 
         public override string ToString()
@@ -80,9 +89,5 @@ namespace Plag
                 buf.Clear();
             }
         }
-
-        public void Save(FileInfo file) => throw new NotImplementedException();
-
-        public bool Load(FileInfo file) => throw new NotImplementedException();
     }
 }

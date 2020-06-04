@@ -15,10 +15,11 @@ namespace Plag
 
         public IEnumerator<ISubmissionFile> GetEnumerator()
         {
+            int t = 0;
             foreach (var item in Zip.Entries)
                 foreach (var suffix in Accept)
                     if (item.Name.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
-                        yield return new SubmissionZipArchiveEntry(item);
+                        yield return new SubmissionZipArchiveEntry(item, ++t);
         }
 
         public ZipArchive Zip { get; }
@@ -28,6 +29,8 @@ namespace Plag
         public string Path => "./";
 
         public bool IsLeaf => false;
+
+        public int Id => -1;
 
         public ICharStream Open() => throw new InvalidOperationException();
     }

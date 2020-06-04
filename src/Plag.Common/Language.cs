@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 
 namespace Plag
 {
-	public interface ILanguage
+    public interface ILanguage
     {
 		IReadOnlyCollection<string> Suffixes { get; }
 
@@ -15,6 +13,8 @@ namespace Plag
 		int MinimalTokenMatch { get; }
 
 		Structure Parse(ISubmissionFile files);
+
+		Token CreateToken(int type, int line, int column, int length, int fileId);
 
 		bool SupportsColumns { get; }
 
