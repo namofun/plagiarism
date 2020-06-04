@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using System.IO;
 using Plag;
 using System.IO.Compression;
+using SatelliteSite.Data.Match;
 
 namespace SatelliteSite.Controllers
 {
@@ -22,34 +23,53 @@ namespace SatelliteSite.Controllers
         {
             return View();
         }
-        public IActionResult Compair()
+        public IActionResult Compare()
         {
             var dir = Directory.GetFiles(Directory.GetCurrentDirectory() + "/wwwroot/file/");
 
-            string[] submit = new string[2];int i = 0;
-            foreach(var f in dir)
-            {
-                using (ZipArchive archive = ZipFile.OpenRead(f))
-                {
-                    foreach (ZipArchiveEntry entry in archive.Entries)
-                    {
-                        if (entry.FullName.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))
-                        {
-                            using (StreamReader writer = new StreamReader(entry.Open()))
-                            {
-                                submit[i++] = writer.ReadToEnd();
-                            }
-                        }
-                    }
-                }
-            }
-            
             var lang = (ILanguage)Activator.CreateInstance(typeof(Plag.Frontend.Csharp.Language));
-            var sub1 = new Submission(lang, new SubmissionString("A.cs", submit[0]));
-            var sub2 = new Submission(lang, new SubmissionString("B.cs", submit[1]));
-            var compareResult = GSTiling.Compare(sub1, sub2, lang.MinimalTokenMatch);
+            var zip1 = System.IO.Compression.ZipFile.OpenRead(dir[0]);
+            var zip2 = System.IO.Compression.ZipFile.OpenRead(dir[2]);
+            var submission1 = new Plag.Submission(lang, new SubmissionZipArchive(zip1, lang.Suffixes));
+            var submission2 = new Plag.Submission(lang, new SubmissionZipArchive(zip2, lang.Suffixes));
+            var tp1 = new List<SatelliteSite.Data.Submit.File>();
+            foreach (var i in zip1.Entries)
+            {
+                string con;
+                using (StreamReader writer = new StreamReader(i.Open()))
+                {
+                    con = writer.ReadToEnd();
+                }
+                tp1.Add(new SatelliteSite.Data.Submit.File
+                {
+                    FileName = i.Name,
+                    FilePath = i.FullName,
+                    Content = con
+                });
+            }
+            var tp2 = new List<SatelliteSite.Data.Submit.File>();
+            foreach (var i in zip2.Entries)
+            {
+                string con;
+                using (StreamReader writer = new StreamReader(i.Open()))
+                {
+                    con = writer.ReadToEnd();
+                }
+                tp2.Add(new SatelliteSite.Data.Submit.File
+                {
+                    FileName = i.Name,
+                    FilePath = i.FullName,
+                    Content = con
+                });
+            }
+            if (submission1.IL.Size > submission2.IL.Size) (tp1, tp2) = (tp2, tp1);
+            var compareResult = GSTiling.Compare(submission1, submission2, lang.MinimalTokenMatch);
+            ViewBag.tp1 = tp1;
+            ViewBag.tp2 = tp2;
+            Result res = new Result(compareResult);
+            ViewBag.Result = res;
 
-            return View(compareResult.Percent);
+            return View();
         }
         [HttpPost]
         public async Task<IActionResult> Upload(IFormFile FileUpload)

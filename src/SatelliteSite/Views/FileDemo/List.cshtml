@@ -5,24 +5,76 @@
 
 @using System.IO;
 @using System.IO.Compression;
+@using Plag;
+@using System;
+@using System.Collections.Generic;
+@using System.Collections.ObjectModel;
+@using System.Threading.Tasks;
+@using SatelliteSite.Data;
+@using SatelliteSite.Data.Submit;
+
+<style>
+    .xx
+    {
+        background-color:orangered; 
+    }
+</style>
 <h1>files:</h1>
 
 @foreach (var file in Directory.GetFiles(Directory.GetCurrentDirectory() + "/wwwroot/file/"))
 {
     <h4>@file:</h4>
+
     <pre>
-        @using (ZipArchive archive = ZipFile.OpenRead(file))
-        {
-            foreach (ZipArchiveEntry entry in archive.Entries)
+        @{ 
+            var lang = (ILanguage)Activator.CreateInstance(typeof(Plag.Frontend.Csharp.Language));
+            var zip = System.IO.Compression.ZipFile.OpenRead(file);
+            var submission = new Plag.Submission(lang, new SubmissionZipArchive(zip,lang.Suffixes));
+            var tp = new List<SatelliteSite.Data.Submit.File>();
+            foreach(var i in zip.Entries)
             {
-                if (entry.FullName.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))
+                string con;
+                using (StreamReader writer = new StreamReader(i.Open()))
                 {
-                    using (StreamReader writer = new StreamReader(entry.Open()))
-                    {
-                        <p>@writer.ReadToEnd()</p>
-                    }
+                    con = writer.ReadToEnd();
                 }
+                tp.Add(new SatelliteSite.Data.Submit.File
+                {
+                    FileName = i.Name,
+                    FilePath = i.FullName,
+                    Content = con
+                });
+            }
+            //for(int i = 0;i<submission.IL.Size;i++)
+            //{
+            //    if(i<100&&i>30)
+            //    {
+            //        for (var j = 0; j < submission.IL[i].Length; j++)
+            //        {
+                        //tp[0].Content[submission.IL[i].Column+j]
+            //    }
+            //}
+            //else
+            //{
+            //    for (var j = 0; j < submission.IL[i].Length; j++)
+            //    {
+                       //tp[0].Content[submission.IL[i].Column+j]
+            //        }
+            //    }
+            //}
+            int x = 0;
+            for(var i = 0;i < tp[0].Content.Length;i++)
+            {
+                if (i >= submission.IL[x].Column&&i<submission.IL[x].Column+submission.IL[x].Length)
+                {
+                    if(i==submission.IL[x].Column+submission.IL[x].Length-1)
+                    {
+                        x++;
+                    }<span class="xx">@tp[0].Content[i]</span>}
+                else
+                {<span>@tp[0].Content[i]</span>}
             }
         }
     </pre>
 }
+

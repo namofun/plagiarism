@@ -8,7 +8,7 @@ namespace SatelliteSite.Data.Match
     {
         [JsonProperty(PropertyName = "id")]
         public string Id { get; set; }
-        public ICollection<MatchPair> matchPairs { set; get; }
+        public List<MatchPair> matchPairs { set; get; }
 
         //SubmissionAB - id(GUID)
         public string SubmissionA { set; get; }
@@ -48,6 +48,7 @@ namespace SatelliteSite.Data.Match
                 var endA = matching.SubmissionA.IL[i.StartA + i.Length].Column;
                 var beginB = matching.SubmissionB.IL[i.StartB].Column;
                 var endB = matching.SubmissionB.IL[i.StartB + i.Length].Column;
+                matchPairs = new List<MatchPair>();
                 matchPairs.Add(new MatchPair(i.StartA, i.StartB, i.Length, beginA, endA, beginB, endB));
             }
         }

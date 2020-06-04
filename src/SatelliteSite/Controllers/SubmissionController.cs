@@ -61,14 +61,12 @@ namespace SatelliteSite.Controllers
         {
             if (FileUpload == null) return BadRequest();
 
-            var filePath = Path.GetTempFileName();
+            //var wpath = Directory.GetCurrentDirectory() + "/wwwroot/file/" + FileUpload.FileName;
 
-            var wpath = Directory.GetCurrentDirectory() + "/wwwroot/file/" + FileUpload.FileName;
-
-            using (var stream = System.IO.File.Create(wpath))
-            {
-                await FileUpload.CopyToAsync(stream);
-            }
+            //using (var stream = System.IO.File.Create(wpath))
+            //{
+            //    await FileUpload.CopyToAsync(stream);
+            //}
 
 
             var lang = (ILanguage)Activator.CreateInstance(typeof(Plag.Frontend.Csharp.Language));
@@ -94,7 +92,7 @@ namespace SatelliteSite.Controllers
             var tok = new List<Data.Submit.Token>();
             for(var i = 0;i<submission.IL.Size;i++)
             {
-                tok.Add(new Data.Submit.Token(submission.IL[i].Type, submission.IL[i].Line, submission.IL[i].Column, submission.IL[i].Length));
+                tok.Add(submission.IL[i]);
             }
 
             var sub = new Data.Submit.Submission

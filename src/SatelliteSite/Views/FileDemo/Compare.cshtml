@@ -1,9 +1,48 @@
 ﻿
 @{
     ViewData["Title"] = "Compare";
+    var tp1 = ViewBag.tp1;
+    var tp2 = ViewBag.tp2;
+    var Result = ViewBag.Result;
 }
-
+<style>
+    .xx {
+        background-color: orangered;
+    }
+</style>
 <h1>Compare</h1>
 <pre>
-@Model
+@ViewBag.Result.Percent
+</pre>
+<pre>
+@{
+    int x = 0;
+    for (var i = 0; i < tp1[0].Content.Length; i++)
+    {
+        if (x < Result.matchPairs.Count && i >= Result.matchPairs[x].ContentStartA && i < Result.matchPairs[x].ContentEndA)
+        {
+            if (i == Result.matchPairs[x].ContentEndA)
+            {
+                x++;
+            }<span class="xx">@tp1[0].Content[i]</span>}
+        else
+        {<span>@tp1[0].Content[i]</span>}
+    }
+}
+</pre>
+<pre>
+@{
+    int y = 0;
+    for (var i = 0; i < tp2[0].Content.Length; i++)
+    {
+        if (y < Result.matchPairs.Count && i >= Result.matchPairs[y].ContentStartB && i < Result.matchPairs[y].ContentEndB)
+        {
+            if (i == Result.matchPairs[y].ContentEndB)
+            {
+                y++;
+            }<span class="xx">@tp2[0].Content[i]</span>}
+        else
+        {<span>@tp2[0].Content[i]</span>}
+    }
+}
 </pre>
