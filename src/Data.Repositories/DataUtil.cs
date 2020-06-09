@@ -18,17 +18,31 @@ namespace SatelliteSite.Data
         {
             Context = context;
         }
-        public async Task<Submit.Submission> StoreSubmission(ZipArchive zip)
+        public async Task<Submit.Submission> StoreSubmission(string uid,ZipArchive zip,ILanguage lang)
         {
+            var t = 0;
             var sub =  new Submit.Submission() {
+                Uid = uid,
                 Id = Guid.NewGuid().ToString(),
-                Files = zip.Entries.Select(i => new Submit.File
-                {
-                    FileName = i.Name,
-                    FilePath = i.FullName,
-                    Content = new StreamReader(i.Open()).ReadToEnd()
-                }).ToList()
+                Files = zip.Entries.Where(
+                    i => {
+                        foreach (var suffix in lang.Suffixes)
+                        {
+                            if (i.Name.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
+                                return true;
+                        }
+                        return false;
+                    }
+                ).Select(i => new Submit.File
+                    {
+                        FileId = ++t,
+                        FileName = i.Name,
+                        FilePath = i.FullName,
+                        Content = new StreamReader(i.Open()).ReadToEnd()
+                    }
+                ).ToList()
             };
+            sub.Language = lang.Name;
 
             Context.Add(sub);
             await Context.SaveChangesAsync();
@@ -41,8 +55,7 @@ namespace SatelliteSite.Data
             {
                 sub.Tokens.Add(submission.IL[i]);
             }
-            sub.Language = submission.Language.Name;
-
+            
             Context.Update(sub);
             return await Context.SaveChangesAsync();
         }

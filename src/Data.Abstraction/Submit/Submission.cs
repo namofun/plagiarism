@@ -15,6 +15,11 @@ namespace SatelliteSite.Data.Submit
         public string Id { get; set; }
 
         /// <summary>
+        /// 提交用户ID
+        /// </summary>
+        public string Uid { get; set; }
+
+        /// <summary>
         /// 代码提交中的所有文件
         /// </summary>
         public ICollection<File> Files { get; set; }

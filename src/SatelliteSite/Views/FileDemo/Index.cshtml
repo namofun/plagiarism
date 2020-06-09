@@ -20,6 +20,12 @@
 
 
 <h1>Upload File:</h1>
+<a asp-controller="Submission" asp-action="Upload" class="btn btn-success" data-toggle="ajaxWindow" data-target="upload">Upload File</a>
+<br />
+<br />
+<br />
+
+<h1>Upload File:</h1>
 <form asp-action="Upload" asp-controller="FileDemo"
       enctype="multipart/form-data" onsubmit="AJAXSubmit(this);return false;"
       method="post">
@@ -64,3 +70,5 @@
         }
     }
 </script>
+
+

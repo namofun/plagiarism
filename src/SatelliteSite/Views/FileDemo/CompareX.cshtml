@@ -1,0 +1,257 @@
+﻿@using SatelliteSite.Data.Match
+@using SatelliteSite.Models
+@using System.Linq;
+@model List<(CodeModel, CodeModel)>
+
+@{
+    ViewData["Title"] = "CompareX";
+    var myid = ViewBag.myid;
+    List<Report> rep = ViewBag.Report;
+    double Precent = 0;
+}
+
+<h1>Compare</h1>
+<pre>
+@foreach(var i in rep)
+{
+    Precent += i.SubmissionA == myid ? i.PercentA : i.PercentB; 
+}
+Precent:@Precent
+</pre>
+@foreach(var l in Model)
+{
+    <div class="container-fluid code-review">
+        <div class="row">
+            <div class="col-md-6">
+                @l.Item1.Sid
+                @foreach (var f in l.Item1.Files)
+                {
+                    @f.FilePath
+                    <figure class="highlight">
+                        <pre><code class="language-html" data-lang="html">@foreach (var c in f.Code)
+                        {<span class="@{
+                             string tmp = "";
+                             foreach (var s in c.Marks) { tmp+=" mark-" + s % 11; }
+                             @tmp
+                            }">@c.Content</span>}
+                        }</code></pre>
+                    </figure>
+                }
+                </div>
+            <div class="col-md-6">
+                @l.Item2.Sid
+                @foreach (var f in l.Item2.Files)
+                {
+                    @f.FilePath
+                    <figure class="highlight">
+                        <pre><code class="language-html" data-lang="html">@foreach (var c in f.Code)
+                        {<span class="@{
+                             string tmp = "";
+                             foreach (var s in c.Marks) { tmp+=" mark-" + s % 11; }
+                             @tmp
+                            }">@c.Content</span>}
+                        }</code></pre>
+                    </figure>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@*@foreach (var k in Model)
+{
+    var youid = k.SubmissionA == myid ? k.SubmissionB : k.SubmissionA;
+
+    <div class="container-fluid code-review">
+        <div class="row">
+            <div class="col-md-6">
+                @k.SubmissionA
+                @{
+                    var subA = subs.Where(o => o.Id == k.SubmissionA).First();
+                    var FilesA = from f in k.MatchPairs
+                                 orderby f.ContentStartA
+                                 group f by f.FileA;
+                    var offset = 0;
+                    foreach (var matchPairs in FilesA)
+                    {
+                        var con = subA.Files.Where(o => o.FileId == matchPairs.Key).First().Content;
+                        <figure class="highlight">
+                            <pre><code class="language-html" data-lang="html">
+                                @{
+                                    int index = 0;
+                                    foreach (var i in matchPairs)
+                                    {<span>@cout(con, index, i.ContentStartA,offset)</span><span class="mark-@(i.Mid%11)">@cout(con, i.ContentStartA, i.ContentEndA, offset)</span>
+                                        index = i.ContentEndA;
+                                    }<span>@cout(con, index, con.Length, offset)</span>
+                                }</code></pre>
+                        </figure>
+                        offset += con.Length;
+                    }
+                }
+            </div>
+            <div class="col-md-6">
+                @k.SubmissionB
+                @{
+                    var subB = subs.Where(o => o.Id == k.SubmissionB).First();
+                    var FilesB = from f in k.MatchPairs
+                                 orderby f.ContentStartB
+                                 group f by f.FileB;
+                    offset = 0;
+                    foreach (var matchPairs in FilesB)
+                    {
+                        var con = subB.Files.Where(o => o.FileId == matchPairs.Key).First().Content;
+                        <figure class="highlight">
+                            <pre><code class="language-html" data-lang="html">
+                                @{
+                                    int index = 0;
+                                    foreach (var i in matchPairs)
+                                    {<span>@cout(con, index, i.ContentStartB,offset)</span><span class="mark-@(i.Mid%11)">@cout(con, i.ContentStartB, i.ContentEndB, offset)</span>
+                                        index = i.ContentEndB;
+                                    }<span>@cout(con, index, con.Length, offset)</span>
+                                }</code></pre>
+                        </figure>
+                        offset += con.Length;
+                    }
+                }
+            </div>
+        </div>
+    </div>
+}*@
+
+@section Scripts {
+    <style>
+        .highlight {
+            padding: 1rem;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            background-color: #f8f9fa;
+            -ms-overflow-style: -ms-autohiding-scrollbar;
+        }
+
+            .highlight pre {
+                padding: 0;
+                margin-top: 0;
+                margin-bottom: 0;
+                background-color: transparent;
+                border: 0;
+                white-space: pre-wrap;
+            }
+
+                .highlight pre code {
+                    font-size: inherit;
+                    color: #212529;
+                }
+
+        .mark-0 {
+            color: red;
+            background: #ffeeee
+        }
+        .mark-1{
+            color:#ee2550;
+            background:rgba(238,37,80,0.1);
+        }
+        .mark-2 {
+            color: #6666a0;
+            background: rgba(102,102,160,0.1);
+        }
+        .mark-3 {
+            color: #dddd20;
+            background: rgba(221,221,32,0.1);
+        }
+        .mark-4 {
+            color: #ee10a0;
+            background: rgba(238,16,160,0.1);
+        }
+        .mark-5 {
+            color: #aa2050;
+            background: rgba(170,32,80,0.1);
+        }
+        .mark-6 {
+            color: #11eeee;
+            background: rgba(17,238,238,0.1);
+        }
+        .mark-7 {
+            color: #aa22cc;
+            background: rgba(170,34,204,0.1);
+        }
+        .mark-8 {
+            color: #008800;
+            background: rgba(0,136,0,0.1);
+        }
+        .mark-9 {
+            color: #2260ee;
+            background: rgba(34,96,238,0.1);
+        }
+        .mark-10 {
+            color: #982420;
+            background: rgba(152,36,32,0.1);
+        }
+    </style>
+}
+
+@*@foreach (var k in Model)
+    {
+        var youid = k.SubmissionA == myid ? k.SubmissionB : k.SubmissionA;
+        var subA = subs.Where(o => o.Id == k.SubmissionA).First();
+        var subB = subs.Where(o => o.Id == k.SubmissionB).First();
+        if (k.SubmissionA != myid)
+        {
+            (k.SubmissionA, k.SubmissionB) = (k.SubmissionB, k.SubmissionA);
+            (subA, subB) = (subB, subA);
+        }
+
+        <div class="container-fluid code-review">
+            <div class="row">
+                @foreach (var m in k.MatchPairs)
+                {
+                    <div class="col-md-6">
+                        @{
+                            var conA = subA.Files.Where(o => o.FileId == m.FileA - 1).First().Content;
+                            <figure class="highlight">
+                                <pre><code class="language-html" data-lang="html"><span>@cout(conA, 0, m.ContentStartA)</span><span class="red">@cout(conA, m.ContentStartA, m.ContentEndA)</span><span>@cout(conA, m.ContentEndA, conA.Length)</span></code></pre>
+                            </figure>
+                        }
+                    </div>
+                    <div class="col-md-6">
+                        @{
+                            var conB = subB.Files.Where(o => o.FileId == m.FileB - 1).First().Content;
+                            <figure class="highlight">
+                                <pre><code class="language-html" data-lang="html"><span>@cout(conB, 0, m.ContentStartB)</span><span class="red">@cout(conB, m.ContentStartB, m.ContentEndB)</span><span>@cout(conB, m.ContentEndB, conB.Length)</span></code></pre>
+                            </figure>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    }*@
+
+
+@*@foreach (var k in Model)
+    {
+        var youid = k.SubmissionA == myid ? k.SubmissionB : k.SubmissionA;
+        foreach (var i in k.MatchPairs)
+            var fileBs = subs.Where(i => i.Id == youid).First().Files;
+
+        foreach (var f in subs.Where(i => i.Id == myid).First().Files)
+        {
+
+        }
+        <pre>
+        @{
+            int x = 0;
+            for (var i = 0; i < subs.Where(i=>i.Id == myid).First().Content.Length; i++)
+            {
+                if (x < MatchPairs.Count && i >= MatchPairs[x].ContentStartA && i < MatchPairs[x].ContentEndA)
+                {
+                    if (i == MatchPairs[x].ContentEndA)
+                    {
+                        x++;
+                    }<span class="xx">@Content1[i]</span>}
+                else
+                {<span>@Content1[i]</span>}
+            }
+        }
+        </pre>
+    }*@
+
+

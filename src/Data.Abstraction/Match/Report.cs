@@ -69,6 +69,7 @@ namespace SatelliteSite.Data.Match
 
         public static Report Create(Matching matching)
         {
+            int t = 0;
             return new Report
             {
                 Id = Guid.NewGuid().ToString(),
@@ -83,6 +84,7 @@ namespace SatelliteSite.Data.Match
                 SubmissionB = matching.SubmissionB.Id,
                 MatchPairs = matching.Select(i => new MatchPair
                 {
+                    Mid = t++,
                     ContentStartA = matching.SubmissionA.IL[i.StartA].Column,
                     ContentEndA = matching.SubmissionA.IL[i.StartA + i.Length].Column,
                     ContentStartB = matching.SubmissionB.IL[i.StartB].Column,

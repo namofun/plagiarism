@@ -19,6 +19,12 @@ namespace SatelliteSite.Controllers
             Context = context;
         }
 
+        public IActionResult Compare()
+        {
+
+            return View();
+        }
+
         [HttpGet]
         public async Task<IActionResult> List()
         {

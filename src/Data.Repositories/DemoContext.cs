@@ -37,7 +37,10 @@ namespace SatelliteSite.Data
 
                 Submission.OwnsMany(e => e.Tokens);
 
-                Submission.OwnsMany(e => e.Files);
+                Submission.OwnsMany(e => e.Files, file => 
+                { 
+                    file.HasKey( e => e.FileId ); 
+                });
             });
 
             modelBuilder.Entity<Report>(result =>

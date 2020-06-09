@@ -12,7 +12,7 @@
         int id = t++;
         <li class="nav-item">
             <a class="nav-link @(id > 0 ? "" : "active")" data-toggle="tab"
-               href="#source-@(id)" role="tab">@item.FileName</a>
+               href="#source-@(id)" role="tab">@item.FileId:@item.FilePath</a>
         </li>
     }
 </ul>

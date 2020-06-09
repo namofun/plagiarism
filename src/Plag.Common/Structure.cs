@@ -54,12 +54,15 @@ namespace Plag
             if (tokens.Any())
             {
                 var last = tokens[^1];
-                if (last.Line > token.Line)
-                    token.Line = last.Line;
-                if (last.Column > token.Column)
-                    token.Column = last.Column;
-                if (token.Length < 0)
-                    token.Length = 0;
+                if (token.FileId == last.FileId)
+                {
+                    if (last.Line > token.Line)
+                        token.Line = last.Line;
+                    if (last.Column > token.Column)
+                        token.Column = last.Column;
+                    if (token.Length < 0)
+                        token.Length = 0;
+                }
             }
 
             tokens.Add(token);

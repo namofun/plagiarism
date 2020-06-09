@@ -1,10 +1,16 @@
-﻿namespace SatelliteSite.Data.Match
+﻿using System.Collections.Generic;
+
+namespace SatelliteSite.Data.Match
 {
     /// <summary>
     /// 代码段匹配记录
     /// </summary>
     public class MatchPair
     {
+        /// <summary>
+        /// MatchPair编号
+        /// </summary>
+        public int Mid { set; get; }
         /// <summary>
         /// 文件A编号
         /// </summary>
