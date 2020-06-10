@@ -192,18 +192,56 @@ namespace SatelliteSite.Controllers
                     Files = FilesA.Select(f =>
                     {
                         var ff = subA.Files.Where(i => i.FileId == f.Key).First();
-                        var str = ff.Content.Select(i => new CodeChar() { Content = i, Marks = new List<int>() }).ToList();
-                        foreach (var i in f)
+                        
+                        var matchpair = from m in k.MatchPairs
+                                 where m.FileA == f.Key
+                                 select m;
+                        SortedSet<Boundary> bound = new SortedSet<Boundary>();
+                        foreach(var mp in matchpair)
                         {
-                            for (int p = i.ContentStartA; p < i.ContentEndA; p++)
-                            {
-                                str[p].Marks.Add(i.Mid);
-                            }
+                            Boundary b1 = new Boundary(mp.Mid, mp.ContentStartA);
+                            Boundary b2 = new Boundary(mp.Mid, mp.ContentEndA);
+                            bound.Add(b1);
+                            bound.Add(b2);
                         }
+                        HashSet<Boundary> to = new HashSet<Boundary>();
+                        List<CodeChar> cur = new List<CodeChar>();
+                        int begin = 0;
+                        foreach(var bd in bound)
+                        {
+                            bool remove = false;
+                            CodeChar cc = new CodeChar();
+                            cc.Begin = begin;
+                            cc.End = bd.index;
+                            cc.Marks = new List<int>();
+                            foreach(var a in to)
+                            {
+                                cc.Marks.Add(a.MId);
+                            }
+                            if (cc.Begin != cc.End - 1 )
+                            {
+                                cur.Add(cc);
+                                Console.WriteLine(cc.Begin);
+                                Console.WriteLine(cc.End);
+                            }
+                            begin = bd.index;
+                            var tmp = (from a in to
+                                       where a.MId == bd.MId
+                                       select a);
+                            if (tmp.Count() != 0)
+                            {
+                                to.Remove(tmp.First());
+                                remove = true;
+                            }
+                            if (!remove) to.Add(bd);
+                            
+                        }
+                        //cur.RemoveAt(0);
                         return new CodeFile()
                         {
                             FilePath = ff.FilePath,
-                            Code = str
+                            Content = ff.Content,
+                            Code = cur
                         };
                     }).ToList()
                 };
@@ -217,18 +255,56 @@ namespace SatelliteSite.Controllers
                     Files = FilesB.Select(f =>
                     {
                         var ff = subB.Files.Where(i => i.FileId == f.Key).First();
-                        var str = ff.Content.Select(i => new CodeChar() { Content = i, Marks = new List<int>() }).ToList();
-                        foreach (var i in f)
+                        var matchpair = from m in k.MatchPairs
+                                        where m.FileB == f.Key
+                                        select m;
+                        SortedSet<Boundary> bound = new SortedSet<Boundary>();
+                        foreach (var mp in matchpair)
                         {
-                            for (int p = i.ContentStartB; p < i.ContentEndB; p++)
-                            {
-                                str[p].Marks.Add(i.Mid);
-                            }
+                            Boundary b1 = new Boundary(mp.Mid, mp.ContentStartB);
+                            Boundary b2 = new Boundary(mp.Mid, mp.ContentEndB);
+                            bound.Add(b1);
+                            bound.Add(b2);
                         }
+                        HashSet<Boundary> to = new HashSet<Boundary>();
+                        List<CodeChar> cur = new List<CodeChar>();
+                        int begin = 0;
+                        foreach (var bd in bound)
+                        {
+                            bool remove = false;
+                            CodeChar cc = new CodeChar();
+                            cc.Begin = begin;
+                            cc.End = bd.index;
+                            cc.Marks = new List<int>();
+                            foreach (var a in to)
+                            {
+                                cc.Marks.Add(a.MId);
+                            }
+                            if(cc.Begin != cc.End - 1)
+                            {
+                                cur.Add(cc);
+                                Console.WriteLine(cc.Begin);
+                                Console.WriteLine(cc.End);
+                            }
+                            begin = bd.index;
+                            var tmp = (from a in to
+                                       where a.MId == bd.MId
+                                       select a);
+                            if (tmp.Count() != 0)
+                            {
+                                to.Remove(tmp.First());
+                                remove = true;
+                            }
+                      
+                            if (!remove) to.Add(bd);
+                         
+                        }
+                        //cur.RemoveAt(0);
                         return new CodeFile()
                         {
                             FilePath = ff.FilePath,
-                            Code = str
+                            Content = ff.Content,
+                            Code = cur
                         };
                     }).ToList()
                 };

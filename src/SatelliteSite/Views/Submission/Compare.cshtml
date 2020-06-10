@@ -10,6 +10,13 @@
     double Precent = 0;
 }
 
+@functions
+{
+    string cout(string s, int a, int b)
+    {
+        return s.Substring(a, b - a);
+    }
+}
 <h1>Compare</h1>
 <pre>
 @foreach(var i in rep)
@@ -18,7 +25,7 @@
 }
 Precent:@Precent
 </pre>
-@foreach(var l in Model)
+@foreach (var l in Model)
 {
     <div class="container-fluid code-review">
         <div class="row">
@@ -27,30 +34,32 @@ Precent:@Precent
                 @foreach (var f in l.Item1.Files)
                 {
                     @f.FilePath
+                    String Con = f.Content;
+                    int index = 0;
                     <figure class="highlight">
                         <pre><code class="language-html" data-lang="html">@foreach (var c in f.Code)
                         {<span class="@{
                              string tmp = "";
                              foreach (var s in c.Marks) { tmp+=" mark-" + s % 11; }
                              @tmp
-                            }">@c.Content</span>}
-                        }</code></pre>
+                            }">@cout(Con, c.Begin, c.End)</span> index = c.End;}}</code></pre>
                     </figure>
                 }
-                </div>
+            </div>
             <div class="col-md-6">
                 @l.Item2.Sid
                 @foreach (var f in l.Item2.Files)
                 {
                     @f.FilePath
+                    String Con = f.Content;
+                    int index = 0;
                     <figure class="highlight">
                         <pre><code class="language-html" data-lang="html">@foreach (var c in f.Code)
                         {<span class="@{
                              string tmp = "";
                              foreach (var s in c.Marks) { tmp+=" mark-" + s % 11; }
                              @tmp
-                            }">@c.Content</span>}
-                        }</code></pre>
+                            }">@cout(Con, c.Begin, c.End)</span>index = c.End;}}</code></pre>
                     </figure>
                 }
             </div>
@@ -87,42 +96,52 @@ Precent:@Precent
             color: red;
             background: #ffeeee
         }
-        .mark-1{
-            color:#ee2550;
-            background:rgba(238,37,80,0.1);
+
+        .mark-1 {
+            color: #ee2550;
+            background: rgba(238,37,80,0.1);
         }
+
         .mark-2 {
             color: #6666a0;
             background: rgba(102,102,160,0.1);
         }
+
         .mark-3 {
             color: #dddd20;
             background: rgba(221,221,32,0.1);
         }
+
         .mark-4 {
             color: #ee10a0;
             background: rgba(238,16,160,0.1);
         }
+
         .mark-5 {
             color: #aa2050;
             background: rgba(170,32,80,0.1);
         }
+
         .mark-6 {
             color: #11eeee;
             background: rgba(17,238,238,0.1);
         }
+
         .mark-7 {
             color: #aa22cc;
             background: rgba(170,34,204,0.1);
         }
+
         .mark-8 {
             color: #008800;
             background: rgba(0,136,0,0.1);
         }
+
         .mark-9 {
             color: #2260ee;
             background: rgba(34,96,238,0.1);
         }
+
         .mark-10 {
             color: #982420;
             background: rgba(152,36,32,0.1);

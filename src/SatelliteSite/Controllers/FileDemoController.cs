@@ -135,18 +135,18 @@ namespace SatelliteSite.Controllers
                     Files = FilesA.Select(f =>
                     {
                         var ff = subA.Files.Where(i => i.FileId == f.Key).First();
-                        var str = ff.Content.Select(i => new CodeChar() { Content = i, Marks = new List<int>() }).ToList();
+                       // var str = ff.Content.Select(i => new CodeChar() { Content = i, Marks = new List<int>() }).ToList();
                         foreach (var i in f)
                         {
                             for (int p = i.ContentStartA; p < i.ContentEndA; p++)
                             {
-                                str[p].Marks.Add(i.Mid);
+                                //str[p].Marks.Add(i.Mid);
                             }
                         }
                         return new CodeFile()
                         {
                             FilePath = ff.FilePath,
-                            Code = str
+                            //Code = str
                         };
                     }).ToList()
                 };
@@ -160,18 +160,18 @@ namespace SatelliteSite.Controllers
                     Files = FilesB.Select(f =>
                     {
                         var ff = subB.Files.Where(i => i.FileId == f.Key).First();
-                        var str = ff.Content.Select(i => new CodeChar() { Content = i, Marks = new List<int>() }).ToList();
+                       // var str = ff.Content.Select(i => new CodeChar() { Content = i, Marks = new List<int>() }).ToList();
                         foreach (var i in f)
                         {
                             for (int p = i.ContentStartB; p < i.ContentEndB; p++)
                             {
-                                str[p].Marks.Add(i.Mid);
+                                //str[p].Marks.Add(i.Mid);
                             }
                         }
                         return new CodeFile()
                         {
                             FilePath = ff.FilePath,
-                            Code = str
+                           // Code = str
                         };
                     }).ToList()
                 };
