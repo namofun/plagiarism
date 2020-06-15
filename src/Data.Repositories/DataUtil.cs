@@ -7,6 +7,8 @@ using System.Linq;
 using System;
 using Plag;
 using System.Threading.Tasks;
+using SatelliteSite.Data.Match;
+using Microsoft.EntityFrameworkCore;
 
 namespace SatelliteSite.Data
 {
@@ -58,6 +60,64 @@ namespace SatelliteSite.Data
             
             Context.Update(sub);
             return await Context.SaveChangesAsync();
+        }
+
+        public async Task<Report> GetReportAsync(string sub1,string sub2)
+        {
+            Report res = null;
+            var r = await Context.Reports
+                .AsNoTracking()
+                .Where(s => (s.SubmissionA == sub1 && s.SubmissionB == sub2) || (s.SubmissionA == sub2 && s.SubmissionB == sub1))
+                .ToListAsync();
+            if(r.Count!=0)
+            {
+                res = r.First();
+                return res;
+            }
+            else
+            {
+                return await DoReport(sub1, sub2);
+            }
+            
+        }
+        
+        public async Task<Report> DoReport(string sub1,string sub2)
+        {
+            var submissions = await Context.Submissions
+                .AsNoTracking()
+                .Where(s => s.Id == sub1 || s.Id == sub2)
+                .ToListAsync();
+
+            if (submissions.Count < 2 )
+            {
+                return null;
+            }
+            else if(submissions[0].Language != submissions[1].Language)
+            {
+                return null;
+            }
+            else
+            {
+                var lang = submissions.First().Language switch
+                {
+                    "C#8" => (ILanguage)Activator.CreateInstance(typeof(Plag.Frontend.Csharp.Language)),
+                    "C++14" => (ILanguage)Activator.CreateInstance(typeof(Plag.Frontend.Cpp.Language)),
+                    "Java9" => (ILanguage)Activator.CreateInstance(typeof(Plag.Frontend.Java.Language)),
+                    "Python3" => (ILanguage)Activator.CreateInstance(typeof(Plag.Frontend.Python.Language)),
+                    _ => throw new NotImplementedException(),
+                };
+                var subs = submissions.Select(i => new Plag.Submission(
+                lang,
+                new SubmissionFileProxy(i),
+                i.Id,
+                i.Tokens.Select(j => lang.CreateToken(j.Type, j.Line, j.Column, j.Length, j.FileId))
+                )).ToList();
+                var result = Data.Match.Report.Create(GSTiling.Compare(subs[0],subs[1],lang.MinimalTokenMatch));
+                
+                Context.Add(result);
+                _ = Context.SaveChangesAsync();
+                return result;
+            }
         }
     }
 }

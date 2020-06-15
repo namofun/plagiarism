@@ -9,7 +9,7 @@ namespace SatelliteSite.Data
     {
         public virtual DbSet<Family> Families { get; set; }
         public virtual DbSet<Submission> Submissions { get; set; }
-        public virtual DbSet<Report> Results { get; set; }
+        public virtual DbSet<Report> Reports { get; set; }
 
         public DemoContext(DbContextOptions options) : base(options)
         {

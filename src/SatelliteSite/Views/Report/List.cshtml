@@ -1,0 +1,19 @@
+﻿@using SatelliteSite.Models
+@model IEnumerable<ReportListModel>
+@{
+    ViewData["Title"] = "List report";
+}
+
+<h2 class="mt-2">@ViewData["Title"]</h2>
+
+<datatable data="Model" />
+
+
+<form asp-action="Delete" style="width:25em;">
+    <div class="form-group">
+        <label>The Report ID You Want Delete:</label>
+        <input class="form-control" name="id" type="text" />
+    </div>
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a class="btn btn-danger" asp-action="Delete">Random Delete</a>
+</form>

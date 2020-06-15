@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.IO.Compression;
 using System.Linq;
 using SatelliteSite.Models;
+using SatelliteSite.Utils;
 
 namespace SatelliteSite.Controllers
 {
@@ -140,178 +141,22 @@ namespace SatelliteSite.Controllers
             return res;
         }
         [HttpPost]
-        public async Task<IActionResult> Compare(string sub1,string sub2)
+        public async Task<IActionResult> Compare(string sub1, string sub2)
         {
             var myid = sub1;
-            var sid = new List<string>()
-            {
-                sub1,
-                sub2
-            };
 
-            var test = C(sid);
+            //var test = C(sid);
 
-            var subs = await Context.Submissions
-                .AsNoTracking()
-                .Where(s => sid.Contains(s.Id))
-                .ToListAsync();
+            var Result = await Util.GetReportAsync(sub1, sub2);
 
-            var lang = subs.First().Language switch
-            {
-                "C#8" => (ILanguage)Activator.CreateInstance(typeof(Plag.Frontend.Csharp.Language)),
-                "C++14" => (ILanguage)Activator.CreateInstance(typeof(Plag.Frontend.Cpp.Language)),
-            };
-            var submissions = subs.Select(i => new Plag.Submission(
-                lang,
-                new SubmissionFileProxy(i),
-                i.Id,
-                i.Tokens.Select(j => lang.CreateToken(j.Type, j.Line, j.Column, j.Length, j.FileId))
-                )).ToList();
-
-            var Results = test.Select(i => Data.Match.Report.Create(GSTiling.Compare(
-                submissions.Where(j => j.Id == i.Item1).First(),
-                submissions.Where(j => j.Id == i.Item2).First(),
-                lang.MinimalTokenMatch)));
             ViewBag.myid = myid;
+            ViewBag.Report = Result;
 
-            var res = Results.Where(i => i.SubmissionA == myid || i.SubmissionB == myid).ToList();
+            var subA = Context.Submissions.AsNoTracking().Where(o => o.Id == Result.SubmissionA).First();
+            var subB = Context.Submissions.AsNoTracking().Where(o => o.Id == Result.SubmissionB).First();
 
-            ViewBag.Report = res;
-
-
-            var ret = new List<(CodeModel, CodeModel)>();
-            foreach (var k in res)
-            {
-                var subA = subs.Where(o => o.Id == k.SubmissionA).First();
-                var FilesA = from f in k.MatchPairs
-                             orderby f.ContentStartA
-                             group f by f.FileA;
-                CodeModel retA = new CodeModel()
-                {
-                    Sid = k.SubmissionA,
-                    Files = FilesA.Select(f =>
-                    {
-                        var ff = subA.Files.Where(i => i.FileId == f.Key).First();
-                        
-                        var matchpair = from m in k.MatchPairs
-                                 where m.FileA == f.Key
-                                 select m;
-                        SortedSet<Boundary> bound = new SortedSet<Boundary>();
-                        foreach(var mp in matchpair)
-                        {
-                            Boundary b1 = new Boundary(mp.Mid, mp.ContentStartA);
-                            Boundary b2 = new Boundary(mp.Mid, mp.ContentEndA);
-                            bound.Add(b1);
-                            bound.Add(b2);
-                        }
-                        HashSet<Boundary> to = new HashSet<Boundary>();
-                        List<CodeChar> cur = new List<CodeChar>();
-                        int begin = 0;
-                        foreach(var bd in bound)
-                        {
-                            bool remove = false;
-                            CodeChar cc = new CodeChar();
-                            cc.Begin = begin;
-                            cc.End = bd.index;
-                            cc.Marks = new List<int>();
-                            foreach(var a in to)
-                            {
-                                cc.Marks.Add(a.MId);
-                            }
-                            if (cc.Begin != cc.End - 1 )
-                            {
-                                cur.Add(cc);
-                                Console.WriteLine(cc.Begin);
-                                Console.WriteLine(cc.End);
-                            }
-                            begin = bd.index;
-                            var tmp = (from a in to
-                                       where a.MId == bd.MId
-                                       select a);
-                            if (tmp.Count() != 0)
-                            {
-                                to.Remove(tmp.First());
-                                remove = true;
-                            }
-                            if (!remove) to.Add(bd);
-                            
-                        }
-                        //cur.RemoveAt(0);
-                        return new CodeFile()
-                        {
-                            FilePath = ff.FilePath,
-                            Content = ff.Content,
-                            Code = cur
-                        };
-                    }).ToList()
-                };
-                var subB = subs.Where(o => o.Id == k.SubmissionB).First();
-                var FilesB = from f in k.MatchPairs
-                             orderby f.ContentStartB
-                             group f by f.FileB;
-                CodeModel retB = new CodeModel()
-                {
-                    Sid = k.SubmissionB,
-                    Files = FilesB.Select(f =>
-                    {
-                        var ff = subB.Files.Where(i => i.FileId == f.Key).First();
-                        var matchpair = from m in k.MatchPairs
-                                        where m.FileB == f.Key
-                                        select m;
-                        SortedSet<Boundary> bound = new SortedSet<Boundary>();
-                        foreach (var mp in matchpair)
-                        {
-                            Boundary b1 = new Boundary(mp.Mid, mp.ContentStartB);
-                            Boundary b2 = new Boundary(mp.Mid, mp.ContentEndB);
-                            bound.Add(b1);
-                            bound.Add(b2);
-                        }
-                        HashSet<Boundary> to = new HashSet<Boundary>();
-                        List<CodeChar> cur = new List<CodeChar>();
-                        int begin = 0;
-                        foreach (var bd in bound)
-                        {
-                            bool remove = false;
-                            CodeChar cc = new CodeChar();
-                            cc.Begin = begin;
-                            cc.End = bd.index;
-                            cc.Marks = new List<int>();
-                            foreach (var a in to)
-                            {
-                                cc.Marks.Add(a.MId);
-                            }
-                            if(cc.Begin != cc.End - 1)
-                            {
-                                cur.Add(cc);
-                                Console.WriteLine(cc.Begin);
-                                Console.WriteLine(cc.End);
-                            }
-                            begin = bd.index;
-                            var tmp = (from a in to
-                                       where a.MId == bd.MId
-                                       select a);
-                            if (tmp.Count() != 0)
-                            {
-                                to.Remove(tmp.First());
-                                remove = true;
-                            }
-                      
-                            if (!remove) to.Add(bd);
-                         
-                        }
-                        //cur.RemoveAt(0);
-                        return new CodeFile()
-                        {
-                            FilePath = ff.FilePath,
-                            Content = ff.Content,
-                            Code = cur
-                        };
-                    }).ToList()
-                };
-                ret.Add((retA, retB));
-
-            }
-            return View(ret);
+            var res = ModelUtil.CreateCodeModel(Result, subA, subB);
+            return View(res);
         }
     }
 }

@@ -5,7 +5,6 @@
 
 @{
     ViewData["Title"] = "CompareX";
-    var myid = ViewBag.myid;
     Report rep = ViewBag.Report;
     double Precent = 0;
 }
@@ -19,13 +18,7 @@
 }
 <div>
     <h1>Compare</h1>
-    <pre style="display: inline-block;">
-                @*@foreach (var i in rep)
-                {
-                    Precent += i.SubmissionA == myid ? i.PercentA : i.PercentB;
-                }*@
-        Precent:@rep.Percent
-    </pre>
+    <pre style="display: inline-block;">Precent:@rep.Percent</pre>
 </div>
 
 <div class="check-bar">
