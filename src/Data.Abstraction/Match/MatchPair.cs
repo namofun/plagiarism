@@ -10,7 +10,7 @@ namespace SatelliteSite.Data.Match
         /// <summary>
         /// MatchPair编号
         /// </summary>
-        public int Mid { set; get; }
+        public int MatchingId { set; get; }
         /// <summary>
         /// 文件A编号
         /// </summary>

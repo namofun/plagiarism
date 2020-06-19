@@ -27,7 +27,7 @@ namespace SatelliteSite.Models
     public class Boundary:IComparable<Boundary>
     {
         //对应的matchpairID
-        public int MId { set; get; }
+        public int MatchingId { set; get; }
         //对应的编号
         public int index { set; get; }
 
@@ -35,13 +35,13 @@ namespace SatelliteSite.Models
         {
             if(this.index != other.index)
             return this.index - other.index;
-            return this.MId - other.MId;
+            return this.MatchingId - other.MatchingId;
         }
 
-        public Boundary(int MId,int index)
+        public Boundary(int MatchingId,int index)
         {
             this.index = index;
-            this.MId = MId;
+            this.MatchingId = MatchingId;
         }
     }
 }

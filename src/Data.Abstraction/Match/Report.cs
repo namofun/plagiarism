@@ -84,7 +84,7 @@ namespace SatelliteSite.Data.Match
                 SubmissionB = matching.SubmissionB.Id,
                 MatchPairs = matching.Select(i => new MatchPair
                 {
-                    Mid = t++,
+                    MatchingId = t++,
                     ContentStartA = matching.SubmissionA.IL[i.StartA].Column,
                     ContentEndA = matching.SubmissionA.IL[i.StartA + i.Length].Column,
                     ContentStartB = matching.SubmissionB.IL[i.StartB].Column,

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SatelliteSite.Data.Check;
 using SatelliteSite.Data.Demos;
 using SatelliteSite.Data.Match;
 using SatelliteSite.Data.Submit;
@@ -10,6 +11,7 @@ namespace SatelliteSite.Data
         public virtual DbSet<Family> Families { get; set; }
         public virtual DbSet<Submission> Submissions { get; set; }
         public virtual DbSet<Report> Reports { get; set; }
+        public virtual DbSet<CheckSet> CheckSets { get; set; }
 
         public DemoContext(DbContextOptions options) : base(options)
         {
@@ -48,6 +50,16 @@ namespace SatelliteSite.Data
                 result.HasKey(e => e.Id);
 
                 result.OwnsMany(e => e.MatchPairs);
+            });
+
+            modelBuilder.Entity<CheckSet>(result =>
+            {
+                result.HasKey(e => e.Id);
+
+                result.OwnsMany(e => e.Teams, team =>
+                {
+                    team.OwnsMany(t => t.matchReports);
+                });
             });
         }
     }

@@ -13,6 +13,7 @@ using System.IO.Compression;
 using System.Linq;
 using SatelliteSite.Models;
 using SatelliteSite.Utils;
+using Microsoft.Extensions.Hosting;
 
 namespace SatelliteSite.Controllers
 {
@@ -35,9 +36,10 @@ namespace SatelliteSite.Controllers
                 .AsNoTracking()
                 .Select(s => new SubmissionListModel
                 {
-                    Uid = s.Uid,
+                    StuName = s.StuName,
                     Id = s.Id,
-                    Language = s.Language
+                    Language = s.Language,
+                    UploadTime = s.UploadTime
                 })
                 .ToListAsync();
 
@@ -88,7 +90,7 @@ namespace SatelliteSite.Controllers
             return View();
         }
         [HttpPost]
-        public async Task<IActionResult> Upload(string uid,string lang, IFormFile FileUpload)
+        public async Task<IActionResult> Upload(string stuName,string lang, IFormFile FileUpload)
         {
             if (FileUpload == null) return BadRequest();
             //TO DO 语言选择
@@ -96,16 +98,30 @@ namespace SatelliteSite.Controllers
             {
                 "C#8" => (ILanguage)Activator.CreateInstance(typeof(Plag.Frontend.Csharp.Language)),
                 "C++14" => (ILanguage)Activator.CreateInstance(typeof(Plag.Frontend.Cpp.Language)),
+                "Java9" => (ILanguage)Activator.CreateInstance(typeof(Plag.Frontend.Java.Language)),
+                "Python3" => (ILanguage)Activator.CreateInstance(typeof(Plag.Frontend.Python.Language)),
+                _ => throw new NotImplementedException(),
             };
             var zip = new ZipArchive(FileUpload.OpenReadStream(), ZipArchiveMode.Read);
-
-            var task = Util.StoreSubmission(uid,zip,language);
+            var time = DateTimeOffset.Now;
+            var task = Util.StoreSubmission(stuName,time,zip,language);
 
             var submission = new Plag.Submission(language, new SubmissionZipArchive(zip, language.Suffixes));
 
             var sub = await task;
 
             await Util.StoreTokens(sub,submission);
+
+            //TO DO BackgroundTask
+            var submissionIdset = C<string>(Context.Submissions.AsNoTracking().Select(i => i.Id).ToList());
+            foreach(var i in submissionIdset)
+            {
+                await Util.GetReportAsync(i.Item1, i.Item2);
+            }
+            //Parallel.ForEach(submissionIdset, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
+            //    async i => await Util.GetReportAsync(i.Item1, i.Item2)
+            //);
+            //--------------
 
             return RedirectToAction(sub.Id);
         }
@@ -116,12 +132,13 @@ namespace SatelliteSite.Controllers
             var ss = await Context.Submissions
                 .AsNoTracking()
                 .Where(s => s.Id == sid)
-                .Select(s => new { s.Files, s.Language })
+                .Select(s => new { s.Files, s.Language ,s.UploadTime})
                 .SingleOrDefaultAsync();
 
             if (ss == null) return NotFound();
             ViewBag.Language = ss.Language;
             ViewBag.Id = sid;
+            ViewBag.UploadTime = ss.UploadTime;
             return View(ss.Files);
         }
 

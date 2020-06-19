@@ -140,7 +140,7 @@ namespace SatelliteSite.Controllers
                         {
                             for (int p = i.ContentStartA; p < i.ContentEndA; p++)
                             {
-                                //str[p].Marks.Add(i.Mid);
+                                //str[p].Marks.Add(i.MatchingId);
                             }
                         }
                         return new CodeFile()
@@ -165,7 +165,7 @@ namespace SatelliteSite.Controllers
                         {
                             for (int p = i.ContentStartB; p < i.ContentEndB; p++)
                             {
-                                //str[p].Marks.Add(i.Mid);
+                                //str[p].Marks.Add(i.MatchingId);
                             }
                         }
                         return new CodeFile()

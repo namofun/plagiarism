@@ -1,0 +1,44 @@
+﻿@model ICollection<SatelliteSite.Data.Check.TeamReport>
+@{
+    ViewData["Title"] = "Check " + ViewBag.Id;
+}
+
+<h2 class="mt-2">@ViewData["Title"]</h2>
+<h5>UploadTime: @ViewBag.CreateTime</h5>
+
+<table class="table">
+    <tr>
+        <th>SubmissionId</th>
+        <th>AuthorName</th>
+        <th>MaxPercent</th>
+        <th> </th>
+    </tr>
+    @foreach (var i in Model)
+    {
+        <tr>
+            <td>@i.SubmissionA</td>
+            <td>@i.AuthorName</td>
+            <td>@i.MaxPercent</td>
+            <td>
+                <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapse-@i.SubmissionA" aria-expanded="false" aria-controls="collapse-@i.SubmissionA">
+                    Detail
+                </button>
+            </td>
+        </tr>
+        <div class="collapse" id="collapse-@i.SubmissionA">
+            <div class="card card-body">
+                @foreach (var x in i.matchReports)
+                {
+                    <tr>
+                        <td>@x.SubmissionB</td>
+                        <td>@x.ReportId</td>
+                        <td>@x.Percent</td>
+                        <td>
+                            <a asp-controller="Report" asp-action="Detail" asp-route-id="@x.ReportId">Detail</a>
+                        </td>
+                    </tr>
+                }
+            </div>
+        </div>
+    }
+</table>

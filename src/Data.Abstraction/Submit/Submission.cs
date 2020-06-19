@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace SatelliteSite.Data.Submit
@@ -15,10 +16,14 @@ namespace SatelliteSite.Data.Submit
         public string Id { get; set; }
 
         /// <summary>
-        /// 提交用户ID
+        /// 学生姓名
         /// </summary>
-        public string Uid { get; set; }
+        public string StuName { set; get; }
 
+        /// <summary>
+        /// 提交时间
+        /// </summary>
+        public DateTimeOffset UploadTime { set; get; }
         /// <summary>
         /// 代码提交中的所有文件
         /// </summary>

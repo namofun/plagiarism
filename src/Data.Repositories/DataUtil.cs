@@ -4,11 +4,11 @@ using System.IO;
 using System.IO.Compression;
 using System.Text;
 using System.Linq;
-using System;
 using Plag;
 using System.Threading.Tasks;
 using SatelliteSite.Data.Match;
 using Microsoft.EntityFrameworkCore;
+using SatelliteSite.Data.Check;
 
 namespace SatelliteSite.Data
 {
@@ -20,11 +20,12 @@ namespace SatelliteSite.Data
         {
             Context = context;
         }
-        public async Task<Submit.Submission> StoreSubmission(string uid,ZipArchive zip,ILanguage lang)
+        public async Task<Submit.Submission> StoreSubmission(string stuName,DateTimeOffset time, ZipArchive zip,ILanguage lang)
         {
             var t = 0;
             var sub =  new Submit.Submission() {
-                Uid = uid,
+                StuName = stuName,
+                UploadTime = time,
                 Id = Guid.NewGuid().ToString(),
                 Files = zip.Entries.Where(
                     i => {
@@ -50,6 +51,22 @@ namespace SatelliteSite.Data
             await Context.SaveChangesAsync();
             return sub;
         }
+
+        public void CreateTeamReport(TeamReport teamReport)
+        {
+            var sub_A_id = teamReport.SubmissionA;
+            var res = Context.Reports.AsNoTracking().Where(i => i.SubmissionA == sub_A_id || i.SubmissionB == sub_A_id)
+                .Select(i => new MatchReport()
+                {
+                    ReportId = i.Id,
+                    SubmissionB = i.SubmissionA == sub_A_id ? i.SubmissionB : i.SubmissionA,
+                    Percent = i.Percent
+                }).ToList();
+            teamReport.matchReports = res;
+            teamReport.MaxPercent = res.Max(i => i.Percent);
+            return;
+        }
+
         public async Task<int> StoreTokens(Submit.Submission sub,Plag.Submission submission)
         {
             sub.Tokens = new List<Submit.Token>();
@@ -115,7 +132,7 @@ namespace SatelliteSite.Data
                 var result = Data.Match.Report.Create(GSTiling.Compare(subs[0],subs[1],lang.MinimalTokenMatch));
                 
                 Context.Add(result);
-                _ = Context.SaveChangesAsync();
+                await Context.SaveChangesAsync();
                 return result;
             }
         }

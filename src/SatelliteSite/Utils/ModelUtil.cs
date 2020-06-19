@@ -29,8 +29,8 @@ namespace SatelliteSite.Utils
                     SortedSet<Boundary> bound = new SortedSet<Boundary>();
                     foreach (var mp in matchpair)
                     {
-                        Boundary b1 = new Boundary(mp.Mid, mp.ContentStartA);
-                        Boundary b2 = new Boundary(mp.Mid, mp.ContentEndA);
+                        Boundary b1 = new Boundary(mp.MatchingId, mp.ContentStartA);
+                        Boundary b2 = new Boundary(mp.MatchingId, mp.ContentEndA);
                         bound.Add(b1);
                         bound.Add(b2);
                     }
@@ -46,7 +46,7 @@ namespace SatelliteSite.Utils
                         cc.Marks = new List<int>();
                         foreach (var a in to)
                         {
-                            cc.Marks.Add(a.MId);
+                            cc.Marks.Add(a.MatchingId);
                         }
                         if (cc.Begin != cc.End - 1)
                         {
@@ -56,7 +56,7 @@ namespace SatelliteSite.Utils
                         }
                         begin = bd.index;
                         var tmp = (from a in to
-                                   where a.MId == bd.MId
+                                   where a.MatchingId == bd.MatchingId
                                    select a);
                         if (tmp.Count() != 0)
                         {
@@ -90,8 +90,8 @@ namespace SatelliteSite.Utils
                     SortedSet<Boundary> bound = new SortedSet<Boundary>();
                     foreach (var mp in matchpair)
                     {
-                        Boundary b1 = new Boundary(mp.Mid, mp.ContentStartB);
-                        Boundary b2 = new Boundary(mp.Mid, mp.ContentEndB);
+                        Boundary b1 = new Boundary(mp.MatchingId, mp.ContentStartB);
+                        Boundary b2 = new Boundary(mp.MatchingId, mp.ContentEndB);
                         bound.Add(b1);
                         bound.Add(b2);
                     }
@@ -107,7 +107,7 @@ namespace SatelliteSite.Utils
                         cc.Marks = new List<int>();
                         foreach (var a in to)
                         {
-                            cc.Marks.Add(a.MId);
+                            cc.Marks.Add(a.MatchingId);
                         }
                         if (cc.Begin != cc.End - 1)
                         {
@@ -117,7 +117,7 @@ namespace SatelliteSite.Utils
                         }
                         begin = bd.index;
                         var tmp = (from a in to
-                                   where a.MId == bd.MId
+                                   where a.MatchingId == bd.MatchingId
                                    select a);
                         if (tmp.Count() != 0)
                         {

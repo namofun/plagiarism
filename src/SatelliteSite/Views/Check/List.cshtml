@@ -1,0 +1,12 @@
+﻿@using SatelliteSite.Models
+@model IEnumerable<CheckListModel>
+@{
+    ViewData["Title"] = "List";
+}
+
+<h2 class="mt-2">@ViewData["Title"]</h2>
+
+<datatable data="Model" />
+
+
+<a class="btn btn-success" asp-action="Create">Create Report</a>
