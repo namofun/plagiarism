@@ -1,4 +1,4 @@
-﻿namespace SatelliteSite.Data.Submit
+﻿namespace SatelliteSite.Data
 {
     /// <summary>
     /// 代码中的语法符号

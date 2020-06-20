@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace SatelliteSite.Data.Match
+﻿namespace SatelliteSite.Data
 {
     /// <summary>
     /// 代码段匹配记录
@@ -10,7 +8,8 @@ namespace SatelliteSite.Data.Match
         /// <summary>
         /// MatchPair编号
         /// </summary>
-        public int MatchingId { set; get; }
+        public int MatchingId { get; set; }
+
         /// <summary>
         /// 文件A编号
         /// </summary>
@@ -24,21 +23,21 @@ namespace SatelliteSite.Data.Match
         /// <summary>
         /// 文件A的字符起始地址
         /// </summary>
-        public int ContentStartA { set; get; }
+        public int ContentStartA { get; set; }
 
         /// <summary>
         /// 文件A的字符中止地址
         /// </summary>
-        public int ContentEndA { set; get; }
+        public int ContentEndA { get; set; }
 
         /// <summary>
         /// 文件B的字符起始地址
         /// </summary>
-        public int ContentStartB { set; get; }
+        public int ContentStartB { get; set; }
 
         /// <summary>
         /// 文件B的字符终止地址
         /// </summary>
-        public int ContentEndB { set; get; }
+        public int ContentEndB { get; set; }
     }
 }

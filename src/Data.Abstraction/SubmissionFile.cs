@@ -1,9 +1,9 @@
-﻿namespace SatelliteSite.Data.Submit
+﻿namespace SatelliteSite.Data
 {
     /// <summary>
     /// 代码中的文件
     /// </summary>
-    public class File
+    public class SubmissionFile
     {
         /// <summary>
         /// 文件编号
