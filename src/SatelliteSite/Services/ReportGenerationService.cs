@@ -1,9 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Plag;
-using SatelliteSite.Controllers;
 using SatelliteSite.Data;
 using System;
 using System.Linq;
@@ -12,26 +7,16 @@ using System.Threading.Tasks;
 
 namespace SatelliteSite.Services
 {
-    public class ReportGenerationService : BackgroundService
+    public class ReportGenerationServiceBase<T> : ContextNotifyService<T>
     {
-        static readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
-
-        public IServiceProvider ServiceProvider { get; }
-
-        public ILogger<ReportGenerationService> Logger { get; }
-
-        public static void Notify() => _semaphore.Release();
-
-        public ReportGenerationService(IServiceProvider serviceProvider)
+        public ReportGenerationServiceBase(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            ServiceProvider = serviceProvider;
-            Logger = serviceProvider.GetRequiredService<ILogger<ReportGenerationService>>();
         }
 
-        private async ValueTask<Data.Submission> GetOrLoadAsync(PlagiarismContext dbContext, int id)
+        private async ValueTask<Submission> GetOrLoadAsync(PlagiarismContext dbContext, int id)
         {
             var e = dbContext.ChangeTracker
-                .Entries<Data.Submission>()
+                .Entries<Submission>()
                 .Where(s => s.Entity?.Id == id)
                 .SingleOrDefault();
             if (e != null) return e.Entity;
@@ -42,7 +27,7 @@ namespace SatelliteSite.Services
                 .SingleOrDefaultAsync();
         }
 
-        private static void MatchReportCreate(MatchReport report, Matching matching)
+        private static void MatchReportCreate(MatchReport report, Plag.Matching matching)
         {
             bool swapAB = report.SubmissionA != matching.SubmissionA.Id;
             report.TokensMatched = matching.TokensMatched;
@@ -55,7 +40,7 @@ namespace SatelliteSite.Services
                 report.PercentB = matching.PercentA;
                 report.PercentA = matching.PercentB;
 
-                report.MatchPairs = matching.Select((i, j) => new Data.MatchPair
+                report.MatchPairs = matching.Select((i, j) => new MatchPair
                 {
                     MatchingId = j,
                     ContentStartB = matching.SubmissionA.IL[i.StartA].Column,
@@ -72,7 +57,7 @@ namespace SatelliteSite.Services
                 report.PercentA = matching.PercentA;
                 report.PercentB = matching.PercentB;
 
-                report.MatchPairs = matching.Select((i, j) => new Data.MatchPair
+                report.MatchPairs = matching.Select((i, j) => new MatchPair
                 {
                     MatchingId = j,
                     ContentStartA = matching.SubmissionA.IL[i.StartA].Column,
@@ -101,7 +86,7 @@ namespace SatelliteSite.Services
                 lang.CreateToken(j.Type, j.Line, j.Column, j.Length, j.FileId)));
             var s1 = new Plag.Submission(lang, null, ss1.Id, ss1.Tokens.Select(j =>
                 lang.CreateToken(j.Type, j.Line, j.Column, j.Length, j.FileId)));
-            var result = GSTiling.Compare(s0, s1, lang.MinimalTokenMatch);
+            var result = Plag.GSTiling.Compare(s0, s1, lang.MinimalTokenMatch);
 
             MatchReportCreate(rep, result);
             dbContext.Reports.Update(rep);
@@ -113,34 +98,25 @@ namespace SatelliteSite.Services
             var sids = new[] { ss0.Id, ss1.Id };
             await dbContext.Submissions
                 .Where(c => sids.Contains(c.Id) && c.MaxPercent < rep.Percent)
-                .BatchUpdateAsync(c => new Data.Submission { MaxPercent = rep.Percent });
+                .BatchUpdateAsync(c => new Submission { MaxPercent = rep.Percent });
 
             return rep;
         }
 
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override async Task ProcessAsync(PlagiarismContext context, CancellationToken stoppingToken)
         {
-            while (true)
+            while (!stoppingToken.IsCancellationRequested)
             {
-                await _semaphore.WaitAsync(stoppingToken);
-                if (stoppingToken.IsCancellationRequested) break;
-
-                try
-                {
-                    using var scope = ServiceProvider.CreateScope();
-                    using var dbContext = scope.ServiceProvider.GetRequiredService<PlagiarismContext>();
-
-                    while (true)
-                    {
-                        var s = await ResolveAsync(dbContext);
-                        if (s == null) break;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError(ex, "An error happened unexpected.");
-                }
+                var s = await ResolveAsync(context);
+                if (s == null) break;
             }
+        }
+    }
+
+    public class ReportGenerationService : ReportGenerationServiceBase<ReportGenerationService>
+    {
+        public ReportGenerationService(IServiceProvider serviceProvider) : base(serviceProvider)
+        {
         }
     }
 }

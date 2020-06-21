@@ -1,8 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using SatelliteSite.Controllers;
 using SatelliteSite.Data;
 using System;
 using System.Collections.Generic;
@@ -12,20 +8,10 @@ using System.Threading.Tasks;
 
 namespace SatelliteSite.Services
 {
-    public class SubmissionTokenizeService : BackgroundService
+    public class SubmissionTokenizeServiceBase<T> : ContextNotifyService<T>
     {
-        static readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
-
-        public IServiceProvider ServiceProvider { get; }
-
-        public ILogger<SubmissionTokenizeService> Logger { get; }
-
-        public static void Notify() => _semaphore.Release();
-
-        public SubmissionTokenizeService(IServiceProvider serviceProvider)
+        public SubmissionTokenizeServiceBase(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            ServiceProvider = serviceProvider;
-            Logger = serviceProvider.GetRequiredService<ILogger<SubmissionTokenizeService>>();
         }
 
         private async Task<Submission> ResolveAsync(PlagiarismContext dbContext)
@@ -116,32 +102,23 @@ namespace SatelliteSite.Services
             ReportGenerationService.Notify();
         }
 
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override async Task ProcessAsync(PlagiarismContext context, CancellationToken stoppingToken)
         {
-            while (true)
+            while (!stoppingToken.IsCancellationRequested)
             {
-                await _semaphore.WaitAsync(stoppingToken);
-                if (stoppingToken.IsCancellationRequested) break;
-
-                try
-                {
-                    using var scope = ServiceProvider.CreateScope();
-                    using var dbContext = scope.ServiceProvider.GetRequiredService<PlagiarismContext>();
-
-                    while (true)
-                    {
-                        var s = await ResolveAsync(dbContext);
-                        if (s != null)
-                            await ScheduleAsync(dbContext, s);
-                        else
-                            break;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError(ex, "An error happened unexpected.");
-                }
+                var s = await ResolveAsync(context);
+                if (s != null)
+                    await ScheduleAsync(context, s);
+                else
+                    break;
             }
+        }
+    }
+
+    public class SubmissionTokenizeService : SubmissionTokenizeServiceBase<SubmissionTokenizeService>
+    {
+        public SubmissionTokenizeService(IServiceProvider serviceProvider) : base(serviceProvider)
+        {
         }
     }
 }

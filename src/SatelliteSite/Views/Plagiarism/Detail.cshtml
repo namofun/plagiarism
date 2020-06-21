@@ -42,5 +42,5 @@
 <datatable data="ViewBag.ViewModel" auto-width="false" />
 
 <p>
-    <a href="#" class="btn btn-primary"><i class="fas fa-file-code"></i> Upload</a>
+    <a asp-action="Upload" asp-route-pid="@Context.Request.RouteValues["pid"]" data-toggle="ajaxWindow" data-target="upload" class="btn btn-primary"><i class="fas fa-file-code"></i> Upload</a>
 </p>

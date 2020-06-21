@@ -17,6 +17,8 @@ namespace SatelliteSite.Data
         {
             modelBuilder.Entity<Submission>(submission =>
             {
+                submission.ToTable("PlagiarismSubmissions", "plag");
+
                 submission.HasKey(e => e.Id);
 
                 submission.HasOne<CheckSet>()
@@ -26,6 +28,8 @@ namespace SatelliteSite.Data
 
             modelBuilder.Entity<Token>(token =>
             {
+                token.ToTable("PlagiarismTokens", "plag");
+
                 token.Property<int>("SubmissionId");
 
                 token.HasOne<Submission>()
@@ -41,6 +45,8 @@ namespace SatelliteSite.Data
 
             modelBuilder.Entity<SubmissionFile>(file =>
             {
+                file.ToTable("PlagiarismFiles", "plag");
+
                 file.HasKey(e => new { e.SubmissionId, e.FileId });
 
                 file.HasOne<Submission>()
@@ -51,6 +57,8 @@ namespace SatelliteSite.Data
 
             modelBuilder.Entity<MatchReport>(result =>
             {
+                result.ToTable("PlagiarismReports", "plag");
+
                 result.HasKey(e => e.Id);
 
                 result.Property(e => e.Id)
@@ -78,6 +86,8 @@ namespace SatelliteSite.Data
 
             modelBuilder.Entity<MatchPair>(match =>
             {
+                match.ToTable("PlagiarismMatches", "plag");
+
                 match.Property<Guid>("ReportId");
 
                 match.HasOne<MatchReport>()
@@ -93,6 +103,8 @@ namespace SatelliteSite.Data
 
             modelBuilder.Entity<CheckSet>(result =>
             {
+                result.ToTable("PlagiarismSets", "plag");
+
                 result.HasKey(e => e.Id);
             });
         }

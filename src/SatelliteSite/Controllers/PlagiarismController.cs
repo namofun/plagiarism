@@ -37,6 +37,8 @@ namespace SatelliteSite.Controllers
                     Id = s.Id.ToString(),
                     CreateTime = s.CreateTime,
                     Name = s.Name,
+                    TotalReports = s.ReportCount,
+                    PendingReports = s.ReportPending,
                 })
                 .ToListAsync();
 
@@ -70,12 +72,9 @@ namespace SatelliteSite.Controllers
 
 
         [HttpPost("[action]")]
-        [ValidateInAjax]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(SetCreateModel model)
         {
-            if (!PdsRegistry.SupportedLanguages.ContainsKey(model.Language))
-                ModelState.AddModelError("lang", "Language not found.");
             if (!ModelState.IsValid)
                 return View(model);
 
@@ -83,15 +82,39 @@ namespace SatelliteSite.Controllers
             {
                 CreateTime = DateTimeOffset.Now,
                 Name = model.Name,
-                Language = model.Language,
             });
 
             await Context.SaveChangesAsync();
-            int pid = e.Entity.Id;
-            var time = e.Entity.CreateTime;
+            return RedirectToAction(nameof(Detail), new { pid = e.Entity.Id });
+        }
+
+
+        [HttpGet("set/{pid}/[action]")]
+        public async Task<IActionResult> Upload(int pid)
+        {
+            var report = await Context.CheckSets
+                .Where(s => s.Id == pid)
+                .SingleOrDefaultAsync();
+            if (report == null) return null;
+            return View(new SetUploadModel());
+        }
+
+
+        [HttpPost("set/{pid}/[action]")]
+        [ValidateInAjax]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Upload(int pid, SetUploadModel model)
+        {
+            if (!PdsRegistry.SupportedLanguages.ContainsKey(model.Language))
+                ModelState.AddModelError("lang", "Language not found.");
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var cs = await Context.CheckSets.SingleOrDefaultAsync(s => s.Id == pid);
+            var time = DateTimeOffset.Now;
             var lang = PdsRegistry.SupportedLanguages[model.Language]();
             var err = new StringBuilder();
-            
+
             foreach (var item in model.Files)
             {
                 try
@@ -144,6 +167,25 @@ namespace SatelliteSite.Controllers
             StatusMessage = err.ToString();
             SubmissionTokenizeService.Notify();
             return RedirectToAction(nameof(Detail), new { pid });
+        }
+
+
+        [HttpGet("[action]")]
+        public IActionResult Refresh()
+        {
+            return AskPost(
+                title: "Plagiarism service",
+                message: "If the service isn't running, use this function to notify.",
+                area: null, ctrl: "Plagiarism", act: "Refresh", new { }, MessageType.Danger);
+        }
+
+
+        [HttpPost("[action]")]
+        public IActionResult Refresh(bool post = true)
+        {
+            ReportGenerationService.Notify();
+            SubmissionTokenizeService.Notify();
+            return RedirectToAction(nameof(List));
         }
 
 

@@ -24,11 +24,6 @@ namespace SatelliteSite.Data
         public string Name { get; set; }
 
         /// <summary>
-        /// 语言名称
-        /// </summary>
-        public string Language { get; set; }
-
-        /// <summary>
         /// 报告数量
         /// </summary>
         public int ReportCount { get; set; }
