@@ -46,7 +46,7 @@ namespace SatelliteSite.Data
         /// <summary>
         /// 代码的所有Token
         /// </summary>
-        public ICollection<Token> Tokens { get; set; }
+        public Plag.Submission Tokens { get; set; }
         
         /// <summary>
         /// 代码使用的语言

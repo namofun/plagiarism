@@ -1,5 +1,6 @@
 ﻿using Antlr4.Runtime;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace Plag
     /// <summary>
     /// Token list implemented by JPlag
     /// </summary>
-    public class Structure : IAntlrErrorListener<IToken>
+    public class Structure : IAntlrErrorListener<IToken>, IReadOnlyList<Token>
     {
         private readonly List<Token> tokens = new List<Token>();
 
@@ -36,6 +37,8 @@ namespace Plag
 
         public bool EndWithEof => tokens.Count == 0 || tokens[^1].Type == (int)TokenConstants.FILE_END;
 
+        public int Count => tokens.Count;
+
         public void SyntaxError(TextWriter output, IRecognizer recognizer, IToken offendingSymbol, int line, int charPositionInLine, string msg, RecognitionException e)
         {
             ErrorsCount++;
@@ -43,8 +46,7 @@ namespace Plag
 
         public void CreateHashes(int? size, Func<Structure, HashTable?, int> creation)
         {
-            if (HashLength != -1)
-                throw new InvalidOperationException("HashTable has been built. Do this method create different results?");
+            if (HashLength != -1 && Table != null) return;
             Table = size.HasValue ? new HashTable(size.Value) : null;
             HashLength = creation(this, Table);
         }
@@ -91,6 +93,16 @@ namespace Plag
             {
                 buf.Clear();
             }
+        }
+
+        public IEnumerator<Token> GetEnumerator()
+        {
+            return ((IEnumerable<Token>)tokens).GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((IEnumerable)tokens).GetEnumerator();
         }
     }
 }

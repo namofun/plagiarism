@@ -112,7 +112,7 @@ namespace SatelliteSite.Controllers
 
             var cs = await Context.CheckSets.SingleOrDefaultAsync(s => s.Id == pid);
             var time = DateTimeOffset.Now;
-            var lang = PdsRegistry.SupportedLanguages[model.Language]();
+            var lang = PdsRegistry.SupportedLanguages[model.Language];
             var err = new StringBuilder();
 
             foreach (var item in model.Files)

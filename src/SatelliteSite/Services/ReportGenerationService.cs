@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SatelliteSite.Data;
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,10 +23,28 @@ namespace SatelliteSite.Services
                 .SingleOrDefault();
             if (e != null) return e.Entity;
 
-            return await dbContext.Submissions
+            var s = await dbContext.Submissions
                 .Where(s => s.TokenProduced == true && s.Id == id)
-                .Include(s => s.Tokens)
                 .SingleOrDefaultAsync();
+            if (s == null) throw new InvalidDataException();
+
+            var lang = PdsRegistry.SupportedLanguages[s.Language];
+            if (!File.Exists($"Tokens/s{s.Id}.bin"))
+            {
+                Logger.LogWarning($"Token file `s{s.Id}.bin` missing, generating at once.");
+                s.Files = await dbContext.Set<SubmissionFile>()
+                    .Where(s => s.SubmissionId == id)
+                    .ToListAsync();
+                s.Tokens = new Plag.Submission(lang, new SubmissionFileProxy(s), s.Id);
+            }
+            else
+            {
+                using var fs = new FileStream($"Tokens/s{s.Id}.bin", FileMode.Open);
+                var tokens = await PdsRegistry.DeserializeAsync(fs, lang);
+                s.Tokens = new Plag.Submission(lang, null, s.Id, tokens);
+            }
+
+            return s;
         }
 
         private static void MatchReportCreate(MatchReport report, Plag.Matching matching)
@@ -81,12 +101,8 @@ namespace SatelliteSite.Services
             var ss0 = await GetOrLoadAsync(dbContext, rep.SubmissionA);
             var ss1 = await GetOrLoadAsync(dbContext, rep.SubmissionB);
 
-            var lang = PdsRegistry.SupportedLanguages[ss0.Language]();
-            var s0 = new Plag.Submission(lang, null, ss0.Id, ss0.Tokens.Select(j =>
-                lang.CreateToken(j.Type, j.Line, j.Column, j.Length, j.FileId)));
-            var s1 = new Plag.Submission(lang, null, ss1.Id, ss1.Tokens.Select(j =>
-                lang.CreateToken(j.Type, j.Line, j.Column, j.Length, j.FileId)));
-            var result = Plag.GSTiling.Compare(s0, s1, lang.MinimalTokenMatch);
+            var lang = PdsRegistry.SupportedLanguages[ss0.Language];
+            var result = Plag.GSTiling.Compare(ss0.Tokens, ss1.Tokens, lang.MinimalTokenMatch);
 
             MatchReportCreate(rep, result);
             dbContext.Reports.Update(rep);

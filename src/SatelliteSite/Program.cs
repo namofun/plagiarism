@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using System.IO;
 
 namespace SatelliteSite
 {
@@ -7,6 +8,8 @@ namespace SatelliteSite
     {
         public static void Main(string[] args)
         {
+            if (!Directory.Exists("Tokens"))
+                Directory.CreateDirectory("Tokens");
             CreateHostBuilder(args).Build().Run();
         }
 

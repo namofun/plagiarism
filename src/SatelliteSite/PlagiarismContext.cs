@@ -24,23 +24,8 @@ namespace SatelliteSite.Data
                 submission.HasOne<CheckSet>()
                     .WithMany(s => s.Submissions)
                     .HasForeignKey(e => e.SetId);
-            });
 
-            modelBuilder.Entity<Token>(token =>
-            {
-                token.ToTable("PlagiarismTokens", "plag");
-
-                token.Property<int>("SubmissionId");
-
-                token.HasOne<Submission>()
-                    .WithMany(e => e.Tokens)
-                    .HasForeignKey("SubmissionId")
-                    .OnDelete(DeleteBehavior.Cascade);
-
-                token.Property(e => e.TokenId)
-                    .ValueGeneratedNever();
-
-                token.HasKey("SubmissionId", "TokenId");
+                submission.Ignore(e => e.Tokens);
             });
 
             modelBuilder.Entity<SubmissionFile>(file =>

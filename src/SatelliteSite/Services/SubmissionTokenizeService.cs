@@ -2,6 +2,7 @@
 using SatelliteSite.Data;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,22 +26,16 @@ namespace SatelliteSite.Services
                 .Where(s => s.SubmissionId == ss.Id)
                 .ToListAsync();
 
-            var lang = PdsRegistry.SupportedLanguages[ss.Language]();
+            var lang = PdsRegistry.SupportedLanguages[ss.Language];
             var file = new SubmissionFileProxy(files);
 
             var tokens = new Plag.Submission(lang, file, ss.Id);
-
             ss.TokenProduced = !tokens.IL.Errors;
 
             if (!tokens.IL.Errors)
             {
-                ss.Tokens ??= new List<Token>();
-                for (var i = 0; i < tokens.IL.Size; i++)
-                {
-                    Token t = tokens.IL[i];
-                    t.TokenId = i;
-                    ss.Tokens.Add(t);
-                }
+                using var fs = new FileStream($"Tokens/s{ss.Id}.bin", FileMode.Create);
+                await PdsRegistry.SerializeAsync(fs, tokens.IL);
             }
 
             dbContext.Submissions.Update(ss);
