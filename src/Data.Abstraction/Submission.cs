@@ -11,7 +11,12 @@ namespace SatelliteSite.Data
         /// <summary>
         /// 代码的唯一编号
         /// </summary>
-        public Guid Id { get; set; }
+        public int Id { get; set; }
+
+        /// <summary>
+        /// 隶属查重集编号
+        /// </summary>
+        public int SetId { get; set; }
 
         /// <summary>
         /// 学生姓名
@@ -26,7 +31,7 @@ namespace SatelliteSite.Data
         /// <summary>
         /// 是否已生成比较单元
         /// </summary>
-        public bool TokenProduced { get; set; }
+        public bool? TokenProduced { get; set; }
 
         /// <summary>
         /// 提交时间

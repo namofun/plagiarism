@@ -49,11 +49,11 @@ namespace Plag
 
         public int BiggestMatch => ThrowIfNotFinished(maxMatched);
 
-        public double Percent => 200.0 * TokensMatched / (SubmissionA.IL.Size + SubmissionB.IL.Size - 2);
+        public double Percent => 200.0 * TokensMatched / (SubmissionA.IL.Size + SubmissionB.IL.Size - SubmissionA.IL.Files - SubmissionB.IL.Files);
 
-        public double PercentA => TokensMatched * 100.0 / (SubmissionA.IL.Size - 1);
+        public double PercentA => TokensMatched * 100.0 / (SubmissionA.IL.Size - SubmissionA.IL.Files);
 
-        public double PercentB => TokensMatched * 100.0 / (SubmissionB.IL.Size - 1);
+        public double PercentB => TokensMatched * 100.0 / (SubmissionB.IL.Size - SubmissionB.IL.Files);
 
         public double PercentMaxAB => Math.Max(PercentA, PercentB);
 

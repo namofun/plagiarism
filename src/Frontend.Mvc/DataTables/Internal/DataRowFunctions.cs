@@ -213,6 +213,7 @@ namespace Microsoft.AspNetCore.Mvc.DataTables.Internal
                 headLst.InnerHtml.AppendHtml(prop.dtd.CreateHeader());
                 if (prop.dtd.DefaultAscending != null)
                     sorts.Add($"[{i},'{prop.dtd.DefaultAscending}']");
+                i++;
             }
 
             bodyLst.Add(ExpTableRow);

@@ -31,6 +31,11 @@
         public int Length { get;  set; }
 
         /// <summary>
+        /// 令牌号
+        /// </summary>
+        public int TokenId { get; set; }
+
+        /// <summary>
         /// 将 <see cref="Plag.Token"/> 转换为 <see cref="Token"/>。
         /// </summary>
         /// <param name="token">原先的符号</param>

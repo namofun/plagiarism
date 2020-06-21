@@ -1,13 +1,13 @@
-﻿@model ICollection<SatelliteSite.Data.Submit.File>
+﻿@model SatelliteSite.Data.Submission
 @{
-    ViewData["Title"] = "Submission " + ViewBag.Id;
+    ViewData["Title"] = $"Submission s{Model.Id}: {Model.Name}";
     int t = 0, t2 = 0;
 }
 
 <h2 class="mt-2">@ViewData["Title"]</h2>
-<h5>UploadTime: @ViewBag.UploadTime</h5>
+
 <ul class="nav nav-tabs source-tab-nav">
-    @foreach (var item in Model)
+    @foreach (var item in Model.Files)
     {
         int id = t++;
         <li class="nav-item">
@@ -18,7 +18,7 @@
 </ul>
 
 <div class="tab-content source-tab">
-    @foreach (var item in Model)
+    @foreach (var item in Model.Files)
     {
         int id = t2++;
         <ace class="tab-pane fade @(id == 0 ? "show active" : "")" id="source-@id" role="tabpanel"

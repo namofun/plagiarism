@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Plag
 {
@@ -11,17 +10,9 @@ namespace Plag
 
         public ILanguage Language { get; }
 
-        public string Id { get; }
+        public int Id { get; }
         
-        public Submission(ILanguage lang, ISubmissionFile file)
-        {
-            Language = lang;
-            File = file;
-            IL = lang.Parse(file);
-            Id = Guid.NewGuid().ToString();
-        }
-
-        public Submission(ILanguage lang, ISubmissionFile file, string id, IEnumerable<Token> matches)
+        public Submission(ILanguage lang, ISubmissionFile file, int id = 0, IEnumerable<Token> matches = null)
         {
             Language = lang;
             File = file;

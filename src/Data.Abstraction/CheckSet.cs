@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace SatelliteSite.Data
 {
@@ -10,7 +11,7 @@ namespace SatelliteSite.Data
         /// <summary>
         /// 查重集编号
         /// </summary>
-        public Guid Id { get; set; }
+        public int Id { get; set; }
 
         /// <summary>
         /// 创建时间
@@ -21,5 +22,25 @@ namespace SatelliteSite.Data
         /// 查重集名称
         /// </summary>
         public string Name { get; set; }
+
+        /// <summary>
+        /// 语言名称
+        /// </summary>
+        public string Language { get; set; }
+
+        /// <summary>
+        /// 报告数量
+        /// </summary>
+        public int ReportCount { get; set; }
+
+        /// <summary>
+        /// 等待处理的报告数量
+        /// </summary>
+        public int ReportPending { get; set; }
+
+        /// <summary>
+        /// 所有提交
+        /// </summary>
+        public ICollection<Submission> Submissions { get; set; }
     }
 }

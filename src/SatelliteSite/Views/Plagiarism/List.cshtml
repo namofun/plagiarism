@@ -1,0 +1,12 @@
+﻿@model IEnumerable<SetListModel>
+@{
+    ViewData["Title"] = "Plagiarism Set";
+}
+
+<h2 class="mt-2">@ViewData["Title"]</h2>
+
+<datatable data="Model" />
+
+<p>
+    <a class="btn btn-primary" asp-action="Create" data-toggle="ajaxWindow" data-target="create"><i class="fas fa-plus"></i> Create</a>
+</p>

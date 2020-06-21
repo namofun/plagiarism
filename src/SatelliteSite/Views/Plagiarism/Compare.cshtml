@@ -1,25 +1,54 @@
-﻿@using SatelliteSite.Data.Match
+﻿@using SatelliteSite.Data
 @using SatelliteSite.Models
-@using System.Linq;
 @model (CodeModel, CodeModel)
-
 @{
-    ViewData["Title"] = "CompareX";
-    Report rep = ViewBag.Report;
-    double Precent = 0;
+    MatchReport rep = ViewBag.Report;
+    ViewData["Title"] = $"Report with s{rep.SubmissionA} and s{rep.SubmissionB}";
 }
 
-@functions
-{
-    string cout(string s, int a, int b)
+<h2 class="mt-2">@ViewData["Title"]</h2>
+
+<div class="row">
+    <div class="col-lg-4">
+        <table class="table table-sm table-striped">
+            <tr>
+                <th>ID</th>
+                <td>@rep.Id</td>
+            </tr>
+            <tr>
+                <th>Percent</th>
+                <td>@($"{rep.Percent:F2}%")</td>
+            </tr>
+            <tr>
+                <th>Submission A</th>
+                <td>@($"{rep.PercentA:F2}%") - @Model.Item1.Sid</td>
+            </tr>
+            <tr>
+                <th>Submission B</th>
+                <td>@($"{rep.PercentB:F2}%") - @Model.Item2.Sid</td>
+            </tr>
+            <tr>
+                <th>Token Matched</th>
+                <td>@rep.TokensMatched total, @rep.BiggestMatch consecutive longest</td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+@functions {
+    string Solve(string name, CodeModel model)
     {
-        return s.Substring(a, b - a);
+<h4>@name</h4>
+        foreach (var f in model.Files)
+        {
+<h6>@f.FilePath</h6>int index = 0;
+<figure class="highlight"><pre><code class="language-html" data-lang="html">@foreach (var c in f.Code)
+{if (c.End > f.Content.Length) { c.End = f.Content.Length; }<span class="@string.Join(' ', c.Marks.Select(s => $"mark-{s % 10} show-{s % 10}"))">@f.Content[c.Begin..c.End]</span>index = c.End;
+}<span>@if(f.Content.Length > index){@f.Content.Substring(index)}</span></code></pre></figure>
+        }
+        return "";
     }
 }
-<div>
-    <h1>Compare</h1>
-    <pre style="display: inline-block;">Precent:@rep.Percent</pre>
-</div>
 
 <div class="check-bar">
     <span style="color:gray;box-shadow: none;">Marks：</span>
@@ -38,48 +67,17 @@
     }
 </div>
 
-    <div class="container-fluid code-review">
-        <div class="row">
-            <div class="col-md-6">
-                @Model.Item1.Sid
-                @foreach (var f in Model.Item1.Files)
-                {
-                    @f.FilePath
-                    String Con = f.Content;
-                    int index = 0;
-                    <figure class="highlight">
-                        <pre><code class="language-html" data-lang="html">@foreach (var c in f.Code)
-                        {<span class="@{
-                            string tmp = "";
-                            foreach (var s in c.Marks) { tmp+=" mark-" + s % 10;tmp += " show-" + s % 10; }
-                             @tmp
-                            }">@cout(Con, c.Begin, c.End)</span> index = c.End;}}</code></pre>
-                    </figure>
-                }
-            </div>
-            <div class="col-md-6">
-                @Model.Item2.Sid
-                @foreach (var f in Model.Item2.Files)
-                {
-                    @f.FilePath
-                    String Con = f.Content;
-                    int index = 0;
-                    <figure class="highlight">
-                        <pre><code class="language-html" data-lang="html">@foreach (var c in f.Code)
-                        {<span class="@{
-                             string tmp = "";
-                             foreach (var s in c.Marks) { tmp+=" mark-" + s % 10;tmp += " show-" + s % 10; }
-                             @tmp
-                            }">@cout(Con, c.Begin, c.End)</span>index = c.End;}}</code></pre>
-                    </figure>
-                }
-            </div>
-        </div>
+<div class="row code-review">
+    <div class="col-md-6">
+        @Solve("A", Model.Item1)
     </div>
-
-
+    <div class="col-md-6">
+        @Solve("B", Model.Item2)
+    </div>
+</div>
 
 @section Scripts {
+
     <style>
         .highlight {
             padding: 1rem;
@@ -260,10 +258,8 @@
             box-shadow: 0 0 3px 1px #00000023;
         }
     </style>
+
     <script>
-
-
-
         function show(id, f) {
             if (f) {
                 $('.mark-' + id).addClass("show-" + id);
@@ -272,6 +268,7 @@
                 $('.mark-' + id).removeClass("show-" + id);
             }
         }
+
         function c2(id) {
             if ($("#" + id).prop("checked")) {
                 $("#" + id).prop("checked", false);
@@ -282,6 +279,7 @@
                 show(id, f);
             }
         }
+
         function c1(id, f) {
             if ($("#" + id).prop("checked") != f) {
                 $("#" + id).prop("checked", f);
@@ -305,9 +303,7 @@
                     c1(element, false);
                 });
             }
-        }
-        )
-
+        });
 
         $(function () {
             [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].forEach(element => {
@@ -322,4 +318,5 @@
             });
         });
     </script>
+
 }

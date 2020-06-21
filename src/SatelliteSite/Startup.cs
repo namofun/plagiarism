@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SatelliteSite.Data;
+using SatelliteSite.Services;
 
 namespace SatelliteSite
 {
@@ -35,9 +36,12 @@ namespace SatelliteSite
                 services.AddControllersWithViews()
                     .AddRazorRuntimeCompilation();
 
-            services.AddDbContext<DemoContext>(options => options
-                .UseCosmos(Configuration.GetSection("DatabaseConnection"), "Items"));
-            services.AddScoped<DataUtil>();
+            services.AddDbContext<PlagiarismContext>(options => options
+                .UseSqlServer(Configuration.GetConnectionString("UserDbConnection"))
+                .UseBulkExtensions());
+
+            services.AddHostedService<SubmissionTokenizeService>();
+            services.AddHostedService<ReportGenerationService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -53,6 +57,7 @@ namespace SatelliteSite
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
@@ -62,9 +67,7 @@ namespace SatelliteSite
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapControllers();
             });
         }
     }

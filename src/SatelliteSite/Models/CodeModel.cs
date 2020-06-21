@@ -1,47 +1,113 @@
-﻿using Plag;
+﻿using SatelliteSite.Data;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace SatelliteSite.Models
 {
     public class CodeModel
     {
-        public string Sid { set; get; }
-        public List<CodeFile> Files { set; get; }
-    }
-    public class CodeFile
-    {
-        public string FilePath { set; get; }
-        public string Content { set; get; }
-        public List<CodeChar> Code { set; get; }
-    }
-    public class CodeChar
-    {
-        public int Begin { set; get; }
-        public int End { set; get; }
-        public List<int> Marks { set; get; }
-    }
-    public class Boundary:IComparable<Boundary>
-    {
-        //对应的matchpairID
-        public int MatchingId { set; get; }
-        //对应的编号
-        public int index { set; get; }
+        public string Sid { get; set; }
 
-        public int CompareTo(Boundary other)
+        public List<CodeFile> Files { get; set; }
+
+        public static CodeModel CreateView(
+            MatchReport report,
+            Func<MatchPair, int> fileId,
+            Func<MatchPair, int> contentStart,
+            Func<MatchPair, int> contentEnd,
+            Submission sub)
         {
-            if(this.index != other.index)
-            return this.index - other.index;
-            return this.MatchingId - other.MatchingId;
+            var files = report.MatchPairs
+                .OrderBy(contentStart)
+                .ToLookup(fileId);
+
+            CodeFile CreateFromGroup(IGrouping<int, MatchPair> f)
+            {
+                var ff = sub.Files.First(i => i.FileId == f.Key);
+                var bound = new SortedSet<Boundary>();
+
+                foreach (var mp in f)
+                {
+                    bound.Add(new Boundary(mp.MatchingId, contentStart(mp)));
+                    bound.Add(new Boundary(mp.MatchingId, contentEnd(mp)));
+                }
+
+                var to = new HashSet<Boundary>();
+                var cur = new List<CodeChar>();
+                int begin = 0;
+
+                foreach (var bd in bound)
+                {
+                    bool remove = false;
+
+                    var cc = new CodeChar
+                    {
+                        Begin = begin,
+                        End = bd.Index,
+                        Marks = new List<int>(to.Select(a => a.MatchingId))
+                    };
+
+                    if (cc.Begin != cc.End - 1) cur.Add(cc);
+
+                    begin = bd.Index;
+                    var tmp = to.Where(a => a.MatchingId == bd.MatchingId);
+
+                    if (tmp.Count() != 0)
+                    {
+                        to.Remove(tmp.First());
+                        remove = true;
+                    }
+                    
+                    if (!remove) to.Add(bd);
+                }
+
+                return new CodeFile()
+                {
+                    FilePath = ff.FilePath,
+                    Content = ff.Content,
+                    Code = cur
+                };
+            }
+
+            return new CodeModel
+            {
+                Sid = $"{sub.Name} (s{sub.Id})",
+                Files = files.Select(CreateFromGroup).ToList()
+            };
         }
 
-        public Boundary(int MatchingId,int index)
+        public class CodeFile
         {
-            this.index = index;
-            this.MatchingId = MatchingId;
+            public string FilePath { get; set; }
+            public string Content { get; set; }
+            public List<CodeChar> Code { get; set; }
+        }
+
+        public class CodeChar
+        {
+            public int Begin { get; set; }
+            public int End { get; set; }
+            public List<int> Marks { get; set; }
+        }
+
+        public class Boundary : IComparable<Boundary>
+        {
+            public int MatchingId { get; set; }
+            public int Index { get; set; }
+
+            public int CompareTo(Boundary other)
+            {
+                if (Index != other.Index)
+                    return Index.CompareTo(other.Index);
+                return MatchingId.CompareTo(other.MatchingId);
+            }
+
+            public Boundary(int matchingId, int index)
+            {
+                Index = index;
+                MatchingId = matchingId;
+            }
         }
     }
 }

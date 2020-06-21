@@ -1,0 +1,103 @@
+﻿@model SetCreateModel
+@{
+    ViewData["Title"] = "Create Plagiarism Set";
+    Layout = "_WindowLayout";
+    var guid = Guid.NewGuid().ToString();
+}
+
+<div asp-validation-summary="All" class="text-danger"></div>
+
+<div class="form-group">
+    <label asp-for="Name"></label>
+    <input asp-for="Name" class="form-control" />
+</div>
+
+<div class="form-group">
+    <label asp-for="Language"></label>
+    <select asp-for="Language" class="form-control">
+        <option>-- Please Select --</option>
+        <option value="csharp8">C# 8</option>
+        <option value="cpp14">C++ 14</option>
+        <option value="java9">Java 11</option>
+        <option value="python3">Python 3</option>
+    </select>
+</div>
+
+<div class="form-group">
+    <label asp-for="Files">Files</label>
+    <div class="custom-file">
+        <input asp-for="Files" multiple accept=".zip" class="custom-file-input">
+        <label class="custom-file-label" asp-for="Files">Choose files</label>
+    </div>
+</div>
+
+<div class="upload-progress"><div></div></div>
+
+<script>
+    $(function () {
+        return;
+        let frm = $('#@guid');
+        let btn = $('#@guid');
+        while (frm[0].tagName != 'FORM') {
+            frm = frm.parent();
+        }
+        frm.attr('action', btn.attr('formaction'));
+        frm.attr('enctype', btn.attr('enctype'));
+        alert(frm.prop('action'));
+    });
+</script>
+
+<script>
+    function ajaxpost2(Button, handlekey, parent, arg2) {
+        let $Button = $(Button);
+        let Form = $Button.parent().parent().parent().parent().parent()[0];
+        let $Form = $(Form);
+        $Form.attr("action", $Button.attr("formaction"));
+        $Form.attr("enctype", $Button.attr("formenctype"));
+        let form = new FormData(Form);
+        form.append("handlekey", handlekey);
+        $.ajax({
+            url: $(Form).prop("action"),
+            type: "post",
+            data: form,
+            processData: false,
+            contentType: false,
+            xhr: function () {
+                let xhr = new XMLHttpRequest();
+                xhr.upload.addEventListener('progress', function (e) {
+                    var progressRate = (e.loaded / e.total) * 100 + '%';
+                    $('#modal-' + parent + ' .upload-progress > div').css('width', progressRate);
+                });
+                return xhr;
+            },
+            success: function (data, statusCode, jqXHR) {
+                if (jqXHR.getResponseHeader('X-Login-Page')) {
+                    window.location = jqXHR.getResponseHeader('X-Login-Page');
+                }
+                parent && $("#modal-" + parent).modal("hide");
+                $("#append-parent").append('<div id="ajax_result_' + handlekey + '">' + data + '</div>');
+                $("#modal-" + handlekey).on(
+                    "hidden.bs.modal",
+                    function (e) {
+                        $('#ajax_result_' + handlekey).remove()
+                    }
+                ).modal("show");
+            },
+            error: function (jqXHR) {
+                if (jqXHR.getResponseHeader('X-Login-Page')) {
+                    window.location = jqXHR.getResponseHeader('X-Login-Page');
+                }
+                notice("请联系管理员。" + jqXHR.status + ' ' + jqXHR.statusText + "<br><pre>" + jqXHR.responseText, "danger", "内部错误");
+            }
+        });
+        return false;
+    }
+</script>
+
+@section Footer {
+    <button id="@guid" formenctype="multipart/form-data" onclick="ajaxpost2(this,'@ViewData["HandleKey2"]','@ViewData["HandleKey"]');return false" asp-action="Create" class="btn btn-success">Create</button>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
