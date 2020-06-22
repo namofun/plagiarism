@@ -2,7 +2,9 @@
 @model Submission
 @{
     ViewData["Title"] = $"Submission s{Model.Id}: {Model.Name}";
+    string error = ViewBag.Error;
 }
 
 <h2 class="mt-2">Submission s@(Model.Id): <a asp-action="SourceCode" asp-route-sid="@Model.Id">@Model.Name</a></h2>
-<datatable data="ViewBag.Reports" />
+<datatable data="ViewBag.Reports" asp-show-if="error == null" />
+<pre class="output_text" asp-show-if="error != null">@error</pre>

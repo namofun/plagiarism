@@ -234,6 +234,16 @@ namespace SatelliteSite.Controllers
             var rep = await reportA.Concat(reportB).ToListAsync();
             rep.ForEach(a => a.EnsurePending());
             ViewBag.Reports = rep;
+
+            if (ss.TokenProduced == false)
+            {
+                var er = await Context.Set<Compilation>().Where(s => s.Id == sid).SingleOrDefaultAsync();
+                ViewBag.Error = er.Error;
+            }
+            else
+            {
+                ViewBag.Error = null;
+            }
             return View(ss);
         }
 

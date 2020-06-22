@@ -43,7 +43,7 @@ namespace Microsoft.AspNetCore.Mvc.TagHelpers
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
             base.Process(context, output);
-            bool suppress = ShowIf;
+            bool suppress = !ShowIf;
             if (Key != null && ViewContext.ViewData.ContainsKey(Key))
                 suppress = false;
             if (Roles != null && ViewContext.HttpContext.User.IsInRoles(Roles))

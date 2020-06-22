@@ -18,12 +18,19 @@ namespace SatelliteSite.Models
             Func<MatchPair, int> contentEnd,
             Submission sub)
         {
-            if (report.Matches == null)
+            if (report.Matches == null || report.Matches.Length == 0)
             {
                 return new CodeModel
                 {
                     Sid = $"{sub.Name} (s{sub.Id})",
-                    Files = new List<CodeFile>()
+                    Files = sub.Files
+                        .Select(i => new CodeFile
+                        {
+                            FilePath = i.FilePath,
+                            Content = i.Content,
+                            Code = new List<CodeChar>()
+                        })
+                        .ToList()
                 };
             }
 
