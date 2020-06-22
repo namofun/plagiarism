@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SatelliteSite.Data;
 
 namespace SatelliteSite.Migrations
 {
     [DbContext(typeof(PlagiarismContext))]
-    partial class PlagiarismContextModelSnapshot : ModelSnapshot
+    [Migration("20200622005426_CompilationStore")]
+    partial class CompilationStore
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -59,6 +61,37 @@ namespace SatelliteSite.Migrations
                     b.ToTable("PlagiarismCompilations","plag");
                 });
 
+            modelBuilder.Entity("SatelliteSite.Data.MatchPair", b =>
+                {
+                    b.Property<Guid>("ReportId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("MatchingId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ContentEndA")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ContentEndB")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ContentStartA")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ContentStartB")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FileA")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FileB")
+                        .HasColumnType("int");
+
+                    b.HasKey("ReportId", "MatchingId");
+
+                    b.ToTable("PlagiarismMatches","plag");
+                });
+
             modelBuilder.Entity("SatelliteSite.Data.MatchReport", b =>
                 {
                     b.Property<Guid>("Id")
@@ -70,9 +103,6 @@ namespace SatelliteSite.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasDefaultValue(0);
-
-                    b.Property<byte[]>("Matches")
-                        .HasColumnType("varbinary(max)");
 
                     b.Property<bool>("Pending")
                         .HasColumnType("bit");
@@ -171,6 +201,15 @@ namespace SatelliteSite.Migrations
                     b.HasOne("SatelliteSite.Data.Submission", null)
                         .WithOne()
                         .HasForeignKey("SatelliteSite.Data.Compilation", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("SatelliteSite.Data.MatchPair", b =>
+                {
+                    b.HasOne("SatelliteSite.Data.MatchReport", null)
+                        .WithMany("MatchPairs")
+                        .HasForeignKey("ReportId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

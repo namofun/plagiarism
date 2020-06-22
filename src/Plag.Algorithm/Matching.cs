@@ -59,6 +59,8 @@ namespace Plag
 
         public double PercentMinAB => Math.Min(PercentA, PercentB);
 
+        public MatchPair this[int index] => matchPairs[index];
+
         public IEnumerator<MatchPair> GetEnumerator()
         {
             return matchPairs.GetEnumerator();

@@ -1,8 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SatelliteSite.Data;
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,12 +30,34 @@ namespace SatelliteSite.Services
             var tokens = new Plag.Submission(lang, file, ss.Id);
             ss.TokenProduced = !tokens.IL.Errors;
 
-            if (!tokens.IL.Errors)
+            var ce = await dbContext.Set<Compilation>()
+                .Where(c => c.Id == ss.Id)
+                .SingleOrDefaultAsync();
+
+            if (ce == null)
             {
-                using var fs = new FileStream($"Tokens/s{ss.Id}.bin", FileMode.Create);
-                await PdsRegistry.SerializeAsync(fs, tokens.IL);
+                ce = new Compilation { Id = ss.Id };
+                dbContext.Set<Compilation>().Add(ce);
+            }
+            else
+            {
+                dbContext.Set<Compilation>().Update(ce);
             }
 
+            if (!tokens.IL.Errors)
+            {
+                ce.Tokens = PdsRegistry.Serialize(tokens.IL);
+                ce.Error = "";
+            }
+            else
+            {
+                ce.Tokens = null;
+                ce.Error =
+                    $"ANTLR4 failed with {tokens.IL.ErrorsCount} errors.\r\n"
+                    + tokens.IL.ErrorInfo.ToString();
+            }
+
+            dbContext.Set<Compilation>().Add(ce);
             dbContext.Submissions.Update(ss);
             await dbContext.SaveChangesAsync();
             return ss;

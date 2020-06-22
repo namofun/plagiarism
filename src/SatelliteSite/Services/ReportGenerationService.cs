@@ -28,10 +28,15 @@ namespace SatelliteSite.Services
                 .SingleOrDefaultAsync();
             if (s == null) throw new InvalidDataException();
 
+            var c = await dbContext.Set<Compilation>()
+                .AsNoTracking()
+                .Where(s => s.Id == id)
+                .SingleOrDefaultAsync();
+
             var lang = PdsRegistry.SupportedLanguages[s.Language];
-            if (!File.Exists($"Tokens/s{s.Id}.bin"))
+            if (c?.Tokens == null)
             {
-                Logger.LogWarning($"Token file `s{s.Id}.bin` missing, generating at once.");
+                Logger.LogWarning($"Token for s{s.Id} missing, generating at once.");
                 s.Files = await dbContext.Set<SubmissionFile>()
                     .Where(s => s.SubmissionId == id)
                     .ToListAsync();
@@ -39,8 +44,7 @@ namespace SatelliteSite.Services
             }
             else
             {
-                using var fs = new FileStream($"Tokens/s{s.Id}.bin", FileMode.Open);
-                var tokens = await PdsRegistry.DeserializeAsync(fs, lang);
+                var tokens = PdsRegistry.Deserialize(c.Tokens, lang);
                 s.Tokens = new Plag.Submission(lang, null, s.Id, tokens);
             }
 
@@ -54,41 +58,10 @@ namespace SatelliteSite.Services
             report.BiggestMatch = matching.BiggestMatch;
             report.Percent = matching.Percent;
             report.Pending = false;
-
-            if (swapAB)
-            {
-                report.PercentB = matching.PercentA;
-                report.PercentA = matching.PercentB;
-
-                report.MatchPairs = matching.Select((i, j) => new MatchPair
-                {
-                    MatchingId = j,
-                    ContentStartB = matching.SubmissionA.IL[i.StartA].Column,
-                    ContentEndB = matching.SubmissionA.IL[i.StartA + i.Length].Column,
-                    ContentStartA = matching.SubmissionB.IL[i.StartB].Column,
-                    ContentEndA = matching.SubmissionB.IL[i.StartB + i.Length].Column,
-                    FileB = matching.SubmissionA.IL[i.StartA].FileId,
-                    FileA = matching.SubmissionB.IL[i.StartB].FileId,
-                })
-                .ToList();
-            }
-            else
-            {
-                report.PercentA = matching.PercentA;
-                report.PercentB = matching.PercentB;
-
-                report.MatchPairs = matching.Select((i, j) => new MatchPair
-                {
-                    MatchingId = j,
-                    ContentStartA = matching.SubmissionA.IL[i.StartA].Column,
-                    ContentEndA = matching.SubmissionA.IL[i.StartA + i.Length].Column,
-                    ContentStartB = matching.SubmissionB.IL[i.StartB].Column,
-                    ContentEndB = matching.SubmissionB.IL[i.StartB + i.Length].Column,
-                    FileA = matching.SubmissionA.IL[i.StartA].FileId,
-                    FileB = matching.SubmissionB.IL[i.StartB].FileId,
-                })
-                .ToList();
-            }
+            report.Matches = PdsRegistry.Serialize(matching, swapAB);
+            (report.PercentA, report.PercentB) = swapAB
+                ? (matching.PercentB, matching.PercentA)
+                : (matching.PercentA, matching.PercentB);
         }
 
         private async Task<MatchReport> ResolveAsync(PlagiarismContext dbContext)

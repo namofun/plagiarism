@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc.DataTables;
-using SatelliteSite.Data;
 using System;
 
 namespace SatelliteSite.Models
@@ -42,20 +41,12 @@ namespace SatelliteSite.Models
         [DtDisplay(7, "that", "{PercentIt:F2}%", Sortable = true)]
         public double? PercentIt { get; set; }
 
-        public SubmissionListModel(MatchReport r, string anotherName, bool isB)
+        public void EnsurePending()
         {
-            Id = r.Id;
-            SubmissionAnother = anotherName;
-            SubmissionIdAnother = isB ? r.SubmissionB : r.SubmissionA;
-            Pending = r.Pending;
-
-            if (!Pending)
+            if (Pending)
             {
-                BiggestMatch = r.BiggestMatch;
-                TokensMatched = r.TokensMatched;
-                Percent = r.Percent;
-                PercentIt = isB ? r.PercentB : r.PercentA;
-                PercentSelf = isB ? r.PercentA : r.PercentB;
+                BiggestMatch = TokensMatched = null;
+                Percent = PercentIt = PercentSelf = null;
             }
         }
     }

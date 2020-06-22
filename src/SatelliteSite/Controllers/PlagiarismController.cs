@@ -201,16 +201,39 @@ namespace SatelliteSite.Controllers
                 from r in Context.Reports
                 where r.SubmissionB == sid
                 join s in Context.Submissions on r.SubmissionA equals s.Id
-                select new { r, s.Name, IsB = false };
+                select new SubmissionListModel
+                {
+                    BiggestMatch = r.BiggestMatch,
+                    SubmissionAnother = s.Name,
+                    SubmissionIdAnother = s.Id,
+                    Id = r.Id,
+                    Pending = r.Pending,
+                    TokensMatched = r.TokensMatched,
+                    Percent = r.Percent,
+                    PercentIt = r.PercentA,
+                    PercentSelf = r.PercentB
+                };
 
             var reportB =
                 from r in Context.Reports
                 where r.SubmissionA == sid
                 join s in Context.Submissions on r.SubmissionB equals s.Id
-                select new { r, s.Name, IsB = true };
+                select new SubmissionListModel
+                {
+                    BiggestMatch = r.BiggestMatch,
+                    SubmissionAnother = s.Name,
+                    SubmissionIdAnother = s.Id,
+                    Id = r.Id,
+                    Pending = r.Pending,
+                    TokensMatched = r.TokensMatched,
+                    Percent = r.Percent,
+                    PercentIt = r.PercentB,
+                    PercentSelf = r.PercentA
+                };
 
             var rep = await reportA.Concat(reportB).ToListAsync();
-            ViewBag.Reports = rep.Select(a => new SubmissionListModel(a.r, a.Name, a.IsB));
+            rep.ForEach(a => a.EnsurePending());
+            ViewBag.Reports = rep;
             return View(ss);
         }
 
@@ -232,7 +255,6 @@ namespace SatelliteSite.Controllers
         {
             var report = await Context.Reports
                 .Where(r => r.Id == rid)
-                .Include(r => r.MatchPairs)
                 .SingleOrDefaultAsync();
             if (report == null) return NotFound();
             ViewBag.Report = report;

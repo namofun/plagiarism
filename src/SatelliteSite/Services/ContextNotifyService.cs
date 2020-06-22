@@ -41,6 +41,7 @@ namespace SatelliteSite.Services
                 {
                     using var scope = ServiceProvider.CreateScope();
                     using var dbContext = scope.ServiceProvider.GetRequiredService<PlagiarismContext>();
+                    dbContext.ChangeTracker.AutoDetectChangesEnabled = false;
                     await ProcessAsync(dbContext, stoppingToken);
                 }
                 catch (Exception ex)

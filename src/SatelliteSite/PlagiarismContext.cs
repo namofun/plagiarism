@@ -28,6 +28,18 @@ namespace SatelliteSite.Data
                 submission.Ignore(e => e.Tokens);
             });
 
+            modelBuilder.Entity<Compilation>(compile =>
+            {
+                compile.ToTable("PlagiarismCompilations", "plag");
+
+                compile.HasKey(e => e.Id);
+
+                compile.HasOne<Submission>()
+                    .WithOne()
+                    .HasForeignKey<Compilation>(e => e.Id)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
             modelBuilder.Entity<SubmissionFile>(file =>
             {
                 file.ToTable("PlagiarismFiles", "plag");
@@ -67,23 +79,6 @@ namespace SatelliteSite.Data
                     .WithMany()
                     .HasForeignKey(e => e.SubmissionB)
                     .OnDelete(DeleteBehavior.Restrict);
-            });
-
-            modelBuilder.Entity<MatchPair>(match =>
-            {
-                match.ToTable("PlagiarismMatches", "plag");
-
-                match.Property<Guid>("ReportId");
-
-                match.HasOne<MatchReport>()
-                    .WithMany(e => e.MatchPairs)
-                    .HasForeignKey("ReportId")
-                    .OnDelete(DeleteBehavior.Cascade);
-
-                match.Property(e => e.MatchingId)
-                    .ValueGeneratedNever();
-
-                match.HasKey("ReportId", "MatchingId");
             });
 
             modelBuilder.Entity<CheckSet>(result =>

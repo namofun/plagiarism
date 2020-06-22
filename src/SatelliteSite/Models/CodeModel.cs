@@ -18,9 +18,17 @@ namespace SatelliteSite.Models
             Func<MatchPair, int> contentEnd,
             Submission sub)
         {
-            var files = report.MatchPairs
-                .OrderBy(contentStart)
-                .ToLookup(fileId);
+            if (report.Matches == null)
+            {
+                return new CodeModel
+                {
+                    Sid = $"{sub.Name} (s{sub.Id})",
+                    Files = new List<CodeFile>()
+                };
+            }
+
+            var rep = PdsRegistry.Deserialize(report.Matches);
+            var files = rep.OrderBy(contentStart).ToLookup(fileId);
 
             CodeFile CreateFromGroup(IGrouping<int, MatchPair> f)
             {

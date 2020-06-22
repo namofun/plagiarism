@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace SatelliteSite.Data
 {
@@ -22,11 +21,6 @@ namespace SatelliteSite.Data
         /// B提交的GUID
         /// </summary>
         public int SubmissionB { get; set; }
-
-        /// <summary>
-        /// 相似代码对集合
-        /// </summary>
-        public ICollection<MatchPair> MatchPairs { get; set; }
 
         /// <summary>
         /// 总计匹配成功的Token长度
@@ -57,5 +51,10 @@ namespace SatelliteSite.Data
         /// 此报告是否等待处理
         /// </summary>
         public bool Pending { get; set; }
+
+        /// <summary>
+        /// 匹配结果的数组
+        /// </summary>
+        public byte[] Matches { get; set; }
     }
 }
