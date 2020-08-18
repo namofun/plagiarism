@@ -7,7 +7,7 @@
   
   <Target Name="Antlr4CodeGeneration" BeforeTargets="PreBuildEvent"
           Inputs="@(Antlr4)" Outputs="@(Antlr4->'$(ProjectDir)/Grammars/%(Filename).interp')">
-    <Exec Command="java -jar $(SolutionDir)packages/antlr-4.8.jar -Dlanguage=CSharp -message-format vs2005 -package $(AntlrGeneratedNamespace) -o Grammars %(Antlr4.Identity)" ConsoleToMsBuild="true" />
+    <Exec Command="java -jar $(SolutionDir)build/antlr-4.8.jar -Dlanguage=CSharp -message-format vs2005 -package $(AntlrGeneratedNamespace) -o Grammars %(Antlr4.Identity)" ConsoleToMsBuild="true" />
   </Target>
   
   <UsingTask TaskName="_Antlr4GeneratedFilesDetection" TaskFactory="RoslynCodeTaskFactory"

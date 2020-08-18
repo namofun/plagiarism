@@ -6,6 +6,8 @@
     <AntlrGeneratedNamespace>Antlr4.Grammar.Csharp</AntlrGeneratedNamespace>
   </PropertyGroup>
 
+  <Import Project="..\..\build\Antlr4.Generation.targets" />
+
   <ItemGroup>
     <ProjectReference Include="..\Plag.Common\Plag.Common.csproj" />
   </ItemGroup>
