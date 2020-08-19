@@ -2,9 +2,9 @@
 {
     public struct MatchPair
     {
-        public int StartA { get; }
-        public int StartB { get; }
-        public int Length { get; }
+        public readonly int StartA;
+        public readonly int StartB;
+        public readonly int Length;
 
         public MatchPair(int startA, int startB, int length)
         {

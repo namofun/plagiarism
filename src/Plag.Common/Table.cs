@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -17,7 +16,7 @@ namespace Plag
         static HashTable()
         {
             var prims = new List<int> { 1 };
-            var isnp = ArrayPool<bool>.Shared.Rent(16002);
+            var isnp = new bool[16002];
             for (int i = 0; i < 16002; i++) isnp[i] = false;
 
             for (int i = 2; i <= 16001; i++)
@@ -33,7 +32,6 @@ namespace Plag
             }
 
             prim = prims.ToArray();
-            ArrayPool<bool>.Shared.Return(isnp, false);
         }
 
         public HashTable(int _size)

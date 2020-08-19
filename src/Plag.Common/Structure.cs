@@ -35,7 +35,7 @@ namespace Plag
 
         public StringBuilder OtherInfo { get; } = new StringBuilder();
 
-        public bool EndWithEof => tokens.Count == 0 || tokens[^1].Type == (int)TokenConstants.FILE_END;
+        public bool EndWithEof => tokens.Count == 0 || tokens[tokens.Count - 1].Type == (int)TokenConstants.FILE_END;
 
         public int Count => tokens.Count;
 
@@ -55,7 +55,7 @@ namespace Plag
         {
             if (tokens.Any())
             {
-                var last = tokens[^1];
+                var last = tokens[tokens.Count - 1];
                 if (token.FileId == last.FileId)
                 {
                     if (last.Line > token.Line)

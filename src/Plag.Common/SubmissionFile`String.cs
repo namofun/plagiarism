@@ -1,4 +1,5 @@
 ﻿using Antlr4.Runtime;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace Plag
@@ -25,5 +26,7 @@ namespace Plag
         public int Id => 1;
 
         public ICharStream Open() => new AntlrInputStream(Content) { name = Path };
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

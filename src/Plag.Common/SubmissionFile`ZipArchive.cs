@@ -1,5 +1,6 @@
 ﻿using Antlr4.Runtime;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO.Compression;
 
@@ -33,5 +34,7 @@ namespace Plag
         public int Id => -1;
 
         public ICharStream Open() => throw new InvalidOperationException();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

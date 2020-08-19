@@ -2,11 +2,14 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>8.0</LangVersion>
     <AntlrGeneratedNamespace>Antlr4.Grammar.Cpp</AntlrGeneratedNamespace>
+    <DescriptionAttach>The C++ 14 Frontend</DescriptionAttach>
   </PropertyGroup>
 
   <Import Project="..\..\build\Antlr4.Generation.targets" />
+  <Import Project="..\..\build\NugetPackage.PlagBasic.props" />
 
   <ItemGroup>
     <ProjectReference Include="..\Plag.Common\Plag.Common.csproj" />
