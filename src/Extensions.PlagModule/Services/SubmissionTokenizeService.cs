@@ -13,14 +13,14 @@ namespace SatelliteSite.Services
         {
         }
 
-        private async Task<Submission> ResolveAsync(PlagiarismContext dbContext)
+        private async Task<PlagiarismSubmission> ResolveAsync(PlagiarismContext dbContext)
         {
             var ss = await dbContext.Submissions
                 .Where(s => s.TokenProduced == null)
                 .FirstOrDefaultAsync();
             if (ss == null) return null;
 
-            var files = await dbContext.Set<SubmissionFile>()
+            var files = await dbContext.Set<PlagiarismFile>()
                 .Where(s => s.SubmissionId == ss.Id)
                 .ToListAsync();
 
@@ -30,18 +30,18 @@ namespace SatelliteSite.Services
             var tokens = new Plag.Submission(lang, file, ss.Id);
             ss.TokenProduced = !tokens.IL.Errors;
 
-            var ce = await dbContext.Set<Compilation>()
+            var ce = await dbContext.Set<PlagiarismCompilation>()
                 .Where(c => c.Id == ss.Id)
                 .SingleOrDefaultAsync();
 
             if (ce == null)
             {
-                ce = new Compilation { Id = ss.Id };
-                dbContext.Set<Compilation>().Add(ce);
+                ce = new PlagiarismCompilation { Id = ss.Id };
+                dbContext.Set<PlagiarismCompilation>().Add(ce);
             }
             else
             {
-                dbContext.Set<Compilation>().Update(ce);
+                dbContext.Set<PlagiarismCompilation>().Update(ce);
             }
 
             if (!tokens.IL.Errors)
@@ -57,13 +57,13 @@ namespace SatelliteSite.Services
                     + tokens.IL.ErrorInfo.ToString();
             }
 
-            dbContext.Set<Compilation>().Add(ce);
+            dbContext.Set<PlagiarismCompilation>().Add(ce);
             dbContext.Submissions.Update(ss);
             await dbContext.SaveChangesAsync();
             return ss;
         }
 
-        private async Task ScheduleAsync(PlagiarismContext dbContext, Submission ss)
+        private async Task ScheduleAsync(PlagiarismContext dbContext, PlagiarismSubmission ss)
         {
             if (ss.TokenProduced != true) return;
 
@@ -84,8 +84,8 @@ namespace SatelliteSite.Services
                 targetKey: r => new { Id = r.SubmissionA, B = r.SubmissionB },
                 sourceKey: r => new { r.Id, r.B },
                 delete: false,
-                updateExpression: (s1, s2) => new MatchReport { Pending = true },
-                insertExpression: s => new MatchReport
+                updateExpression: (s1, s2) => new PlagiarismReport { Pending = true },
+                insertExpression: s => new PlagiarismReport
                 {
                     Pending = true,
                     SubmissionA = s.Id,
@@ -97,8 +97,8 @@ namespace SatelliteSite.Services
                 targetKey: r => new { A = r.SubmissionA, Id = r.SubmissionB },
                 sourceKey: r => new { r.A, r.Id },
                 delete: false,
-                updateExpression: (s1, s2) => new MatchReport { Pending = true },
-                insertExpression: s => new MatchReport
+                updateExpression: (s1, s2) => new PlagiarismReport { Pending = true },
+                insertExpression: s => new PlagiarismReport
                 {
                     Pending = true,
                     SubmissionA = s.A,
@@ -108,7 +108,7 @@ namespace SatelliteSite.Services
             int tot = a + b;
             await dbContext.CheckSets
                 .Where(c => c.Id == ss.SetId)
-                .BatchUpdateAsync(c => new CheckSet
+                .BatchUpdateAsync(c => new PlagiarismSet
                 {
                     ReportCount = c.ReportCount + tot,
                     ReportPending = c.ReportPending + tot,

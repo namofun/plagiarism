@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SatelliteSite", "src\SatelliteSite\SatelliteSite.csproj", "{54B78B4D-6059-439B-86BB-69B8E61C0A44}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plag.Common", "src\Plag.Common\Plag.Common.csproj", "{277271A3-95DF-4395-B4DB-F9165DEBF665}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plag.Frontend.Cpp", "src\Plag.Frontend.Cpp\Plag.Frontend.Cpp.csproj", "{72A19AF5-CC55-43E7-866B-BECD115E1BAB}"
@@ -31,8 +29,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plag.Frontend.Csharp", "src
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plag.Frontend.Csharp.Tests", "test\Plag.Frontend.Csharp.Tests\Plag.Frontend.Csharp.Tests.csproj", "{9BAF815F-3109-4A0C-A26E-A22498009C2F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data.Abstraction", "src\Data.Abstraction\Data.Abstraction.csproj", "{6CB23582-887D-43E3-A67D-496256552B72}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SatelliteSite.PlagModule", "src\Extensions.PlagModule\SatelliteSite.PlagModule.csproj", "{92B561DE-2209-412B-B965-A513A519E74D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{AB36A2E1-C967-43C9-91DD-CA423B2A0F2C}"
@@ -49,10 +45,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{54B78B4D-6059-439B-86BB-69B8E61C0A44}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{54B78B4D-6059-439B-86BB-69B8E61C0A44}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{54B78B4D-6059-439B-86BB-69B8E61C0A44}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{54B78B4D-6059-439B-86BB-69B8E61C0A44}.Release|Any CPU.Build.0 = Release|Any CPU
 		{277271A3-95DF-4395-B4DB-F9165DEBF665}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{277271A3-95DF-4395-B4DB-F9165DEBF665}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{277271A3-95DF-4395-B4DB-F9165DEBF665}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -97,10 +89,6 @@ Global
 		{9BAF815F-3109-4A0C-A26E-A22498009C2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9BAF815F-3109-4A0C-A26E-A22498009C2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9BAF815F-3109-4A0C-A26E-A22498009C2F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6CB23582-887D-43E3-A67D-496256552B72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6CB23582-887D-43E3-A67D-496256552B72}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6CB23582-887D-43E3-A67D-496256552B72}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6CB23582-887D-43E3-A67D-496256552B72}.Release|Any CPU.Build.0 = Release|Any CPU
 		{92B561DE-2209-412B-B965-A513A519E74D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{92B561DE-2209-412B-B965-A513A519E74D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{92B561DE-2209-412B-B965-A513A519E74D}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -110,7 +98,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{54B78B4D-6059-439B-86BB-69B8E61C0A44} = {C6B49B4C-FEB2-477D-986D-F2216E34BA9C}
 		{277271A3-95DF-4395-B4DB-F9165DEBF665} = {C6B49B4C-FEB2-477D-986D-F2216E34BA9C}
 		{72A19AF5-CC55-43E7-866B-BECD115E1BAB} = {C6B49B4C-FEB2-477D-986D-F2216E34BA9C}
 		{D1A66847-CCC9-42B8-8561-F56193713779} = {47AFCF7A-6593-4310-9130-9B4B9C76E3C6}
@@ -122,7 +109,6 @@ Global
 		{B48F4E46-DF66-425A-8D44-A296BB4A0F28} = {47AFCF7A-6593-4310-9130-9B4B9C76E3C6}
 		{00768907-E025-4074-ACD4-ECB2B542293F} = {C6B49B4C-FEB2-477D-986D-F2216E34BA9C}
 		{9BAF815F-3109-4A0C-A26E-A22498009C2F} = {47AFCF7A-6593-4310-9130-9B4B9C76E3C6}
-		{6CB23582-887D-43E3-A67D-496256552B72} = {C6B49B4C-FEB2-477D-986D-F2216E34BA9C}
 		{92B561DE-2209-412B-B965-A513A519E74D} = {C6B49B4C-FEB2-477D-986D-F2216E34BA9C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

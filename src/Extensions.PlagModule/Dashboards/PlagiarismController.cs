@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using SatelliteSite.Data;
-using SatelliteSite.Models;
+using SatelliteSite.Entities;
+using SatelliteSite.PlagModule.Models;
 using SatelliteSite.Services;
 using System;
 using System.Collections.Generic;
@@ -12,10 +12,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SatelliteSite.Controllers
+namespace SatelliteSite.PlagModule.Dashboards
 {
-    [Route("[controller]")]
-    public class PlagiarismController : Controller2
+    [Area("Dashboard")]
+    [Route("[area]/[controller]")]
+    public class PlagiarismController : ViewControllerBase
     {
         public PlagiarismContext Context { get; }
 
@@ -78,7 +79,7 @@ namespace SatelliteSite.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            var e = Context.CheckSets.Add(new CheckSet
+            var e = Context.CheckSets.Add(new PlagiarismSet
             {
                 CreateTime = DateTimeOffset.Now,
                 Name = model.Name,
@@ -101,7 +102,7 @@ namespace SatelliteSite.Controllers
 
 
         [HttpPost("set/{pid}/[action]")]
-        [ValidateInAjax]
+        [ValidateAjaxWindow]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Upload(int pid, SetUploadModel model)
         {
@@ -124,7 +125,7 @@ namespace SatelliteSite.Controllers
 
                     var fid = 0;
 
-                    var sub = new Submission
+                    var sub = new PlagiarismSubmission
                     {
                         Name = Path.GetFileNameWithoutExtension(item.FileName),
                         UploadTime = time,
@@ -132,12 +133,12 @@ namespace SatelliteSite.Controllers
                         SetId = pid,
                     };
 
-                    var files = new List<SubmissionFile>();
+                    var files = new List<PlagiarismFile>();
                     foreach (var i in zip.Entries)
                     {
                         if (!lang.Suffixes.Any(j => i.Name.EndsWith(j, StringComparison.OrdinalIgnoreCase))) continue;
                         using var sr = new StreamReader(i.Open());
-                        files.Add(new SubmissionFile
+                        files.Add(new PlagiarismFile
                         {
                             FileId = ++fid,
                             FileName = i.Name,
@@ -176,7 +177,7 @@ namespace SatelliteSite.Controllers
             return AskPost(
                 title: "Plagiarism service",
                 message: "If the service isn't running, use this function to notify.",
-                area: null, ctrl: "Plagiarism", act: "Refresh", new { }, MessageType.Danger);
+                area: null, controller: "Plagiarism", action: "Refresh", new { }, BootstrapColor.danger);
         }
 
 
@@ -237,7 +238,7 @@ namespace SatelliteSite.Controllers
 
             if (ss.TokenProduced == false)
             {
-                var er = await Context.Set<Compilation>().Where(s => s.Id == sid).SingleOrDefaultAsync();
+                var er = await Context.Set<PlagiarismCompilation>().Where(s => s.Id == sid).SingleOrDefaultAsync();
                 ViewBag.Error = er.Error;
             }
             else

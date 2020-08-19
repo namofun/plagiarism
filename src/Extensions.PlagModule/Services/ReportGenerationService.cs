@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SatelliteSite.Data;
+using SatelliteSite.Entities;
 using System;
 using System.IO;
 using System.Linq;
@@ -15,10 +16,10 @@ namespace SatelliteSite.Services
         {
         }
 
-        private async ValueTask<Submission> GetOrLoadAsync(PlagiarismContext dbContext, int id)
+        private async ValueTask<PlagiarismSubmission> GetOrLoadAsync(DbContext dbContext, int id)
         {
             var e = dbContext.ChangeTracker
-                .Entries<Submission>()
+                .Entries<PlagiarismSubmission>()
                 .Where(s => s.Entity?.Id == id)
                 .SingleOrDefault();
             if (e != null) return e.Entity;
@@ -28,7 +29,7 @@ namespace SatelliteSite.Services
                 .SingleOrDefaultAsync();
             if (s == null) throw new InvalidDataException();
 
-            var c = await dbContext.Set<Compilation>()
+            var c = await dbContext.Set<PlagiarismCompilation>()
                 .AsNoTracking()
                 .Where(s => s.Id == id)
                 .SingleOrDefaultAsync();
@@ -37,7 +38,7 @@ namespace SatelliteSite.Services
             if (c?.Tokens == null)
             {
                 Logger.LogWarning($"Token for s{s.Id} missing, generating at once.");
-                s.Files = await dbContext.Set<SubmissionFile>()
+                s.Files = await dbContext.Set<PlagiarismFile>()
                     .Where(s => s.SubmissionId == id)
                     .ToListAsync();
                 s.Tokens = new Plag.Submission(lang, new SubmissionFileProxy(s), s.Id);
@@ -51,7 +52,7 @@ namespace SatelliteSite.Services
             return s;
         }
 
-        private static void MatchReportCreate(MatchReport report, Plag.Matching matching)
+        private static void MatchReportCreate(PlagiarismReport report, Plag.Matching matching)
         {
             bool swapAB = report.SubmissionA != matching.SubmissionA.Id;
             report.TokensMatched = matching.TokensMatched;
@@ -64,7 +65,7 @@ namespace SatelliteSite.Services
                 : (matching.PercentA, matching.PercentB);
         }
 
-        private async Task<MatchReport> ResolveAsync(PlagiarismContext dbContext)
+        private async Task<PlagiarismReport> ResolveAsync(PlagiarismContext dbContext)
         {
             var rep = await dbContext.Reports
                 .Where(s => s.Pending)
@@ -83,11 +84,11 @@ namespace SatelliteSite.Services
 
             await dbContext.CheckSets
                 .Where(c => c.Id == ss0.SetId)
-                .BatchUpdateAsync(c => new CheckSet { ReportPending = c.ReportPending - 1 });
+                .BatchUpdateAsync(c => new PlagiarismSet { ReportPending = c.ReportPending - 1 });
             var sids = new[] { ss0.Id, ss1.Id };
             await dbContext.Submissions
                 .Where(c => sids.Contains(c.Id) && c.MaxPercent < rep.Percent)
-                .BatchUpdateAsync(c => new Submission { MaxPercent = rep.Percent });
+                .BatchUpdateAsync(c => new PlagiarismSubmission { MaxPercent = rep.Percent });
 
             return rep;
         }
