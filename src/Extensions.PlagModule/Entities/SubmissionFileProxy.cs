@@ -1,6 +1,8 @@
 ﻿using Antlr4.Runtime;
 using Plag;
+using SatelliteSite.Entities;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,9 +12,9 @@ namespace SatelliteSite.Data
     {
         private class ConcreteFileProxy : ISubmissionFile
         {
-            public SubmissionFile ConcreteFile { get; }
+            public PlagiarismFile ConcreteFile { get; }
 
-            public ConcreteFileProxy(SubmissionFile file) => ConcreteFile = file;
+            public ConcreteFileProxy(PlagiarismFile file) => ConcreteFile = file;
 
             public string Path => ConcreteFile.FilePath;
 
@@ -29,13 +31,15 @@ namespace SatelliteSite.Data
             {
                 return new AntlrInputStream(ConcreteFile.Content) { name = ConcreteFile.FilePath };
             }
+
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }
 
-        public IEnumerable<SubmissionFile> SubmissionFiles { get; }
+        public IEnumerable<PlagiarismFile> SubmissionFiles { get; }
 
-        public SubmissionFileProxy(Submission file) => SubmissionFiles = file.Files;
+        public SubmissionFileProxy(PlagiarismSubmission file) => SubmissionFiles = file.Files;
 
-        public SubmissionFileProxy(IEnumerable<SubmissionFile> file) => SubmissionFiles = file;
+        public SubmissionFileProxy(IEnumerable<PlagiarismFile> file) => SubmissionFiles = file;
 
         public string Path => "./";
 
@@ -49,5 +53,7 @@ namespace SatelliteSite.Data
         {
             return SubmissionFiles.Select(f => new ConcreteFileProxy(f)).GetEnumerator();
         }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

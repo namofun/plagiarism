@@ -1,11 +1,11 @@
 ﻿using System;
 
-namespace SatelliteSite.Data
+namespace SatelliteSite.Entities
 {
     /// <summary>
     /// 查重报告
     /// </summary>
-    public class MatchReport
+    public class PlagiarismReport
     {
         /// <summary>
         /// 查重报告的编号

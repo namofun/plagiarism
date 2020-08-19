@@ -1,4 +1,4 @@
-﻿namespace SatelliteSite.Data
+﻿namespace SatelliteSite.Entities
 {
     /// <summary>
     /// 代码段匹配记录

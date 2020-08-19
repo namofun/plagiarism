@@ -1,6 +1,6 @@
-﻿namespace SatelliteSite.Data
+﻿namespace SatelliteSite.Entities
 {
-    public class Compilation
+    public class PlagiarismCompilation
     {
         public int Id { get; set; }
 

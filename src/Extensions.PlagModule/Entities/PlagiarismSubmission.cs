@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SatelliteSite.Data
+namespace SatelliteSite.Entities
 {
     /// <summary>
     /// 表示一份提交的代码
     /// </summary>
-    public class Submission
+    public class PlagiarismSubmission
     {
         /// <summary>
         /// 代码的唯一编号
@@ -41,7 +41,7 @@ namespace SatelliteSite.Data
         /// <summary>
         /// 代码提交中的所有文件
         /// </summary>
-        public ICollection<SubmissionFile> Files { get; set; }
+        public ICollection<PlagiarismFile> Files { get; set; }
         
         /// <summary>
         /// 代码的所有Token

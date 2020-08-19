@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    <DescriptionAttach>The plagiarism detection module</DescriptionAttach>
+  </PropertyGroup>
+
+  <Import Project="..\..\build\NugetPackage.props" />
+
+  <ItemGroup>
+    <PackageReference Include="SatelliteSite.Substrate" Version="1.0.0-preview2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Plag.Algorithm\Plag.Algorithm.csproj" />
+    <ProjectReference Include="..\Plag.Common\Plag.Common.csproj" />
+    <ProjectReference Include="..\Plag.Frontend.Cpp\Plag.Frontend.Cpp.csproj" />
+    <ProjectReference Include="..\Plag.Frontend.Csharp\Plag.Frontend.Csharp.csproj" />
+    <ProjectReference Include="..\Plag.Frontend.Java\Plag.Frontend.Java.csproj" />
+    <ProjectReference Include="..\Plag.Frontend.Python\Plag.Frontend.Python.csproj" />
+  </ItemGroup>
+
+</Project>

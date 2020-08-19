@@ -1,0 +1,19 @@
+<Project>
+
+  <PropertyGroup>
+    <Title>$(AssemblyName)</Title>
+    <Authors>yang-er</Authors>
+    <Description>UI kit for ASP.NET Core with moduling support. $(DescriptionAttach)</Description>
+    <PackageProjectUrl>https://github.com/namofun/plagiarism</PackageProjectUrl>
+    <Company />
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>antlr</PackageTags>
+    <PackageReleaseNotes>Plagiarism Detection by JPlag</PackageReleaseNotes>
+    <RepositoryUrl>https://github.com/namofun/plagiarism</RepositoryUrl>
+    <Version>1.0.0</Version>
+    <PackageVersion>1.0.0-preview2</PackageVersion>
+    <AssemblyVersion>3.1.7.0</AssemblyVersion>
+    <FileVersion>3.1.7.0</FileVersion>
+  </PropertyGroup>
+
+</Project>

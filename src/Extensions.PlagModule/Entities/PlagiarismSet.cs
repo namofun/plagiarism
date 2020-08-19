@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SatelliteSite.Data
+namespace SatelliteSite.Entities
 {
     /// <summary>
     /// 查重集
     /// </summary>
-    public class CheckSet
+    public class PlagiarismSet
     {
         /// <summary>
         /// 查重集编号
@@ -36,6 +36,6 @@ namespace SatelliteSite.Data
         /// <summary>
         /// 所有提交
         /// </summary>
-        public ICollection<Submission> Submissions { get; set; }
+        public ICollection<PlagiarismSubmission> Submissions { get; set; }
     }
 }

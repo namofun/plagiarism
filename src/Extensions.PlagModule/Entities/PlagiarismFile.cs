@@ -1,11 +1,11 @@
 ﻿using System;
 
-namespace SatelliteSite.Data
+namespace SatelliteSite.Entities
 {
     /// <summary>
     /// 代码中的文件
     /// </summary>
-    public class SubmissionFile
+    public class PlagiarismFile
     {
         /// <summary>
         /// 提交编号
