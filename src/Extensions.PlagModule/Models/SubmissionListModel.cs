@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.DataTables;
 using System;
 
-namespace SatelliteSite.Models
+namespace SatelliteSite.PlagModule.Models
 {
     [DtWrapUrl("/plagiarism/report/{Id}")]
     public class SubmissionListModel

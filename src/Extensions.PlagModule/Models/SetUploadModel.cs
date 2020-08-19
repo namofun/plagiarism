@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 
-namespace SatelliteSite.Models
+namespace SatelliteSite.PlagModule.Models
 {
     public class SetUploadModel
     {

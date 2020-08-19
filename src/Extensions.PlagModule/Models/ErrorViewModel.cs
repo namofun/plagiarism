@@ -1,6 +1,4 @@
-using System;
-
-namespace SatelliteSite.Models
+namespace SatelliteSite.PlagModule.Models
 {
     public class ErrorViewModel
     {

@@ -1,9 +1,9 @@
-﻿using SatelliteSite.Data;
+﻿using SatelliteSite.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SatelliteSite.Models
+namespace SatelliteSite.PlagModule.Models
 {
     public class CodeModel
     {
@@ -12,11 +12,11 @@ namespace SatelliteSite.Models
         public List<CodeFile> Files { get; set; }
 
         public static CodeModel CreateView(
-            MatchReport report,
+            PlagiarismReport report,
             Func<MatchPair, int> fileId,
             Func<MatchPair, int> contentStart,
             Func<MatchPair, int> contentEnd,
-            Submission sub)
+            PlagiarismSubmission sub)
         {
             if (report.Matches == null || report.Matches.Length == 0)
             {

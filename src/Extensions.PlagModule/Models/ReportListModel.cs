@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc.DataTables;
-using SatelliteSite.Data;
+using SatelliteSite.Entities;
 using System;
 
-namespace SatelliteSite.Models
+namespace SatelliteSite.PlagModule.Models
 {
     [DtWrapUrl("/plagiarism/submit/{Id}")]
     public class ReportListModel
@@ -27,7 +27,7 @@ namespace SatelliteSite.Models
         [DtWrapUrl("/plagiarism/submit/{Id}/source-code")]
         public object ViewSubmission { set { } }
 
-        public static ReportListModel Conv(Submission s)
+        public static ReportListModel Conv(PlagiarismSubmission s)
         {
             return new ReportListModel
             {

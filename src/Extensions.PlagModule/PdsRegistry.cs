@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace SatelliteSite
+namespace SatelliteSite.PlagModule
 {
-    public class PdsRegistry
+    public static class PdsRegistry
     {
         public static IReadOnlyDictionary<string, Plag.ILanguage> SupportedLanguages { get; }
             = new Dictionary<string, Plag.ILanguage>
@@ -108,17 +108,17 @@ namespace SatelliteSite
             return lst;
         }
 
-        public static List<Data.MatchPair> Deserialize(byte[] source)
+        public static List<Entities.MatchPair> Deserialize(byte[] source)
         {
             if (source == null || source.Length % 20 != 0)
                 throw new InvalidDataException();
-            var lst = new List<Data.MatchPair>(source.Length / 20);
+            var lst = new List<Entities.MatchPair>(source.Length / 20);
             var ints = new int[5];
 
             for (int i = 0, j = 0; i < source.Length; i += 20, j++)
             {
                 Buffer.BlockCopy(source, i, ints, 0, 20);
-                lst.Add(new Data.MatchPair
+                lst.Add(new Entities.MatchPair
                 {
                     ContentStartA = ints[1],
                     ContentEndA = ints[2],
