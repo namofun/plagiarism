@@ -1,18 +1,19 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Plag.Backend.Entities;
 
 namespace SatelliteSite.Entities
 {
     public class PlagEntityConfiguration<TContext> :
         EntityTypeConfigurationSupplier<TContext>,
-        IEntityTypeConfiguration<PlagiarismSubmission>,
-        IEntityTypeConfiguration<PlagiarismCompilation>,
-        IEntityTypeConfiguration<PlagiarismFile>,
+        IEntityTypeConfiguration<Submission>,
+        IEntityTypeConfiguration<Compilation>,
+        IEntityTypeConfiguration<SubmissionFile>,
         IEntityTypeConfiguration<PlagiarismSet>,
-        IEntityTypeConfiguration<PlagiarismReport>
+        IEntityTypeConfiguration<Report>
         where TContext : DbContext
     {
-        public void Configure(EntityTypeBuilder<PlagiarismSubmission> entity)
+        public void Configure(EntityTypeBuilder<Submission> entity)
         {
             entity.ToTable("PlagiarismSubmissions");
 
@@ -25,25 +26,25 @@ namespace SatelliteSite.Entities
             entity.Ignore(e => e.Tokens);
         }
 
-        public void Configure(EntityTypeBuilder<PlagiarismCompilation> entity)
+        public void Configure(EntityTypeBuilder<Compilation> entity)
         {
             entity.ToTable("PlagiarismCompilations");
 
             entity.HasKey(e => e.Id);
 
-            entity.HasOne<PlagiarismSubmission>()
+            entity.HasOne<Submission>()
                 .WithOne()
-                .HasForeignKey<PlagiarismCompilation>(e => e.Id)
+                .HasForeignKey<Compilation>(e => e.Id)
                 .OnDelete(DeleteBehavior.Cascade);
         }
 
-        public void Configure(EntityTypeBuilder<PlagiarismFile> entity)
+        public void Configure(EntityTypeBuilder<SubmissionFile> entity)
         {
             entity.ToTable("PlagiarismFiles");
 
             entity.HasKey(e => new { e.SubmissionId, e.FileId });
 
-            entity.HasOne<PlagiarismSubmission>()
+            entity.HasOne<Submission>()
                 .WithMany(e => e.Files)
                 .HasForeignKey(e => e.SubmissionId)
                 .OnDelete(DeleteBehavior.Cascade);
@@ -56,7 +57,7 @@ namespace SatelliteSite.Entities
             entity.HasKey(e => e.Id);
         }
 
-        public void Configure(EntityTypeBuilder<PlagiarismReport> entity)
+        public void Configure(EntityTypeBuilder<Report> entity)
         {
             entity.ToTable("PlagiarismReports");
 
@@ -74,12 +75,12 @@ namespace SatelliteSite.Entities
             entity.HasIndex(e => e.SubmissionA);
             entity.HasIndex(e => e.SubmissionB);
 
-            entity.HasOne<PlagiarismSubmission>()
+            entity.HasOne<Submission>()
                 .WithMany()
                 .HasForeignKey(e => e.SubmissionA)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            entity.HasOne<PlagiarismSubmission>()
+            entity.HasOne<Submission>()
                 .WithMany()
                 .HasForeignKey(e => e.SubmissionB)
                 .OnDelete(DeleteBehavior.Restrict);

@@ -1,20 +1,18 @@
 ﻿using Antlr4.Runtime;
-using Plag;
-using SatelliteSite.Entities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SatelliteSite.Data
+namespace Plag.Backend.Entities
 {
     public class SubmissionFileProxy : ISubmissionFile
     {
         private class ConcreteFileProxy : ISubmissionFile
         {
-            public PlagiarismFile ConcreteFile { get; }
+            public SubmissionFile ConcreteFile { get; }
 
-            public ConcreteFileProxy(PlagiarismFile file) => ConcreteFile = file;
+            public ConcreteFileProxy(SubmissionFile file) => ConcreteFile = file;
 
             public string Path => ConcreteFile.FilePath;
 
@@ -35,11 +33,11 @@ namespace SatelliteSite.Data
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }
 
-        public IEnumerable<PlagiarismFile> SubmissionFiles { get; }
+        public IEnumerable<SubmissionFile> SubmissionFiles { get; }
 
-        public SubmissionFileProxy(PlagiarismSubmission file) => SubmissionFiles = file.Files;
+        public SubmissionFileProxy(Submission file) => SubmissionFiles = file.Files;
 
-        public SubmissionFileProxy(IEnumerable<PlagiarismFile> file) => SubmissionFiles = file;
+        public SubmissionFileProxy(IEnumerable<SubmissionFile> file) => SubmissionFiles = file;
 
         public string Path => "./";
 

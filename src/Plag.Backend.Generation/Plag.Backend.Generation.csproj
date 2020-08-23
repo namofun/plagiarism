@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>8.0</LangVersion>
+    <RootNamespace>Plag.Backend</RootNamespace>
+    <DescriptionAttach>The implementions for backend services</DescriptionAttach>
+  </PropertyGroup>
+
+  <Import Project="..\..\build\NugetPackage.PlagBasic.props" />
+
+  <ItemGroup>
+    <ProjectReference Include="..\Plag.Algorithm\Plag.Algorithm.csproj" />
+    <ProjectReference Include="..\Plag.Backend.Abstraction\Plag.Backend.Abstraction.csproj" />
+    <ProjectReference Include="..\Plag.Common\Plag.Common.csproj" />
+    <ProjectReference Include="..\Plag.Frontend.Cpp\Plag.Frontend.Cpp.csproj" />
+    <ProjectReference Include="..\Plag.Frontend.Csharp\Plag.Frontend.Csharp.csproj" />
+    <ProjectReference Include="..\Plag.Frontend.Java\Plag.Frontend.Java.csproj" />
+    <ProjectReference Include="..\Plag.Frontend.Python\Plag.Frontend.Python.csproj" />
+  </ItemGroup>
+
+</Project>
