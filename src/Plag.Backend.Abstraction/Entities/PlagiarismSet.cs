@@ -5,7 +5,7 @@ namespace Plag.Backend.Entities
 {
     public class PlagiarismSet
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
 
         public DateTimeOffset CreateTime { get; set; }
 

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.DataTables;
+using Plag.Backend.Entities;
 using SatelliteSite.Entities;
 using System;
 
@@ -8,7 +9,7 @@ namespace SatelliteSite.PlagModule.Models
     public class ReportListModel
     {
         [DtDisplay(0, "ID", Searchable = true, Sortable = true)]
-        public int Id { get; set; }
+        public string Id { get; set; }
 
         [DtDisplay(1, "name", Searchable = true, Sortable = true)]
         public string Name { get; set; }
@@ -27,7 +28,7 @@ namespace SatelliteSite.PlagModule.Models
         [DtWrapUrl("/plagiarism/submit/{Id}/source-code")]
         public object ViewSubmission { set { } }
 
-        public static ReportListModel Conv(PlagiarismSubmission s)
+        public static ReportListModel Conv(Submission s)
         {
             return new ReportListModel
             {

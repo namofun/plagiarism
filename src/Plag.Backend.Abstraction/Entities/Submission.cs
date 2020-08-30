@@ -5,9 +5,9 @@ namespace Plag.Backend.Entities
 {
     public class Submission
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
 
-        public int SetId { get; set; }
+        public string SetId { get; set; }
 
         public string Name { get; set; }
 
@@ -18,8 +18,6 @@ namespace Plag.Backend.Entities
         public DateTimeOffset UploadTime { get; set; }
 
         public ICollection<SubmissionFile> Files { get; set; }
-        
-        public Plag.Submission Tokens { get; set; }
         
         public string Language { get; set; }
     }

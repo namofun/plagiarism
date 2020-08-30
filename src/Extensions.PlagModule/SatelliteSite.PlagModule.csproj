@@ -9,7 +9,7 @@
   <Import Project="..\..\build\NugetPackage.props" />
 
   <ItemGroup>
-    <PackageReference Include="SatelliteSite.Substrate" Version="1.0.0-preview2" />
+    <PackageReference Include="SatelliteSite.Substrate" Version="1.0.0-preview3" />
   </ItemGroup>
 
   <ItemGroup>

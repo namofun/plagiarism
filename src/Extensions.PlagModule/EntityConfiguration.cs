@@ -22,8 +22,6 @@ namespace SatelliteSite.Entities
             entity.HasOne<PlagiarismSet>()
                 .WithMany(s => s.Submissions)
                 .HasForeignKey(e => e.SetId);
-
-            entity.Ignore(e => e.Tokens);
         }
 
         public void Configure(EntityTypeBuilder<Compilation> entity)

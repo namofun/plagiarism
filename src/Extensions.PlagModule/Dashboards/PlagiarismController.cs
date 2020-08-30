@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using SatelliteSite.Entities;
+using Plag.Backend.Entities;
+using Plag.Backend.Services;
 using SatelliteSite.PlagModule.Models;
-using SatelliteSite.Services;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -18,32 +18,31 @@ namespace SatelliteSite.PlagModule.Dashboards
     [Route("[area]/[controller]")]
     public class PlagiarismController : ViewControllerBase
     {
-        public PlagiarismContext Context { get; }
+        public IStoreService Store { get; }
 
         public ILogger<PlagiarismController> Logger { get; }
 
-        public PlagiarismController(PlagiarismContext context, ILogger<PlagiarismController> logger)
+        public PlagiarismController(IStoreService store, ILogger<PlagiarismController> logger)
         {
-            Context = context;
+            Store = store;
             Logger = logger;
         }
 
 
         [HttpGet]
-        public async Task<IActionResult> List()
+        public async Task<IActionResult> List(int page = 1)
         {
-            var lst = await Context.CheckSets
-                .Select(s => new SetListModel
-                {
-                    Id = s.Id.ToString(),
-                    CreateTime = s.CreateTime,
-                    Name = s.Name,
-                    TotalReports = s.ReportCount,
-                    PendingReports = s.ReportPending,
-                })
-                .ToListAsync();
-
-            return View(lst);
+            if (page < 1) return NotFound();
+            var lsts = await Store.ListSetsAsync(page);
+            
+            return View(lsts.As(s => new SetListModel
+            {
+                Id = s.Id.ToString(),
+                CreateTime = s.CreateTime,
+                Name = s.Name,
+                TotalReports = s.ReportCount,
+                PendingReports = s.ReportPending,
+            }));
         }
 
 
@@ -55,19 +54,13 @@ namespace SatelliteSite.PlagModule.Dashboards
 
 
         [HttpGet("set/{pid}")]
-        public async Task<IActionResult> Detail(int pid)
+        public async Task<IActionResult> Detail(string pid)
         {
-            var report = await Context.CheckSets
-                .Where(s => s.Id == pid)
-                .SingleOrDefaultAsync();
+            var report = await Store.FindSetAsync(pid);
             if (report == null) return null;
 
-            report.Submissions = await Context.Submissions
-                .Where(s => s.SetId == pid)
-                .ToListAsync();
-
+            report.Submissions = await Store.ListSubmissionsAsync(pid);
             ViewBag.ViewModel = report.Submissions.Select(ReportListModel.Conv);
-
             return View(report);
         }
 
@@ -76,27 +69,18 @@ namespace SatelliteSite.PlagModule.Dashboards
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(SetCreateModel model)
         {
-            if (!ModelState.IsValid)
-                return View(model);
-
-            var e = Context.CheckSets.Add(new PlagiarismSet
-            {
-                CreateTime = DateTimeOffset.Now,
-                Name = model.Name,
-            });
-
-            await Context.SaveChangesAsync();
-            return RedirectToAction(nameof(Detail), new { pid = e.Entity.Id });
+            if (!ModelState.IsValid) return View(model);
+            var set = await Store.CreateSetAsync(model.Name);
+            return RedirectToAction(nameof(Detail), new { pid = set.Id });
         }
 
 
         [HttpGet("set/{pid}/[action]")]
-        public async Task<IActionResult> Upload(int pid)
+        public async Task<IActionResult> Upload(string pid)
         {
-            var report = await Context.CheckSets
-                .Where(s => s.Id == pid)
-                .SingleOrDefaultAsync();
-            if (report == null) return null;
+            var report = await Store.FindSetAsync(pid);
+            if (report == null) return NotFound();
+            ViewBag.Languages = await Store.ListLanguageAsync();
             return View(new SetUploadModel());
         }
 
@@ -104,16 +88,15 @@ namespace SatelliteSite.PlagModule.Dashboards
         [HttpPost("set/{pid}/[action]")]
         [ValidateAjaxWindow]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Upload(int pid, SetUploadModel model)
+        public async Task<IActionResult> Upload(string pid, SetUploadModel model)
         {
-            if (!PdsRegistry.SupportedLanguages.ContainsKey(model.Language))
-                ModelState.AddModelError("lang", "Language not found.");
-            if (!ModelState.IsValid)
-                return View(model);
+            var set = await Store.FindSetAsync(pid);
+            if (set == null) ModelState.AddModelError("checkset", "Plagiarism set not found.");
+            var lang = await Store.FindLanguageAsync(model.Language);
+            if (lang == null) ModelState.AddModelError("lang", "Language not found.");
+            if (!ModelState.IsValid) return View(model);
 
-            var cs = await Context.CheckSets.SingleOrDefaultAsync(s => s.Id == pid);
             var time = DateTimeOffset.Now;
-            var lang = PdsRegistry.SupportedLanguages[model.Language];
             var err = new StringBuilder();
 
             foreach (var item in model.Files)
@@ -125,7 +108,7 @@ namespace SatelliteSite.PlagModule.Dashboards
 
                     var fid = 0;
 
-                    var sub = new PlagiarismSubmission
+                    var sub = new Submission
                     {
                         Name = Path.GetFileNameWithoutExtension(item.FileName),
                         UploadTime = time,
@@ -133,12 +116,12 @@ namespace SatelliteSite.PlagModule.Dashboards
                         SetId = pid,
                     };
 
-                    var files = new List<PlagiarismFile>();
+                    var files = new List<SubmissionFile>();
                     foreach (var i in zip.Entries)
                     {
                         if (!lang.Suffixes.Any(j => i.Name.EndsWith(j, StringComparison.OrdinalIgnoreCase))) continue;
                         using var sr = new StreamReader(i.Open());
-                        files.Add(new PlagiarismFile
+                        files.Add(new SubmissionFile
                         {
                             FileId = ++fid,
                             FileName = i.Name,
@@ -154,8 +137,7 @@ namespace SatelliteSite.PlagModule.Dashboards
                     }
 
                     sub.Files = files;
-                    var s = Context.Add(sub);
-                    await Context.SaveChangesAsync();
+                    await Store.SubmitAsync(sub);
                 }
                 catch (Exception ex)
                 {
@@ -166,36 +148,14 @@ namespace SatelliteSite.PlagModule.Dashboards
 
             err.Append("Import finished.");
             StatusMessage = err.ToString();
-            SubmissionTokenizeService.Notify();
             return RedirectToAction(nameof(Detail), new { pid });
         }
 
 
-        [HttpGet("[action]")]
-        public IActionResult Refresh()
-        {
-            return AskPost(
-                title: "Plagiarism service",
-                message: "If the service isn't running, use this function to notify.",
-                area: null, controller: "Plagiarism", action: "Refresh", new { }, BootstrapColor.danger);
-        }
-
-
-        [HttpPost("[action]")]
-        public IActionResult Refresh(bool post = true)
-        {
-            ReportGenerationService.Notify();
-            SubmissionTokenizeService.Notify();
-            return RedirectToAction(nameof(List));
-        }
-
-
         [HttpGet("submit/{sid}")]
-        public async Task<IActionResult> Submission(int sid)
+        public async Task<IActionResult> Submission(string sid)
         {
-            var ss = await Context.Submissions
-                .Where(s => s.Id == sid)
-                .SingleOrDefaultAsync();
+            var ss = await Store.FindSubmissionAsync(sid, false);
             if (ss == null) return NotFound();
 
             var reportA =
@@ -238,52 +198,40 @@ namespace SatelliteSite.PlagModule.Dashboards
 
             if (ss.TokenProduced == false)
             {
-                var er = await Context.Set<PlagiarismCompilation>().Where(s => s.Id == sid).SingleOrDefaultAsync();
+                var er = await Store.GetCompilationAsync(sid);
                 ViewBag.Error = er.Error;
             }
             else
             {
                 ViewBag.Error = null;
             }
+
             return View(ss);
         }
 
 
         [HttpGet("submit/{sid}/[action]")]
-        public async Task<IActionResult> SourceCode(int sid)
+        public async Task<IActionResult> SourceCode(string sid)
         {
-            var ss = await Context.Submissions
-                .Where(s => s.Id == sid)
-                .Include(s => s.Files)
-                .SingleOrDefaultAsync();
+            var ss = await Store.FindSubmissionAsync(sid);
             if (ss == null) return NotFound();
             return View(ss);
         }
 
 
         [HttpGet("report/{rid}")]
-        public async Task<IActionResult> Compare(Guid rid)
+        public async Task<IActionResult> Compare(string rid)
         {
-            var report = await Context.Reports
-                .Where(r => r.Id == rid)
-                .SingleOrDefaultAsync();
+            var report = await Store.FindReportAsync(rid);
             if (report == null) return NotFound();
             ViewBag.Report = report;
 
-            var sids = new[] { report.SubmissionA, report.SubmissionB };
-            var submissions = await Context.Submissions
-                .Where(s => sids.Contains(s.Id))
-                .Include(s => s.Files)
-                .ToListAsync();
-
-            if (submissions.Count != 2)
-                throw new InvalidOperationException();
-            var (subA, subB) = (submissions[0], submissions[1]);
-            if (subA.Id != report.SubmissionA)
-                (subA, subB) = (subB, subA);
+            var subA = await Store.FindSubmissionAsync(report.SubmissionA);
+            var subB = await Store.FindSubmissionAsync(report.SubmissionB);
 
             var retA = CodeModel.CreateView(report, c => c.FileA, c => c.ContentStartA, c => c.ContentEndA, subA);
             var retB = CodeModel.CreateView(report, c => c.FileB, c => c.ContentStartB, c => c.ContentEndB, subB);
+            
             return View((retA, retB));
         }
     }

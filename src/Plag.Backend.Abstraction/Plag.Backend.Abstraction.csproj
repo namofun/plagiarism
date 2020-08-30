@@ -11,8 +11,9 @@
   <Import Project="..\..\build\NugetPackage.PlagBasic.props" />
 
   <ItemGroup>
-    <ProjectReference Include="..\Plag.Algorithm\Plag.Algorithm.csproj" />
-    <ProjectReference Include="..\Plag.Common\Plag.Common.csproj" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.7" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="3.1.7" />
+    <PackageReference Include="SatelliteSite.Abstraction" Version="1.0.0-preview3" />
   </ItemGroup>
 
 </Project>

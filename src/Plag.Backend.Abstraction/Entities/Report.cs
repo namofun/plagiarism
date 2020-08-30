@@ -4,11 +4,11 @@ namespace Plag.Backend.Entities
 {
     public class Report
     {
-        public Guid Id { get; set; }
+        public string Id { get; set; }
 
-        public int SubmissionA { get; set; }
+        public string SubmissionA { get; set; }
 
-        public int SubmissionB { get; set; }
+        public string SubmissionB { get; set; }
 
         public int TokensMatched { get; set; }
 
