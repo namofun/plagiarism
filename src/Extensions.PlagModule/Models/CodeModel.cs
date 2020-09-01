@@ -1,5 +1,5 @@
 ﻿using Plag.Backend.Entities;
-using SatelliteSite.Entities;
+using Plag.Backend.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,10 +35,10 @@ namespace SatelliteSite.PlagModule.Models
                 };
             }
 
-            var rep = PdsRegistry.Deserialize(report.Matches);
+            var rep = DefaultConvertService.DeserializeMatch(report.Matches);
             var files = rep.OrderBy(contentStart).ToLookup(fileId);
 
-            CodeFile CreateFromGroup(IGrouping<int, MatchPair> f)
+            CodeFile CreateFromGroup(IGrouping<int, FileMatch> f)
             {
                 var ff = sub.Files.First(i => i.FileId == f.Key);
                 var bound = new SortedSet<Boundary>();

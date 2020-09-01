@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Plag.Backend.Entities;
 using Plag.Backend.Services;
@@ -158,43 +157,8 @@ namespace SatelliteSite.PlagModule.Dashboards
             var ss = await Store.FindSubmissionAsync(sid, false);
             if (ss == null) return NotFound();
 
-            var reportA =
-                from r in Context.Reports
-                where r.SubmissionB == sid
-                join s in Context.Submissions on r.SubmissionA equals s.Id
-                select new SubmissionListModel
-                {
-                    BiggestMatch = r.BiggestMatch,
-                    SubmissionAnother = s.Name,
-                    SubmissionIdAnother = s.Id,
-                    Id = r.Id,
-                    Pending = r.Pending,
-                    TokensMatched = r.TokensMatched,
-                    Percent = r.Percent,
-                    PercentIt = r.PercentA,
-                    PercentSelf = r.PercentB
-                };
-
-            var reportB =
-                from r in Context.Reports
-                where r.SubmissionA == sid
-                join s in Context.Submissions on r.SubmissionB equals s.Id
-                select new SubmissionListModel
-                {
-                    BiggestMatch = r.BiggestMatch,
-                    SubmissionAnother = s.Name,
-                    SubmissionIdAnother = s.Id,
-                    Id = r.Id,
-                    Pending = r.Pending,
-                    TokensMatched = r.TokensMatched,
-                    Percent = r.Percent,
-                    PercentIt = r.PercentB,
-                    PercentSelf = r.PercentA
-                };
-
-            var rep = await reportA.Concat(reportB).ToListAsync();
-            rep.ForEach(a => a.EnsurePending());
-            ViewBag.Reports = rep;
+            var rep = await Store.GetComparisonsBySubmissionAsync(sid);
+            ViewBag.Reports = rep.Select(c => new SubmissionListModel(c));
 
             if (ss.TokenProduced == false)
             {

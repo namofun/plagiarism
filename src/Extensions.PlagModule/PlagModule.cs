@@ -1,13 +1,15 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Plag.Backend;
+using Plag.Backend.Services;
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
 namespace SatelliteSite.PlagModule
 {
-    public class PlagModule : AbstractModule
+    public class PlagModule<TRole> : AbstractModule
+        where TRole : class, IBackendRoleStrategy, new()
     {
         public override string Area => "Plagiarism";
 
@@ -22,7 +24,12 @@ namespace SatelliteSite.PlagModule
 
         public override void RegisterServices(IServiceCollection services)
         {
-            services.AddHostedService<>
+            new TRole().Apply(services);
+
+            var cnt = services
+                .Where(s => s.ServiceType == typeof(IStoreService))
+                .Count();
+            if (cnt == 0) throw new InvalidOperationException("No IStoreService injected.");
         }
     }
 }

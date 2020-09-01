@@ -6,7 +6,7 @@ namespace Plag.Backend.Services
     /// <summary>
     /// Conversion between entities and runtime poco.
     /// </summary>
-    public interface IConvertService
+    public interface IConvertService2 : IConvertService
     {
         /// <summary>
         /// Serialize the tokens.
@@ -22,13 +22,6 @@ namespace Plag.Backend.Services
         /// <param name="language">The target language.</param>
         /// <returns>The deserialized tokens.</returns>
         IReadOnlyList<Token> TokenDeserialize(byte[] source, ILanguage language);
-
-        /// <summary>
-        /// Deserialize the matches.
-        /// </summary>
-        /// <param name="source">The byte array to deserialize.</param>
-        /// <returns>The deserialized matches.</returns>
-        IReadOnlyList<FileMatch> MatchDeserialize(byte[] source);
 
         /// <summary>
         /// Serialize the matches.

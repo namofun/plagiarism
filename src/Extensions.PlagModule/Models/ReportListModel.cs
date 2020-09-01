@@ -1,11 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc.DataTables;
 using Plag.Backend.Entities;
-using SatelliteSite.Entities;
 using System;
 
 namespace SatelliteSite.PlagModule.Models
 {
-    [DtWrapUrl("/plagiarism/submit/{Id}")]
+    [DtWrapUrl("/dashboard/plagiarism/submit/{Id}")]
     public class ReportListModel
     {
         [DtDisplay(0, "ID", Searchable = true, Sortable = true)]
@@ -25,7 +24,7 @@ namespace SatelliteSite.PlagModule.Models
         public double Percent { get; set; }
 
         [DtIcon(5, "fas fa-file-code")]
-        [DtWrapUrl("/plagiarism/submit/{Id}/source-code")]
+        [DtWrapUrl("/dashboard/plagiarism/submit/{Id}/source-code")]
         public object ViewSubmission { set { } }
 
         public static ReportListModel Conv(Submission s)

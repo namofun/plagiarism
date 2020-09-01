@@ -1,8 +1,6 @@
-﻿@using SatelliteSite.Data
-@using SatelliteSite.Models
-@model (CodeModel, CodeModel)
+﻿@model (CodeModel, CodeModel)
 @{
-    MatchReport rep = ViewBag.Report;
+    Report rep = ViewBag.Report;
     ViewData["Title"] = $"Report with s{rep.SubmissionA} and s{rep.SubmissionB}";
 }
 

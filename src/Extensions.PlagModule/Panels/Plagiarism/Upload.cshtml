@@ -1,20 +1,18 @@
-﻿@model SetUploadModel
+﻿@using Plag.Backend
+@model SetUploadModel
 @{
     ViewData["Title"] = "Upload submissions";
     Layout = "_WindowLayout";
     var guid = Guid.NewGuid().ToString();
+    List<LanguageInfo> langs = ViewBag.Languages;
 }
 
 <div asp-validation-summary="All" class="text-danger"></div>
 
 <div class="form-group">
     <label asp-for="Language"></label>
-    <select asp-for="Language" class="form-control">
+    <select asp-for="Language" class="form-control" asp-items="langs.Select(l => new SelectListItem(l.Name, l.ShortName))">
         <option>-- Please Select --</option>
-        <option value="csharp8">C# 8</option>
-        <option value="cpp14">C++ 14</option>
-        <option value="java9">Java 11</option>
-        <option value="python3">Python 3</option>
     </select>
 </div>
 

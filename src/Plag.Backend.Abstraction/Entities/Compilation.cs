@@ -2,7 +2,7 @@
 {
     public class Compilation
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
 
         public string Error { get; set; }
 

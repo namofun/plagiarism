@@ -76,5 +76,12 @@ namespace Plag.Backend.Services
         /// <param name="submitId">The submission ID.</param>
         /// <returns>The compilation result.</returns>
         Task<Compilation> GetCompilationAsync(string submitId);
+
+        /// <summary>
+        /// Get the comparison between the submission and other submissions.
+        /// </summary>
+        /// <param name="submitId">The submission ID.</param>
+        /// <returns>The comparison result.</returns>
+        Task<List<Comparison>> GetComparisonsBySubmissionAsync(string submitId);
     }
 }
