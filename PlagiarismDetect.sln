@@ -35,6 +35,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{AB36A2E1
 	ProjectSection(SolutionItems) = preProject
 		build\antlr-4.8.jar = build\antlr-4.8.jar
 		build\Antlr4.Generation.targets = build\Antlr4.Generation.targets
+		build\NugetPackage.Common.props = build\NugetPackage.Common.props
 		build\NugetPackage.PlagBasic.props = build\NugetPackage.PlagBasic.props
 		build\NugetPackage.props = build\NugetPackage.props
 	EndProjectSection
@@ -43,7 +44,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plag.Backend.Generation", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plag.Backend.Abstraction", "src\Plag.Backend.Abstraction\Plag.Backend.Abstraction.csproj", "{32BB1DBB-A05A-4216-89AB-B74692F06CD6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plag.Backend.Roles.Storage", "src\Plag.Backend.Roles.Storage\Plag.Backend.Roles.Storage.csproj", "{2FA16CE4-2147-4A52-B851-DE96673CB0C9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plag.Backend.Roles.Storage", "src\Plag.Backend.Roles.Storage\Plag.Backend.Roles.Storage.csproj", "{2FA16CE4-2147-4A52-B851-DE96673CB0C9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
