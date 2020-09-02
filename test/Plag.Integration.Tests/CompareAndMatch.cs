@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Plag.Frontend;
 using System;
 
 namespace Plag.Integration.Tests
