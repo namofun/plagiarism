@@ -11,7 +11,7 @@
   <Import Project="..\..\build\NugetPackage.PlagBasic.props" />
 
   <ItemGroup>
-    <ProjectReference Include="..\Plag.Common\Plag.Common.csproj" />
+    <ProjectReference Include="..\Plag.Common\Plag.Frontend.Common.csproj" />
   </ItemGroup>
 
 </Project>

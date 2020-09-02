@@ -11,9 +11,9 @@
   <Import Project="..\..\build\NugetPackage.PlagBasic.props" />
 
   <ItemGroup>
-    <ProjectReference Include="..\Plag.Algorithm\Plag.Algorithm.csproj" />
+    <ProjectReference Include="..\Plag.Algorithm\Plag.Frontend.Algorithm.csproj" />
     <ProjectReference Include="..\Plag.Backend.Abstraction\Plag.Backend.Abstraction.csproj" />
-    <ProjectReference Include="..\Plag.Common\Plag.Common.csproj" />
+    <ProjectReference Include="..\Plag.Common\Plag.Frontend.Common.csproj" />
     <ProjectReference Include="..\Plag.Frontend.Cpp\Plag.Frontend.Cpp.csproj" />
     <ProjectReference Include="..\Plag.Frontend.Csharp\Plag.Frontend.Csharp.csproj" />
     <ProjectReference Include="..\Plag.Frontend.Java\Plag.Frontend.Java.csproj" />

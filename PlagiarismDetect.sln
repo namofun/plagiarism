@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plag.Common", "src\Plag.Common\Plag.Common.csproj", "{277271A3-95DF-4395-B4DB-F9165DEBF665}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plag.Frontend.Common", "src\Plag.Common\Plag.Frontend.Common.csproj", "{277271A3-95DF-4395-B4DB-F9165DEBF665}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plag.Frontend.Cpp", "src\Plag.Frontend.Cpp\Plag.Frontend.Cpp.csproj", "{72A19AF5-CC55-43E7-866B-BECD115E1BAB}"
 EndProject
@@ -13,7 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{47AFCF7A-6
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plag.Frontend.Cpp.Tests", "test\Plag.Frontend.Cpp.Tests\Plag.Frontend.Cpp.Tests.csproj", "{D1A66847-CCC9-42B8-8561-F56193713779}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plag.Algorithm", "src\Plag.Algorithm\Plag.Algorithm.csproj", "{E3F83E45-C17E-4650-B183-84DC49694313}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plag.Frontend.Algorithm", "src\Plag.Algorithm\Plag.Frontend.Algorithm.csproj", "{E3F83E45-C17E-4650-B183-84DC49694313}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plag.Integration.Tests", "test\Plag.Integration.Tests\Plag.Integration.Tests.csproj", "{25AC206E-A875-4BBB-91CD-E251035A352E}"
 EndProject
