@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Plag
+namespace Plag.Frontend
 {
     public class SubmissionComposite : List<ISubmissionFile>, ISubmissionFile
     {

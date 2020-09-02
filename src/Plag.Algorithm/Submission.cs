@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Plag
+namespace Plag.Frontend
 {
     public class Submission
     {
@@ -10,9 +10,9 @@ namespace Plag
 
         public ILanguage Language { get; }
 
-        public int Id { get; }
+        public string Id { get; }
         
-        public Submission(ILanguage lang, ISubmissionFile file, int id = 0, IEnumerable<Token> matches = null)
+        public Submission(ILanguage lang, ISubmissionFile file, string id = null, IEnumerable<Token> matches = null)
         {
             Language = lang;
             File = file;

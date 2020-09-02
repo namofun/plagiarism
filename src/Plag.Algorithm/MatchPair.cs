@@ -1,4 +1,4 @@
-﻿namespace Plag
+﻿namespace Plag.Frontend
 {
     public struct MatchPair
     {

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Plag
+namespace Plag.Frontend
 {
     public interface ILanguage
     {

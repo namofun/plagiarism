@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Plag
+namespace Plag.Frontend
 {
     public class Matching : IEnumerable<MatchPair>
     {

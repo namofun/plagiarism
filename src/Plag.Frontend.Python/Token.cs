@@ -1,6 +1,6 @@
 ﻿namespace Plag.Frontend.Python
 {
-	public class Token : Plag.Token
+	public class Token : Plag.Frontend.Token
 	{
 		public Token(TokenConstants type, int line, int start, int end, int fid) :
 			base((int)type, line, start, end - start + 1, fid) { }

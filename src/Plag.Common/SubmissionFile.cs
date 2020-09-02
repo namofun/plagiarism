@@ -1,7 +1,7 @@
 ﻿using Antlr4.Runtime;
 using System.Collections.Generic;
 
-namespace Plag
+namespace Plag.Frontend
 {
     public interface ISubmissionFile : IEnumerable<ISubmissionFile>
     {

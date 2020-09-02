@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Plag
+namespace Plag.Frontend
 {
     /// <summary>
     /// Hash table implemented by JPlag

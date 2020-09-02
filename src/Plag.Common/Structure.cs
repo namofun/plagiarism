@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace Plag
+namespace Plag.Frontend
 {
     /// <summary>
     /// Token list implemented by JPlag

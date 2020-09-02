@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Plag
+namespace Plag.Frontend
 {
     public class SubmissionString : ISubmissionFile
     {
