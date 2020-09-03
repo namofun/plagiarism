@@ -1,4 +1,6 @@
-﻿namespace Plag.Backend.Services
+﻿using Plag.Frontend;
+
+namespace Plag.Backend.Services
 {
     /// <summary>
     /// The service to generate plagiarism detection report.

@@ -14,7 +14,11 @@ namespace Plag.Backend
             services.AddSingleton<IConvertService2, DefaultConvertService2>();
             services.AddSingleton<IReportService, GstReportService>();
 
-            services.AddScoped<IStoreService, EntityFrameworkCoreStoreService<TContext>>();
+            services.AddScoped<IStoreExtService, EntityFrameworkCoreStoreService<TContext>>();
+            services.AddScoped<IStoreService>(sp => sp.GetRequiredService<IStoreExtService>());
+
+            services.AddHostedService<SubmissionTokenizeService>();
+            services.AddHostedService<ReportGenerationService>();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Plag.Frontend;
+using System.Collections.Generic;
 
 namespace Plag.Backend.Services
 {
@@ -18,7 +19,7 @@ namespace Plag.Backend.Services
             return SupportedLanguages.TryGetValue(name, out var lang) ? lang : null;
         }
 
-        public bool TryCompile(ILanguage lang, ISubmissionFile file, int id, out Submission submission)
+        public bool TryCompile(ILanguage lang, ISubmissionFile file, string id, out Submission submission)
         {
             submission = new Submission(lang, file, id);
             return !submission.IL.Errors;

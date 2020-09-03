@@ -1,12 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using SatelliteSite.Data;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SatelliteSite.Services
+namespace Plag.Backend.Services
 {
     public abstract class ContextNotifyService<T> : BackgroundService
     {
@@ -28,7 +27,7 @@ namespace SatelliteSite.Services
             Logger = serviceProvider.GetRequiredService<ILogger<T>>();
         }
 
-        protected abstract Task ProcessAsync(PlagiarismContext context, CancellationToken stoppingToken);
+        protected abstract Task ProcessAsync(IStoreExtService context, CancellationToken stoppingToken);
 
         protected sealed override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -40,8 +39,7 @@ namespace SatelliteSite.Services
                 try
                 {
                     using var scope = ServiceProvider.CreateScope();
-                    using var dbContext = scope.ServiceProvider.GetRequiredService<PlagiarismContext>();
-                    dbContext.ChangeTracker.AutoDetectChangesEnabled = false;
+                    var dbContext = scope.ServiceProvider.GetRequiredService<IStoreExtService>();
                     await ProcessAsync(dbContext, stoppingToken);
                 }
                 catch (Exception ex)

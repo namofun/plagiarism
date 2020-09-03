@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Internal;
 using Plag.Backend.Entities;
 using System;
 using System.Collections.Generic;
@@ -7,7 +9,9 @@ using System.Threading.Tasks;
 
 namespace Plag.Backend.Services
 {
-    public class EntityFrameworkCoreStoreService<TContext> : IStoreService
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1063:Implement IDisposable Correctly", Justification = "<挂起>")]
+    public class EntityFrameworkCoreStoreService<TContext> :
+        IStoreExtService, IDisposable
         where TContext : DbContext
     {
         public int PageCount { get; set; } = 30;
@@ -20,12 +24,16 @@ namespace Plag.Backend.Services
 
         public DbSet<Report> Reports => Context.Set<Report>();
 
-        public DbSet<Entities.Submission> Submissions => Context.Set<Entities.Submission>();
+        public DbSet<Submission> Submissions => Context.Set<Submission>();
+
+        public IMemoryCache TransientStore { get; }
 
         public EntityFrameworkCoreStoreService(TContext context, ICompileService compile)
         {
             Context = context;
             Compile = compile;
+            context.ChangeTracker.AutoDetectChangesEnabled = false;
+            TransientStore = new MemoryCache(new MemoryCacheOptions { Clock = new SystemClock() });
         }
 
         public async Task<PlagiarismSet> CreateSetAsync(string name)
@@ -54,7 +62,7 @@ namespace Plag.Backend.Services
                 .SingleOrDefaultAsync();
         }
 
-        public Task<Entities.Submission> FindSubmissionAsync(string id, bool includeFiles = true)
+        public Task<Submission> FindSubmissionAsync(string id, bool includeFiles = true)
         {
             return Submissions.Where(s => s.Id == id)
                 .IncludeIf(includeFiles, s => s.Files)
@@ -64,8 +72,8 @@ namespace Plag.Backend.Services
         public Task<Compilation> GetCompilationAsync(string submitId)
         {
             return Context.Set<Compilation>()
-                .Where(s => s.Id == submitId)
-                .SingleOrDefaultAsync();
+                .FindAsync(submitId)
+                .AsTask();
         }
 
         public Task<LanguageInfo> FindLanguageAsync(string langName)
@@ -95,17 +103,18 @@ namespace Plag.Backend.Services
             return new PagedViewList<PlagiarismSet>(content, page, count, PageCount);
         }
 
-        public Task<List<Entities.Submission>> ListSubmissionsAsync(string setId)
+        public Task<List<Submission>> ListSubmissionsAsync(string setId)
         {
             return Submissions
                 .Where(s => s.SetId == setId)
                 .ToListAsync();
         }
 
-        public async Task SubmitAsync(Entities.Submission submission)
+        public async Task SubmitAsync(Submission submission)
         {
             Submissions.Add(submission);
             await Context.SaveChangesAsync();
+            SubmissionTokenizeService.Notify();
         }
 
         public Task<List<Comparison>> GetComparisonsBySubmissionAsync(string submitId)
@@ -145,6 +154,131 @@ namespace Plag.Backend.Services
                 };
 
             return reportA.Concat(reportB).ToListAsync();
+        }
+
+        public async Task CompileAsync(Submission submitId, string error, byte[] result)
+        {
+            submitId.TokenProduced = result != null;
+            Context.Set<Submission>().Update(submitId);
+            var ce = await Context.Set<Compilation>().FindAsync(submitId);
+
+            if (ce == null)
+            {
+                ce = new Compilation
+                {
+                    Id = submitId.Id,
+                    Error = error,
+                    Tokens = result
+                };
+
+                Context.Set<Compilation>().Add(ce);
+            }
+            else
+            {
+                ce.Tokens = result;
+                ce.Error = error;
+                Context.Set<Compilation>().Update(ce);
+            }
+
+            await Context.SaveChangesAsync();
+        }
+
+        public Task<Submission> FetchAsync()
+        {
+            return Submissions
+                .Where(s => s.TokenProduced == null)
+                .Include(s => s.Files)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task ScheduleAsync(Submission ss)
+        {
+            if (ss.TokenProduced != true) return;
+
+            var leftQuery =
+                from s in Submissions
+                where s.SetId == ss.SetId && s.Language == ss.Language
+                where s.TokenProduced == true && s.Id.CompareTo(ss.Id) < 0
+                select new { s.Id, B = ss.Id };
+
+            var rightQuery =
+                from s in Submissions
+                where s.SetId == ss.SetId && s.Language == ss.Language
+                where s.TokenProduced == true && s.Id.CompareTo(ss.Id) > 0
+                select new { s.Id, A = ss.Id };
+
+            int a = await Reports.MergeAsync(
+                sourceTable: leftQuery,
+                targetKey: r => new { Id = r.SubmissionA, B = r.SubmissionB },
+                sourceKey: r => new { r.Id, r.B },
+                delete: false,
+                updateExpression: (s1, s2) => new Report { Pending = true },
+                insertExpression: s => new Report
+                {
+                    Pending = true,
+                    SubmissionA = s.Id,
+                    SubmissionB = s.B,
+                });
+
+            int b = await Reports.MergeAsync(
+                sourceTable: rightQuery,
+                targetKey: r => new { A = r.SubmissionA, Id = r.SubmissionB },
+                sourceKey: r => new { r.A, r.Id },
+                delete: false,
+                updateExpression: (s1, s2) => new Report { Pending = true },
+                insertExpression: s => new Report
+                {
+                    Pending = true,
+                    SubmissionA = s.A,
+                    SubmissionB = s.Id,
+                });
+
+            int tot = a + b;
+            await Sets.Where(c => c.Id == ss.SetId)
+                .BatchUpdateAsync(c => new PlagiarismSet
+                {
+                    ReportCount = c.ReportCount + tot,
+                    ReportPending = c.ReportPending + tot,
+                });
+        }
+
+        public ValueTask<Submission> QuickFindSubmissionAsync(string submitId)
+        {
+            return Submissions.FindAsync(submitId);
+        }
+
+        public Task<Report> FetchOneAsync()
+        {
+            return Reports.Where(r => r.Pending).FirstOrDefaultAsync();
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1063:Implement IDisposable Correctly", Justification = "<挂起>")]
+        public void Dispose()
+        {
+            TransientStore.Dispose();
+        }
+
+        public Task<List<SubmissionFile>> GetFilesAsync(string submitId)
+        {
+            return Context.Set<SubmissionFile>()
+                .Where(s => s.SubmissionId == submitId)
+                .OrderBy(s => s.FileId)
+                .ToListAsync();
+        }
+
+        public async Task SaveReportAsync(string setId, Report rep)
+        {
+            Reports.Update(rep);
+            await Context.SaveChangesAsync();
+
+            await Sets
+                .Where(c => c.Id == setId)
+                .BatchUpdateAsync(c => new PlagiarismSet { ReportPending = c.ReportPending - 1 });
+
+            var sids = new[] { rep.SubmissionA, rep.SubmissionB };
+            await Submissions
+                .Where(c => sids.Contains(c.Id) && c.MaxPercent < rep.Percent)
+                .BatchUpdateAsync(c => new Submission { MaxPercent = rep.Percent });
         }
     }
 }

@@ -2,7 +2,7 @@
 {
     public class SubmissionFile
     {
-        public int SubmissionId { get; set; }
+        public string SubmissionId { get; set; }
 
         public int FileId { get; set; }
 

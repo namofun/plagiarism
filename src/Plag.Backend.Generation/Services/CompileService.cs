@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using Plag.Frontend;
 
 namespace Plag.Backend.Services
 {
@@ -22,6 +23,6 @@ namespace Plag.Backend.Services
         /// <param name="id">The submission ID.</param>
         /// <param name="submission">The submission produced.</param>
         /// <returns>Return whether the compilation failed.</returns>
-        bool TryCompile(ILanguage language, ISubmissionFile file, int id, out Submission submission);
+        bool TryCompile(ILanguage language, ISubmissionFile file, string id, out Submission submission);
     }
 }

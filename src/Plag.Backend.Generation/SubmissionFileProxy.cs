@@ -1,10 +1,11 @@
 ﻿using Antlr4.Runtime;
+using Plag.Backend.Entities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Plag.Backend.Entities
+namespace Plag.Frontend
 {
     public class SubmissionFileProxy : ISubmissionFile
     {
@@ -35,7 +36,7 @@ namespace Plag.Backend.Entities
 
         public IEnumerable<SubmissionFile> SubmissionFiles { get; }
 
-        public SubmissionFileProxy(Submission file) => SubmissionFiles = file.Files;
+        public SubmissionFileProxy(Backend.Entities.Submission file) => SubmissionFiles = file.Files;
 
         public SubmissionFileProxy(IEnumerable<SubmissionFile> file) => SubmissionFiles = file;
 

@@ -1,99 +1,86 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using SatelliteSite.Data;
-using SatelliteSite.Entities;
+using Plag.Backend.Entities;
 using System;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SatelliteSite.Services
+namespace Plag.Backend.Services
 {
     public class ReportGenerationServiceBase<T> : ContextNotifyService<T>
     {
+        public IConvertService2 Convert { get; }
+
+        public ICompileService Compile { get; }
+
+        public IReportService Report { get; }
+
         public ReportGenerationServiceBase(IServiceProvider serviceProvider) : base(serviceProvider)
         {
+            Convert = serviceProvider.GetRequiredService<IConvertService2>();
+            Compile = serviceProvider.GetRequiredService<ICompileService>();
+            Report = serviceProvider.GetRequiredService<IReportService>();
         }
 
-        private async ValueTask<PlagiarismSubmission> GetOrLoadAsync(DbContext dbContext, int id)
+        private async ValueTask<(Submission, Frontend.Submission)> GetOrLoadAsync(IStoreExtService store, string id)
         {
-            var e = dbContext.ChangeTracker
-                .Entries<PlagiarismSubmission>()
-                .Where(s => s.Entity?.Id == id)
-                .SingleOrDefault();
-            if (e != null) return e.Entity;
+            var s = await store.QuickFindSubmissionAsync(id);
+            if (s == null || s.TokenProduced != true)
+                throw new InvalidDataException();
 
-            var s = await dbContext.Submissions
-                .Where(s => s.TokenProduced == true && s.Id == id)
-                .SingleOrDefaultAsync();
-            if (s == null) throw new InvalidDataException();
-
-            var c = await dbContext.Set<PlagiarismCompilation>()
-                .AsNoTracking()
-                .Where(s => s.Id == id)
-                .SingleOrDefaultAsync();
-
-            var lang = PdsRegistry.SupportedLanguages[s.Language];
-            if (c?.Tokens == null)
+            var ss = await store.TransientStore.GetOrCreateAsync(id, async entry =>
             {
-                Logger.LogWarning($"Token for s{s.Id} missing, generating at once.");
-                s.Files = await dbContext.Set<PlagiarismFile>()
-                    .Where(s => s.SubmissionId == id)
-                    .ToListAsync();
-                s.Tokens = new Plag.Submission(lang, new SubmissionFileProxy(s), s.Id);
-            }
-            else
-            {
-                var tokens = PdsRegistry.Deserialize(c.Tokens, lang);
-                s.Tokens = new Plag.Submission(lang, null, s.Id, tokens);
-            }
+                var c = await store.GetCompilationAsync(id);
+                var lang = Compile.FindLanguage(s.Language);
 
-            return s;
+                if (c?.Tokens == null)
+                {
+                    Logger.LogWarning($"Token for s{s.Id} missing, generating at once.");
+                    var fs = await store.GetFilesAsync(s.Id);
+                    return new Frontend.Submission(lang, new Frontend.SubmissionFileProxy(s), s.Id);
+                }
+                else
+                {
+                    var tokens = Convert.TokenDeserialize(c.Tokens, lang);
+                    return new Frontend.Submission(lang, null, s.Id, tokens);
+                }
+            });
+
+            return (s, ss);
         }
 
-        private static void MatchReportCreate(PlagiarismReport report, Plag.Matching matching)
+        private void MatchReportCreate(Report report, Frontend.Matching matching)
         {
             bool swapAB = report.SubmissionA != matching.SubmissionA.Id;
             report.TokensMatched = matching.TokensMatched;
             report.BiggestMatch = matching.BiggestMatch;
             report.Percent = matching.Percent;
             report.Pending = false;
-            report.Matches = PdsRegistry.Serialize(matching, swapAB);
+            report.Matches = Convert.MatchSerialize(matching, swapAB);
             (report.PercentA, report.PercentB) = swapAB
                 ? (matching.PercentB, matching.PercentA)
                 : (matching.PercentA, matching.PercentB);
         }
 
-        private async Task<PlagiarismReport> ResolveAsync(PlagiarismContext dbContext)
+        private async Task<Report> ResolveAsync(IStoreExtService store)
         {
-            var rep = await dbContext.Reports
-                .Where(s => s.Pending)
-                .FirstOrDefaultAsync();
+            var rep = await store.FetchOneAsync();
             if (rep == null) return null;
 
-            var ss0 = await GetOrLoadAsync(dbContext, rep.SubmissionA);
-            var ss1 = await GetOrLoadAsync(dbContext, rep.SubmissionB);
+            var (ss0, ss0t) = await GetOrLoadAsync(store, rep.SubmissionA);
+            var (ss1, ss1t) = await GetOrLoadAsync(store, rep.SubmissionB);
 
-            var lang = PdsRegistry.SupportedLanguages[ss0.Language];
-            var result = Plag.GSTiling.Compare(ss0.Tokens, ss1.Tokens, lang.MinimalTokenMatch);
-
+            var result = Report.Generate(ss0t, ss1t);
             MatchReportCreate(rep, result);
-            dbContext.Reports.Update(rep);
-            await dbContext.SaveChangesAsync();
-
-            await dbContext.CheckSets
-                .Where(c => c.Id == ss0.SetId)
-                .BatchUpdateAsync(c => new PlagiarismSet { ReportPending = c.ReportPending - 1 });
-            var sids = new[] { ss0.Id, ss1.Id };
-            await dbContext.Submissions
-                .Where(c => sids.Contains(c.Id) && c.MaxPercent < rep.Percent)
-                .BatchUpdateAsync(c => new PlagiarismSubmission { MaxPercent = rep.Percent });
-
+            await store.SaveReportAsync(ss0.SetId, rep);
             return rep;
         }
 
-        protected override async Task ProcessAsync(PlagiarismContext context, CancellationToken stoppingToken)
+        protected override async Task ProcessAsync(
+            IStoreExtService context,
+            CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {

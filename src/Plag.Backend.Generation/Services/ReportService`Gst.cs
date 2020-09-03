@@ -1,4 +1,6 @@
-﻿namespace Plag.Backend.Services
+﻿using Plag.Frontend;
+
+namespace Plag.Backend.Services
 {
     public class GstReportService : IReportService
     {
