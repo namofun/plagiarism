@@ -33,5 +33,22 @@ namespace SatelliteSite.PlagModule
                 .Count();
             if (cnt == 0) throw new InvalidOperationException("No IStoreService injected.");
         }
+
+        public override void RegisterMenu(IMenuContributor menus)
+        {
+            menus.Submenu(MenuNameDefaults.DashboardUsers, menu =>
+            {
+                menu.HasEntry(100)
+                    .HasTitle(string.Empty, "Plagiarism Detect")
+                    .HasLink("Dashboard", "Plagiarism", "List");
+            });
+
+            menus.Submenu(MenuNameDefaults.DashboardDocuments, menu =>
+            {
+                menu.HasEntry(55)
+                    .HasTitle(string.Empty, "JPlag Online API")
+                    .HasLink("/api/doc/plag");
+            });
+        }
     }
 }
