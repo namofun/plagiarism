@@ -8,8 +8,8 @@
     <PackageTags>antlr</PackageTags>
     <PackageReleaseNotes>Plagiarism Detection by JPlag</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/namofun/plagiarism</RepositoryUrl>
-    <SubstrateVersion>1.0.0-preview4</SubstrateVersion>
-    <PreviewBuild>4</PreviewBuild>
+    <SubstrateVersion>1.0.0-preview6</SubstrateVersion>
+    <PreviewBuild>6</PreviewBuild>
   </PropertyGroup>
 
 </Project>
