@@ -5,10 +5,11 @@
   <PropertyGroup>
     <Authors>KIT-IPDTichy;GuidoMalpohl;yang-er</Authors>
     <Description>Plagiarism detection modules. $(DescriptionAttach)</Description>
-    <Version>2.12.1</Version>
-    <PackageVersion>2.12.1-preview$(PreviewBuild)</PackageVersion>
+    <Version>1.1.0</Version>
+    <PackageVersion>1.1.0-preview$(PreviewBuild)</PackageVersion>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
 </Project>

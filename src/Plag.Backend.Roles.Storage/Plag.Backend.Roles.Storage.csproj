@@ -8,7 +8,7 @@
     <DescriptionAttach>The role for storage backend services</DescriptionAttach>
   </PropertyGroup>
 
-  <Import Project="..\..\build\NugetPackage.PlagBasic.props" />
+  <Import Project="..\..\build\NugetPackage.Backend.props" />
 
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.7" />

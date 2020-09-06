@@ -9,6 +9,7 @@
     <PackageVersion>1.0.0-preview$(PreviewBuild)</PackageVersion>
     <AssemblyVersion>3.1.7.0</AssemblyVersion>
     <FileVersion>3.1.7.0</FileVersion>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
 </Project>

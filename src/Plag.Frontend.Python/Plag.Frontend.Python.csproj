@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <Import Project="..\..\build\Antlr4.Generation.targets" />
-  <Import Project="..\..\build\NugetPackage.PlagBasic.props" />
+  <Import Project="..\..\build\NugetPackage.Frontend.props" />
 
   <ItemGroup>
     <ProjectReference Include="..\Plag.Common\Plag.Frontend.Common.csproj" />

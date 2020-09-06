@@ -8,7 +8,7 @@
     <DescriptionAttach>The algorithm to calculate the similarity</DescriptionAttach>
   </PropertyGroup>
 
-  <Import Project="..\..\build\NugetPackage.PlagBasic.props" />
+  <Import Project="..\..\build\NugetPackage.Frontend.props" />
 
   <ItemGroup>
     <ProjectReference Include="..\Plag.Common\Plag.Frontend.Common.csproj" />

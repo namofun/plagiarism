@@ -4,7 +4,6 @@
     <Title>$(AssemblyName)</Title>
     <PackageProjectUrl>https://github.com/namofun/plagiarism</PackageProjectUrl>
     <Company />
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>antlr</PackageTags>
     <PackageReleaseNotes>Plagiarism Detection by JPlag</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/namofun/plagiarism</RepositoryUrl>

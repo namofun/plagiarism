@@ -8,7 +8,7 @@
     <DescriptionAttach>The abstractions for backend services</DescriptionAttach>
   </PropertyGroup>
 
-  <Import Project="..\..\build\NugetPackage.PlagBasic.props" />
+  <Import Project="..\..\build\NugetPackage.Backend.props" />
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.7" />

@@ -35,8 +35,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{AB36A2E1
 	ProjectSection(SolutionItems) = preProject
 		build\antlr-4.8.jar = build\antlr-4.8.jar
 		build\Antlr4.Generation.targets = build\Antlr4.Generation.targets
+		build\NugetPackage.Backend.props = build\NugetPackage.Backend.props
 		build\NugetPackage.Common.props = build\NugetPackage.Common.props
-		build\NugetPackage.PlagBasic.props = build\NugetPackage.PlagBasic.props
+		build\NugetPackage.Frontend.props = build\NugetPackage.Frontend.props
 		build\NugetPackage.props = build\NugetPackage.props
 	EndProjectSection
 EndProject
@@ -48,7 +49,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plag.Backend.Roles.Storage"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plag.Backend.Roles.Rest", "src\Plag.Backend.Roles.Rest\Plag.Backend.Roles.Rest.csproj", "{09ED3EBF-60FC-404D-BCA7-90CCB903F9DD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SatelliteSite.Host", "src\Host\SatelliteSite.Host.csproj", "{D33530E8-95EE-4041-9080-5D5017D8E8BA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SatelliteSite.Host", "src\Host\SatelliteSite.Host.csproj", "{D33530E8-95EE-4041-9080-5D5017D8E8BA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
