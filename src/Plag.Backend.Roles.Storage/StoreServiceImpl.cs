@@ -178,7 +178,7 @@ namespace Plag.Backend.Services
         {
             submitId.TokenProduced = result != null;
             Context.Set<Submission>().Update(submitId);
-            var ce = await Context.Set<Compilation>().FindAsync(submitId);
+            var ce = await Context.Set<Compilation>().FindAsync(submitId.Id);
 
             if (ce == null)
             {
@@ -216,14 +216,14 @@ namespace Plag.Backend.Services
             var leftQuery =
                 from s in Submissions
                 where s.SetId == ss.SetId && s.Language == ss.Language
-                where s.TokenProduced == true && s.Id.CompareTo(ss.Id) < 0
-                select new { s.Id, B = ss.Id };
+                where s.TokenProduced == true && string.Compare(s.Id, ss.Id) == -1
+                select new { s.Id, B = ss.Id, g = Guid.NewGuid().ToString() };
 
             var rightQuery =
                 from s in Submissions
                 where s.SetId == ss.SetId && s.Language == ss.Language
-                where s.TokenProduced == true && s.Id.CompareTo(ss.Id) > 0
-                select new { s.Id, A = ss.Id };
+                where s.TokenProduced == true && string.Compare(s.Id, ss.Id) == 1
+                select new { s.Id, A = ss.Id, g = Guid.NewGuid().ToString() };
 
             int a = await Reports.MergeAsync(
                 sourceTable: leftQuery,
@@ -233,6 +233,7 @@ namespace Plag.Backend.Services
                 updateExpression: (s1, s2) => new Report { Pending = true },
                 insertExpression: s => new Report
                 {
+                    Id = s.g,
                     Pending = true,
                     SubmissionA = s.Id,
                     SubmissionB = s.B,
@@ -246,6 +247,7 @@ namespace Plag.Backend.Services
                 updateExpression: (s1, s2) => new Report { Pending = true },
                 insertExpression: s => new Report
                 {
+                    Id = s.g,
                     Pending = true,
                     SubmissionA = s.A,
                     SubmissionB = s.Id,

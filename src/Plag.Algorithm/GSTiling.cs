@@ -97,7 +97,10 @@ namespace Plag.Frontend
 			var (lenA, lenB) = (A.Size - 1, B.Size - 1);
 			var allMatches = new Matching(subA, subB);
 			if (lenA < mml || lenB < mml)
+            {
+				allMatches.Finish();
 				return allMatches;
+			}
 
 			for (int i = 0; i <= lenA; i++)
 				A[i].Marked = A[i].Type == (int)TokenConstants.FILE_END
