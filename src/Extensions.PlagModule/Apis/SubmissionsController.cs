@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Plag.Backend;
 using Plag.Backend.Entities;
 using Plag.Backend.Services;
 using System.ComponentModel.DataAnnotations;
@@ -27,23 +28,24 @@ namespace SatelliteSite.PlagModule.Apis
         /// <param name="submission">The entity to create</param>
         /// <response code="201">Returns the created submission for the plagiarism system</response>
         [HttpPost]
+        [ProducesResponseType(typeof(Submission), 201)]
         public async Task<ActionResult<Submission>> CreateOne(
-            [FromBody, Required] Submission submission)
+            [FromBody, Required] SubmissionCreation submission)
         {
-            await Store.SubmitAsync(submission);
-            return submission;
+            var s = await Store.SubmitAsync(submission);
+            return CreatedAtAction(nameof(GetOne), new { id = s.Id }, s);
         }
 
         /// <summary>
         /// Get all the submissions for the plagiarism system
         /// </summary>
-        /// <param name="set">The plagiarism set ID</param>
+        /// <param name="id">The plagiarism set ID</param>
         /// <response code="200">Returns all the submissions for the plagiarism system</response>
-        [HttpGet]
-        public async Task<ActionResult<Submission[]>> GetAll(
-            [FromQuery, Required] string set)
+        [HttpGet("/[area]/plag/sets/{id}/submissions")]
+        public async Task<ActionResult<Submission[]>> GetSubmissions(
+            [FromRoute, Required] string id)
         {
-            var result = await Store.ListSubmissionsAsync(set);
+            var result = await Store.ListSubmissionsAsync(id);
             return result.ToArray();
         }
 

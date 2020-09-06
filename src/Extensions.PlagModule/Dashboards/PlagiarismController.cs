@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Plag.Backend.Entities;
+using Plag.Backend;
 using Plag.Backend.Services;
 using SatelliteSite.PlagModule.Models;
 using System;
@@ -32,9 +32,11 @@ namespace SatelliteSite.PlagModule.Dashboards
         public async Task<IActionResult> List(int page = 1)
         {
             if (page < 1) return NotFound();
-            var lsts = await Store.ListSetsAsync(page);
+            const int PageCount = 30;
+            var lsts = await Store.ListSetsAsync((page - 1) * PageCount, PageCount);
+            ViewBag.Page = page;
             
-            return View(lsts.As(s => new SetListModel
+            return View(lsts.Select(s => new SetListModel
             {
                 Id = s.Id.ToString(),
                 CreateTime = s.CreateTime,
@@ -95,7 +97,6 @@ namespace SatelliteSite.PlagModule.Dashboards
             if (lang == null) ModelState.AddModelError("lang", "Language not found.");
             if (!ModelState.IsValid) return View(model);
 
-            var time = DateTimeOffset.Now;
             var err = new StringBuilder();
 
             foreach (var item in model.Files)
@@ -105,24 +106,20 @@ namespace SatelliteSite.PlagModule.Dashboards
                     using var stream = item.OpenReadStream();
                     using var zip = new ZipArchive(stream);
 
-                    var fid = 0;
-
-                    var sub = new Submission
+                    var sub = new SubmissionCreation
                     {
                         Name = Path.GetFileNameWithoutExtension(item.FileName),
-                        UploadTime = time,
                         Language = model.Language,
                         SetId = pid,
                     };
 
-                    var files = new List<SubmissionFile>();
+                    var files = new List<SubmissionCreation.SubmissionFileCreation>();
                     foreach (var i in zip.Entries)
                     {
                         if (!lang.Suffixes.Any(j => i.Name.EndsWith(j, StringComparison.OrdinalIgnoreCase))) continue;
                         using var sr = new StreamReader(i.Open());
-                        files.Add(new SubmissionFile
+                        files.Add(new SubmissionCreation.SubmissionFileCreation
                         {
-                            FileId = ++fid,
                             FileName = i.Name,
                             FilePath = i.FullName,
                             Content = sr.ReadToEnd()

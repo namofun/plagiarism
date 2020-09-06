@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Plag.Backend.Entities;
 using Plag.Backend.Services;
+using System;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace SatelliteSite.PlagModule.Apis
@@ -28,10 +28,13 @@ namespace SatelliteSite.PlagModule.Apis
         /// <param name="name">The name of plagiarism set</param>
         /// <response code="201">Returns the created plagiarism set</response>
         [HttpPost]
-        public async Task<ActionResult<PlagiarismSet>> CreateSetAsync(
-            [FromBody, Required] string name)
+        [ProducesResponseType(typeof(PlagiarismSet), 201)]
+        public async Task<ActionResult<PlagiarismSet>> CreateOne(
+            [FromForm, Required] string name)
         {
-            return await Store.CreateSetAsync(name);
+            var result = await Store.CreateSetAsync(name);
+            result.Submissions ??= Array.Empty<Submission>();
+            return CreatedAtAction(nameof(GetOne), new { id = result.Id }, result);
         }
 
         /// <summary>
@@ -40,23 +43,24 @@ namespace SatelliteSite.PlagModule.Apis
         /// <param name="id">The ID of the entity to get</param>
         /// <response code="200">Returns the given set for the plagiarism system</response>
         [HttpGet("{id}")]
-        public async Task<ActionResult<PlagiarismSet>> FindSetAsync(
+        public async Task<ActionResult<PlagiarismSet>> GetOne(
             [FromRoute, Required] string id)
         {
             return await Store.FindSetAsync(id);
         }
 
         /// <summary>
-        /// Get page view of all the sets for the plagiarism system
+        /// Get all the sets for the plagiarism system
         /// </summary>
-        /// <param name="page">The page</param>
-        /// <response code="200">Returns page view of all the sets for the plagiarism system</response>
+        /// <param name="skip">The count to skip</param>
+        /// <param name="limit">The count to take</param>
+        /// <response code="200">Returns all the sets for the plagiarism system</response>
         [HttpGet]
-        public async Task<ActionResult<PlagiarismSet[]>> ListSetsAsync(
-            [FromQuery] int page = 1)
+        public async Task<ActionResult<PlagiarismSet[]>> GetAll(
+            [FromQuery] int? skip = null,
+            [FromQuery] int? limit = null)
         {
-            var items = await Store.ListSetsAsync(page);
-            Response.Headers.Add("X-Pagination", $"{items.CountPerPage};{items.TotalCount}");
+            var items = await Store.ListSetsAsync(skip, limit);
             return items.ToArray();
         }
     }

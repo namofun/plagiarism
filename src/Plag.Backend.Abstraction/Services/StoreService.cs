@@ -47,7 +47,7 @@ namespace Plag.Backend.Services
         /// Submit a solution file.
         /// </summary>
         /// <param name="submission">The solution file to detect.</param>
-        Task SubmitAsync(Submission submission);
+        Task<Submission> SubmitAsync(SubmissionCreation submission);
 
         /// <summary>
         /// Find the submission with its files.
@@ -66,9 +66,10 @@ namespace Plag.Backend.Services
         /// <summary>
         /// List the plagiarism sets.
         /// </summary>
-        /// <param name="page">The page.</param>
+        /// <param name="skip">The count to skip.</param>
+        /// <param name="limit">The count to take.</param>
         /// <returns>The sets.</returns>
-        Task<PagedViewList<PlagiarismSet>> ListSetsAsync(int page);
+        Task<List<PlagiarismSet>> ListSetsAsync(int? skip = null, int? limit = null);
 
         /// <summary>
         /// Get the compilation for such submission.

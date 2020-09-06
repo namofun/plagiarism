@@ -19,6 +19,8 @@ namespace Plag.Backend
 
             services.AddHostedService<SubmissionTokenizeService>();
             services.AddHostedService<ReportGenerationService>();
+
+            services.AddDbModelSupplier<TContext, PlagEntityConfiguration<TContext>>();
         }
     }
 }

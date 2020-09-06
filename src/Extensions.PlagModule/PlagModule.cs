@@ -20,6 +20,8 @@ namespace SatelliteSite.PlagModule
         public override void RegisterEndpoints(IEndpointBuilder endpoints)
         {
             endpoints.MapControllers();
+
+            endpoints.MapApiDocument("plag", "JPlag Online", "Plagiarism detection API", "v2.12.1");
         }
 
         public override void RegisterServices(IServiceCollection services)

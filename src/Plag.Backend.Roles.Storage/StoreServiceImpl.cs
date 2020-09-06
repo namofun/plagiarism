@@ -42,6 +42,7 @@ namespace Plag.Backend.Services
             {
                 Name = name,
                 CreateTime = DateTimeOffset.Now,
+                Id = Guid.NewGuid().ToString()
             });
 
             await Context.SaveChangesAsync();
@@ -91,16 +92,12 @@ namespace Plag.Backend.Services
                     .ToList());
         }
 
-        public async Task<PagedViewList<PlagiarismSet>> ListSetsAsync(int page)
+        public Task<List<PlagiarismSet>> ListSetsAsync(int? skip, int? take)
         {
-            var count = await Sets.CountAsync();
-            var content = await Sets
-                .OrderByDescending(s => s.Id)
-                .Skip((page - 1) * PageCount)
-                .Take(PageCount)
-                .ToListAsync();
-
-            return new PagedViewList<PlagiarismSet>(content, page, count, PageCount);
+            IQueryable<PlagiarismSet> q = Sets.OrderByDescending(s => s.Id);
+            if (skip.HasValue) q = q.Skip(skip.Value);
+            if (take.HasValue) q = q.Take(take.Value);
+            return q.ToListAsync();
         }
 
         public Task<List<Submission>> ListSubmissionsAsync(string setId)
@@ -110,11 +107,32 @@ namespace Plag.Backend.Services
                 .ToListAsync();
         }
 
-        public async Task SubmitAsync(Submission submission)
+        public async Task<Submission> SubmitAsync(SubmissionCreation submission)
         {
-            Submissions.Add(submission);
+            var id = Guid.NewGuid().ToString();
+
+            var files = submission.Files.Select((i, j) => new SubmissionFile
+            {
+                FileId = j + 1,
+                Content = i.Content,
+                FileName = i.FileName,
+                FilePath = i.FilePath,
+                SubmissionId = id
+            });
+
+            var e = Submissions.Add(new Submission
+            {
+                Files = files.ToList(),
+                Id = id,
+                Language = submission.Language,
+                Name = submission.Name,
+                SetId = submission.SetId,
+                UploadTime = DateTimeOffset.Now,
+            });
+
             await Context.SaveChangesAsync();
             SubmissionTokenizeService.Notify();
+            return e.Entity;
         }
 
         public Task<List<Comparison>> GetComparisonsBySubmissionAsync(string submitId)

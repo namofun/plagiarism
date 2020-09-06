@@ -341,3 +341,4 @@ healthchecksdb
 
 # Antlr4 generated sources
 /src/Plag.Frontend.*/Grammars
+/src/Host/Migrations

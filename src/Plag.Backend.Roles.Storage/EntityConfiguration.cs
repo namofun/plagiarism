@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Plag.Backend.Entities;
 
-namespace SatelliteSite.Entities
+namespace Plag.Backend
 {
     public class PlagEntityConfiguration<TContext> :
         EntityTypeConfigurationSupplier<TContext>,
@@ -60,9 +60,6 @@ namespace SatelliteSite.Entities
             entity.ToTable("PlagiarismReports");
 
             entity.HasKey(e => e.Id);
-
-            entity.Property(e => e.Id)
-                .HasDefaultValueSql("NEWSEQUENTIALID()");
 
             entity.Property(e => e.BiggestMatch).HasDefaultValue(0);
             entity.Property(e => e.Percent).HasDefaultValue(0.0);
