@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using Plag.Backend.Entities;
+﻿using Plag.Backend.Entities;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -13,27 +12,9 @@ namespace Plag.Backend.Services
     {
         public HttpClient Client { get; }
 
-        public RestfulStoreService(IConfiguration configuration)
+        public RestfulStoreService(HttpClient client)
         {
-            var baseUrl = configuration.GetConnectionString("PlagiarismBackendServer");
-            
-            if (string.IsNullOrWhiteSpace(baseUrl) ||
-                !Uri.TryCreate(baseUrl, UriKind.Absolute, out var baseUri))
-            {
-                throw new ArgumentException(
-                    "Please fill in the ConnectionStrings__PlagiarismBackendServer " +
-                    "with URLs like 'http://pds-BEPROD'");
-            }
-
-            var handler = new HttpClientHandler
-            {
-                AllowAutoRedirect = false,
-            };
-
-            Client = new HttpClient(handler)
-            {
-                BaseAddress = baseUri
-            };
+            Client = client;
         }
 
         private async Task<T> SendAsync<T>(HttpRequestMessage request) where T : class

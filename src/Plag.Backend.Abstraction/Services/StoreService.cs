@@ -53,6 +53,7 @@ namespace Plag.Backend.Services
         /// Find the submission with its files.
         /// </summary>
         /// <param name="id">The id of submission.</param>
+        /// <param name="includeFiles">Whether to include files.</param>
         /// <returns>The found entity.</returns>
         Task<Submission> FindSubmissionAsync(string id, bool includeFiles = true);
 
