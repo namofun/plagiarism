@@ -32,7 +32,7 @@ namespace Plag.Backend.Services
         /// </summary>
         /// <param name="submit">The submission ID.</param>
         /// <returns>The submission.</returns>
-        ValueTask<Submission> QuickFindSubmissionAsync(string submitId);
+        ValueTask<Submission> QuickFindSubmissionAsync(string submit);
 
         /// <summary>
         /// Get the files.

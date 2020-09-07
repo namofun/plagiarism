@@ -7,8 +7,8 @@
     <Description>Plagiarism detection modules. $(DescriptionAttach)</Description>
     <Version>1.1.0</Version>
     <PackageVersion>1.1.0-preview$(PreviewBuild)</PackageVersion>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <FileVersion>1.1.0.0</FileVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 

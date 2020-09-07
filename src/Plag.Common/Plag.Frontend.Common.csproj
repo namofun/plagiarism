@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="Antlr4.Runtime" Version="4.8.0" />
+    <PackageReference Include="SatelliteSite.Abstraction" Version="$(SubstrateVersion)" />
   </ItemGroup>
 
 </Project>
