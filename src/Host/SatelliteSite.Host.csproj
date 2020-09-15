@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Extensions.PlagModule\SatelliteSite.PlagModule.csproj" />
+    <ProjectReference Include="..\Plag.Backend.Roles.Rest\Plag.Backend.Roles.Rest.csproj" />
     <ProjectReference Include="..\Plag.Backend.Roles.Storage\Plag.Backend.Roles.Storage.csproj" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.7">
       <PrivateAssets>all</PrivateAssets>

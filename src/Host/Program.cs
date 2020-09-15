@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using Plag.Backend;
+using System.Linq;
 
 namespace SatelliteSite
 {
@@ -16,11 +17,19 @@ namespace SatelliteSite
             Current.Run();
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .MarkDomain<Program>()
-                .AddModule<PlagModule.PlagModule<StorageBackendRole<DefaultContext>>>()
-                .AddDatabaseMssql<DefaultContext>("UserDbConnection")
+        public static IHostBuilder CreateHostBuilder(string[] args)
+        {
+            var host = Host.CreateDefaultBuilder(args)
+                .MarkDomain<Program>();
+
+            if (args.Contains("--restful"))
+                host.AddModule<PlagModule.PlagModule<RestfulBackendRole>>();
+            else
+                host.AddModule<PlagModule.PlagModule<StorageBackendRole<DefaultContext>>>();
+
+            host.AddDatabaseMssql<DefaultContext>("UserDbConnection")
                 .ConfigureSubstrateDefaults<DefaultContext>();
+            return host;
+        }
     }
 }
