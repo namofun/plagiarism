@@ -44,12 +44,14 @@ namespace Plag.Frontend
             ErrorsCount++;
         }
 
+#nullable enable
         public void CreateHashes(int? size, Func<Structure, HashTable?, int> creation)
         {
             if (HashLength != -1 && Table != null) return;
             Table = size.HasValue ? new HashTable(size.Value) : null;
             HashLength = creation(this, Table);
         }
+#nullable disable
 
         public void AddToken(Token token)
         {

@@ -18,7 +18,7 @@ namespace Plag.Frontend.Java
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool Act(TokenConstants token, IToken symbol, IToken? symbol2 = null)
+        private bool Act(TokenConstants token, IToken symbol, IToken symbol2 = null)
         {
             if (token == TokenConstants.NUM_DIFF_TOKENS) return false;
             Structure.AddToken(new Token(token, symbol.Line, symbol.StartIndex, (symbol2?.StopIndex ?? symbol.StopIndex) + 1, Structure.FileId));
