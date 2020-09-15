@@ -6,6 +6,10 @@
 
 <h2 class="mt-2">@ViewData["Title"]</h2>
 
+<!-- ace editor -->
+<script src="/lib/ace/ace.js"></script>
+<script src="/lib/ace/ext-modelist.js"></script>
+
 <ul class="nav nav-tabs source-tab-nav">
     @foreach (var item in Model.Files)
     {
@@ -21,7 +25,20 @@
     @foreach (var item in Model.Files)
     {
         int id = t2++;
-        <ace class="tab-pane fade @(id == 0 ? "show active" : "")" id="source-@id" role="tabpanel"
-             file="a.txt" value="@item.Content" />
+        string idd = "source" + id;
+        <div class="editor tab-pane fade @(id == 0 ? "show active" : "")" id="@idd" role="tabpanel" style="font-size:0.8em">@item.Content</div>
+        <script>
+            $(function () {
+                var @idd = ace.edit("@idd");
+                @(idd).setTheme("ace/theme/eclipse");
+                @(idd).setOptions({ maxLines: Infinity });
+                @(idd).setReadOnly(true);
+                var modelist = ace.require('ace/ext/modelist');
+                var filePath = "@(item.FileName)";
+                var mode = modelist.getModeForPath(filePath).mode;
+                @(idd).getSession().setMode(mode);
+                document.getElementById("@(idd)").editor = @(idd);
+            });
+        </script>
     }
 </div>
