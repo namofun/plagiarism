@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -12,19 +13,28 @@ namespace Plag.Backend.Services
     {
         public HttpClient Client { get; }
 
+        public JsonSerializerOptions Options { get; }
+
         public RestfulStoreService(HttpClient client)
         {
             Client = client;
+            Options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         }
 
         private async Task<T> SendAsync<T>(HttpRequestMessage request) where T : class
         {
             using var resp = await Client.SendAsync(request);
+
             if (resp.StatusCode == HttpStatusCode.NotFound)
+            {
                 return null;
+            }
             else if (resp.StatusCode == HttpStatusCode.OK || resp.StatusCode == HttpStatusCode.Created)
-                using (var stream = await resp.Content.ReadAsStreamAsync())
-                    return await JsonSerializer.DeserializeAsync<T>(stream);
+            {
+                using var stream = await resp.Content.ReadAsStreamAsync();
+                return await JsonSerializer.DeserializeAsync<T>(stream, Options);
+            }
+
             throw new NotImplementedException();
         }
 
@@ -52,7 +62,7 @@ namespace Plag.Backend.Services
 
         public Task<List<LanguageInfo>> ListLanguageAsync() => GetAsync<List<LanguageInfo>>($"/api/plag/languages");
 
-        public Task<List<Submission>> ListSubmissionsAsync(string set) => GetAsync<List<Submission>>($"/api/plag/submissions?set={set}");
+        public Task<List<Submission>> ListSubmissionsAsync(string set) => GetAsync<List<Submission>>($"/api/plag/sets/{set}/submissions");
 
         public Task<List<PlagiarismSet>> ListSetsAsync(int? skip, int? limit)
         {
@@ -74,9 +84,10 @@ namespace Plag.Backend.Services
 
         public Task<Submission> SubmitAsync(SubmissionCreation submission)
         {
-            return PostAsync<Submission>(
-                "/api/plag/submissions",
-                new ByteArrayContent(JsonSerializer.SerializeToUtf8Bytes(submission)));
+            var content = JsonSerializer.SerializeToUtf8Bytes(submission);
+            var body = new ByteArrayContent(content);
+            body.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
+            return PostAsync<Submission>("/api/plag/submissions", body);
         }
     }
 }
