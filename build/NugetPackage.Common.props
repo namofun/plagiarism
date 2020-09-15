@@ -8,7 +8,7 @@
     <PackageReleaseNotes>Plagiarism Detection by JPlag</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/namofun/plagiarism</RepositoryUrl>
     <SubstrateVersion>1.0.0-preview7</SubstrateVersion>
-    <PreviewBuild>6</PreviewBuild>
+    <PreviewBuild>7</PreviewBuild>
   </PropertyGroup>
 
 </Project>
