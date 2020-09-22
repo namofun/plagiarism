@@ -58,7 +58,7 @@ namespace SatelliteSite.PlagModule.Dashboards
         public async Task<IActionResult> Detail(string pid)
         {
             var report = await Store.FindSetAsync(pid);
-            if (report == null) return null;
+            if (report == null) return NotFound();
 
             report.Submissions = await Store.ListSubmissionsAsync(pid);
             ViewBag.ViewModel = report.Submissions.Select(ReportListModel.Conv);
