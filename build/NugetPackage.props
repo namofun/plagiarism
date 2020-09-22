@@ -7,8 +7,8 @@
     <Description>UI kit for ASP.NET Core with moduling support. $(DescriptionAttach)</Description>
     <Version>1.0.0</Version>
     <PackageVersion>1.0.0-preview$(PreviewBuild)</PackageVersion>
-    <AssemblyVersion>3.1.7.0</AssemblyVersion>
-    <FileVersion>3.1.7.0</FileVersion>
+    <AssemblyVersion>$(AspNetCoreVersion).0</AssemblyVersion>
+    <FileVersion>$(AspNetCoreVersion).0</FileVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 

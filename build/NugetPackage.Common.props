@@ -7,8 +7,9 @@
     <PackageTags>antlr</PackageTags>
     <PackageReleaseNotes>Plagiarism Detection by JPlag</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/namofun/plagiarism</RepositoryUrl>
-    <SubstrateVersion>1.0.0-preview7</SubstrateVersion>
-    <PreviewBuild>7</PreviewBuild>
+    <SubstrateVersion>1.0.0-preview8</SubstrateVersion>
+    <AspNetCoreVersion>3.1.8</AspNetCoreVersion>
+    <PreviewBuild>8</PreviewBuild>
   </PropertyGroup>
 
 </Project>

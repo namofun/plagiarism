@@ -9,11 +9,5 @@ namespace SatelliteSite
         {
             ChangeTracker.AutoDetectChangesEnabled = false;
         }
-
-        protected override void OnModelCreating(ModelBuilder builder)
-        {
-            base.OnModelCreating(builder);
-            this.FromSupplierToModelBuilder(builder);
-        }
     }
 }

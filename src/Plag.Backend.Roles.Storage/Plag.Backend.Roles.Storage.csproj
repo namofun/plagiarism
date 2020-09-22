@@ -11,8 +11,8 @@
   <Import Project="..\..\build\NugetPackage.Backend.props" />
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.7" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="3.1.7" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="$(AspNetCoreVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="$(AspNetCoreVersion)" />
     <PackageReference Include="SatelliteSite.DataAccess" Version="$(SubstrateVersion)" />
   </ItemGroup>
 
