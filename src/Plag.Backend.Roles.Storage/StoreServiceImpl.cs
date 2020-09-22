@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Plag.Backend.Services
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1063:Implement IDisposable Correctly", Justification = "<挂起>")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1063:Implement IDisposable Correctly", Justification = "<Pending>")]
     public class EntityFrameworkCoreStoreService<TContext> :
         IStoreExtService, IDisposable
         where TContext : DbContext
@@ -36,6 +36,16 @@ namespace Plag.Backend.Services
             TransientStore = new MemoryCache(new MemoryCacheOptions { Clock = new SystemClock() });
         }
 
+        private Task<List<T>> NotFoundList<T>()
+        {
+            return Task.FromResult(new List<T>());
+        }
+
+        private Task<T> NotFound<T>() where T : class
+        {
+            return Task.FromResult<T>(null);
+        }
+
         public async Task<PlagiarismSet> CreateSetAsync(string name)
         {
             var item = Sets.Add(new PlagiarismSet
@@ -51,6 +61,8 @@ namespace Plag.Backend.Services
 
         public Task<Report> FindReportAsync(string id)
         {
+            if (!Guid.TryParse(id, out _)) return NotFound<Report>();
+
             return Reports
                 .Where(r => r.Id == id)
                 .SingleOrDefaultAsync();
@@ -58,6 +70,8 @@ namespace Plag.Backend.Services
 
         public Task<PlagiarismSet> FindSetAsync(string id)
         {
+            if (!Guid.TryParse(id, out _)) return NotFound<PlagiarismSet>();
+
             return Sets
                 .Where(r => r.Id == id)
                 .SingleOrDefaultAsync();
@@ -65,6 +79,8 @@ namespace Plag.Backend.Services
 
         public Task<Submission> FindSubmissionAsync(string id, bool includeFiles = true)
         {
+            if (!Guid.TryParse(id, out _)) return NotFound<Submission>();
+
             return Submissions.Where(s => s.Id == id)
                 .IncludeIf(includeFiles, s => s.Files)
                 .SingleOrDefaultAsync();
@@ -72,6 +88,8 @@ namespace Plag.Backend.Services
 
         public Task<Compilation> GetCompilationAsync(string submitId)
         {
+            if (!Guid.TryParse(submitId, out _)) return NotFound<Compilation>();
+
             return Context.Set<Compilation>()
                 .FindAsync(submitId)
                 .AsTask();
@@ -102,6 +120,8 @@ namespace Plag.Backend.Services
 
         public Task<List<Submission>> ListSubmissionsAsync(string setId)
         {
+            if (!Guid.TryParse(setId, out _)) return NotFoundList<Submission>();
+
             return Submissions
                 .Where(s => s.SetId == setId)
                 .ToListAsync();
@@ -137,6 +157,8 @@ namespace Plag.Backend.Services
 
         public Task<List<Comparison>> GetComparisonsBySubmissionAsync(string submitId)
         {
+            if (!Guid.TryParse(submitId, out _)) return NotFoundList<Comparison>();
+
             var reportA =
                 from r in Reports
                 where r.SubmissionB == submitId
@@ -233,7 +255,6 @@ namespace Plag.Backend.Services
                 updateExpression: (s1, s2) => new Report { Pending = true },
                 insertExpression: s => new Report
                 {
-                    Id = s.Id + "-" + s.B,
                     Pending = true,
                     SubmissionA = s.Id,
                     SubmissionB = s.B,
@@ -247,7 +268,6 @@ namespace Plag.Backend.Services
                 updateExpression: (s1, s2) => new Report { Pending = true },
                 insertExpression: s => new Report
                 {
-                    Id = s.A + "-" + s.Id,
                     Pending = true,
                     SubmissionA = s.A,
                     SubmissionB = s.Id,
@@ -264,6 +284,8 @@ namespace Plag.Backend.Services
 
         public ValueTask<Submission> QuickFindSubmissionAsync(string submitId)
         {
+            if (!Guid.TryParse(submitId, out _)) return new ValueTask<Submission>(default(Submission));
+
             return Submissions.FindAsync(submitId);
         }
 
@@ -272,7 +294,7 @@ namespace Plag.Backend.Services
             return Reports.Where(r => r.Pending).FirstOrDefaultAsync();
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1063:Implement IDisposable Correctly", Justification = "<挂起>")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1063:Implement IDisposable Correctly", Justification = "<Pending>")]
         public void Dispose()
         {
             TransientStore.Dispose();
@@ -280,6 +302,8 @@ namespace Plag.Backend.Services
 
         public Task<List<SubmissionFile>> GetFilesAsync(string submitId)
         {
+            if (!Guid.TryParse(submitId, out _)) return NotFoundList<SubmissionFile>();
+
             return Context.Set<SubmissionFile>()
                 .Where(s => s.SubmissionId == submitId)
                 .OrderBy(s => s.FileId)
@@ -288,6 +312,8 @@ namespace Plag.Backend.Services
 
         public async Task SaveReportAsync(string setId, Report rep)
         {
+            if (!Guid.TryParse(setId, out _)) throw new InvalidOperationException();
+
             Reports.Update(rep);
             await Context.SaveChangesAsync();
 

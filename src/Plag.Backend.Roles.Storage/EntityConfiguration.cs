@@ -1,6 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Plag.Backend.Entities;
+using System;
 
 namespace Plag.Backend
 {
@@ -13,11 +16,27 @@ namespace Plag.Backend
         IEntityTypeConfiguration<Report>
         where TContext : DbContext
     {
+        private readonly ValueConverter<string, Guid> _converter;
+
+        public PlagEntityConfiguration()
+        {
+            _converter = new ValueConverter<string, Guid>(
+                s => new Guid(s),
+                g => g.ToString(),
+                new ConverterMappingHints(valueGeneratorFactory: (_, __) => new SequentialGuidValueGenerator()));
+        }
+
         public void Configure(EntityTypeBuilder<Submission> entity)
         {
             entity.ToTable("PlagiarismSubmissions");
 
             entity.HasKey(e => e.Id);
+
+            entity.Property(e => e.Id)
+                .HasConversion(_converter);
+
+            entity.Property(e => e.SetId)
+                .HasConversion(_converter);
 
             entity.HasOne<PlagiarismSet>()
                 .WithMany(s => s.Submissions)
@@ -29,6 +48,9 @@ namespace Plag.Backend
             entity.ToTable("PlagiarismCompilations");
 
             entity.HasKey(e => e.Id);
+
+            entity.Property(e => e.Id)
+                .HasConversion(_converter);
 
             entity.HasOne<Submission>()
                 .WithOne()
@@ -42,6 +64,9 @@ namespace Plag.Backend
 
             entity.HasKey(e => new { e.SubmissionId, e.FileId });
 
+            entity.Property(e => e.SubmissionId)
+                .HasConversion(_converter);
+
             entity.HasOne<Submission>()
                 .WithMany(e => e.Files)
                 .HasForeignKey(e => e.SubmissionId)
@@ -53,6 +78,9 @@ namespace Plag.Backend
             entity.ToTable("PlagiarismSets");
 
             entity.HasKey(e => e.Id);
+
+            entity.Property(e => e.Id)
+                .HasConversion(_converter);
         }
 
         public void Configure(EntityTypeBuilder<Report> entity)
@@ -60,6 +88,16 @@ namespace Plag.Backend
             entity.ToTable("PlagiarismReports");
 
             entity.HasKey(e => e.Id);
+
+            entity.Property(e => e.Id)
+                .HasConversion(_converter)
+                .HasDefaultValueSql("NEWSEQUENTIALID()");
+
+            entity.Property(e => e.SubmissionA)
+                .HasConversion(_converter);
+
+            entity.Property(e => e.SubmissionB)
+                .HasConversion(_converter);
 
             entity.Property(e => e.BiggestMatch).HasDefaultValue(0);
             entity.Property(e => e.Percent).HasDefaultValue(0.0);
