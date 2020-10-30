@@ -1,6 +1,6 @@
 # Plagiarism Detection Module
 
-Build Status: ![](https://www.travis-ci.org/namofun/plagiarism.svg?branch=master)
+Build Status: ![](https://api.travis-ci.com/namofun/plagiarism.svg?branch=master)
 
 Core algorithms and ideas from [JPlag](https://github.com/jplag/jplag).
 
