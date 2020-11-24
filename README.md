@@ -1,6 +1,6 @@
 # Plagiarism Detection Module
 
-Build Status: ![](https://api.travis-ci.com/namofun/plagiarism.svg?branch=master)
+![](https://img.shields.io/travis/com/namofun/plagiarism/master) ![](https://img.shields.io/github/license/namofun/plagiarism) ![](https://img.shields.io/github/languages/code-size/namofun/plagiarism)
 
 Core algorithms and ideas from [JPlag](https://github.com/jplag/jplag).
 
@@ -10,27 +10,27 @@ All rewritten in C# and ANTLR4.
 
 Role based design. Storage is for EFCore version and Rest is for Remote API server.
 
-- Plag.Backend.Abstraction
-- Plag.Backend.Generation
-- Plag.Backend.Roles.Rest
-- Plag.Backend.Roles.Storage
+- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fv3%2Fpackage%2FPlag.Backend.Abstraction%2Fshields-io.json)](https://nuget.xylab.fun/packages/Plag.Backend.Abstraction)
+- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fv3%2Fpackage%2FPlag.Backend.Generation%2Fshields-io.json)](https://nuget.xylab.fun/packages/Plag.Backend.Generation)
+- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fv3%2Fpackage%2FPlag.Backend.Roles.Rest%2Fshields-io.json)](https://nuget.xylab.fun/packages/Plag.Backend.Roles.Rest)
+- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fv3%2Fpackage%2FPlag.Backend.Roles.Storage%2Fshields-io.json)](https://nuget.xylab.fun/packages/Plag.Backend.Roles.Storage)
 
 ### Frontend
 
 ANTLR language parser and algorithms.
 
-- Plag.Frontend.Algorithm
-- Plag.Frontend.Common
-- Plag.Frontend.Cpp
-- Plag.Frontend.Csharp
-- Plag.Frontend.Java
-- Plag.Frontend.Python
+- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fv3%2Fpackage%2FPlag.Frontend.Algorithm%2Fshields-io.json)](https://nuget.xylab.fun/packages/Plag.Frontend.Algorithm)
+- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fv3%2Fpackage%2FPlag.Frontend.Common%2Fshields-io.json)](https://nuget.xylab.fun/packages/Plag.Frontend.Common)
+- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fv3%2Fpackage%2FPlag.Frontend.Cpp%2Fshields-io.json)](https://nuget.xylab.fun/packages/Plag.Frontend.Cpp)
+- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fv3%2Fpackage%2FPlag.Frontend.Csharp%2Fshields-io.json)](https://nuget.xylab.fun/packages/Plag.Frontend.Csharp)
+- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fv3%2Fpackage%2FPlag.Frontend.Java%2Fshields-io.json)](https://nuget.xylab.fun/packages/Plag.Frontend.Java)
+- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fv3%2Fpackage%2FPlag.Frontend.Python%2Fshields-io.json)](https://nuget.xylab.fun/packages/Plag.Frontend.Python)
 
 ### Module
 
 Used in [Project Substrate](https://github.com/namofun/uikit).
 
-- SatelliteSite.PlagModule
+- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fv3%2Fpackage%2FSatelliteSite.PlagModule%2Fshields-io.json)](https://nuget.xylab.fun/packages/SatelliteSite.PlagModule)
 
 ### Usage
 
