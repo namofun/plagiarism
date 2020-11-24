@@ -7,9 +7,11 @@
     <PackageTags>antlr</PackageTags>
     <PackageReleaseNotes>Plagiarism Detection by JPlag</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/namofun/plagiarism</RepositoryUrl>
-    <SubstrateVersion>1.0.0-preview9</SubstrateVersion>
-    <AspNetCoreVersion>3.1.8</AspNetCoreVersion>
-    <PreviewBuild>9</PreviewBuild>
+    <PreviewBuild>10</PreviewBuild>
+
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
   </PropertyGroup>
 
 </Project>
