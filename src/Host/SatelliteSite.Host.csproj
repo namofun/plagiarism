@@ -10,6 +10,7 @@
     <ProjectReference Include="..\Extensions.PlagModule\SatelliteSite.PlagModule.csproj" />
     <ProjectReference Include="..\Plag.Backend.Roles.Rest\Plag.Backend.Roles.Rest.csproj" />
     <ProjectReference Include="..\Plag.Backend.Roles.Storage\Plag.Backend.Roles.Storage.csproj" />
+    <PackageReference Include="SatelliteSite.HostBuilder" Version="$(SubstrateVersion)" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="$(AspNetCoreVersion)">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
