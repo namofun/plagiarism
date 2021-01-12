@@ -7,7 +7,7 @@
     <PackageTags>antlr</PackageTags>
     <PackageReleaseNotes>Plagiarism Detection by JPlag</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/namofun/plagiarism</RepositoryUrl>
-    <PreviewBuild>10</PreviewBuild>
+    <PreviewBuild>11</PreviewBuild>
 
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
