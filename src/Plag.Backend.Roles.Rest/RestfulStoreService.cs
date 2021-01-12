@@ -48,25 +48,25 @@ namespace Plag.Backend.Services
             return SendAsync<T>(new HttpRequestMessage(HttpMethod.Post, url) { Content = body });
         }
 
-        public Task<LanguageInfo> FindLanguageAsync(string id) => GetAsync<LanguageInfo>($"/api/plag/languages/{id}");
+        public Task<LanguageInfo> FindLanguageAsync(string id) => GetAsync<LanguageInfo>($"/api/plagiarism/languages/{id}");
 
-        public Task<Report> FindReportAsync(string id) => GetAsync<Report>($"/api/plag/reports/{id}");
+        public Task<Report> FindReportAsync(string id) => GetAsync<Report>($"/api/plagiarism/reports/{id}");
 
-        public Task<PlagiarismSet> FindSetAsync(string id) => GetAsync<PlagiarismSet>($"/api/plag/sets/{id}");
+        public Task<PlagiarismSet> FindSetAsync(string id) => GetAsync<PlagiarismSet>($"/api/plagiarism/sets/{id}");
 
-        public Task<Compilation> GetCompilationAsync(string id) => GetAsync<Compilation>($"/api/plag/submissions/{id}/compilation");
+        public Task<Compilation> GetCompilationAsync(string id) => GetAsync<Compilation>($"/api/plagiarism/submissions/{id}/compilation");
 
-        public Task<Submission> FindSubmissionAsync(string id, bool includeFiles = true) => GetAsync<Submission>($"/api/plag/submissions/{id}?includeFiles={includeFiles}");
+        public Task<Submission> FindSubmissionAsync(string id, bool includeFiles = true) => GetAsync<Submission>($"/api/plagiarism/submissions/{id}?includeFiles={includeFiles}");
 
-        public Task<List<Comparison>> GetComparisonsBySubmissionAsync(string id) => GetAsync<List<Comparison>>($"/api/plag/submissions/{id}/comparisons");
+        public Task<List<Comparison>> GetComparisonsBySubmissionAsync(string id) => GetAsync<List<Comparison>>($"/api/plagiarism/submissions/{id}/comparisons");
 
-        public Task<List<LanguageInfo>> ListLanguageAsync() => GetAsync<List<LanguageInfo>>($"/api/plag/languages");
+        public Task<List<LanguageInfo>> ListLanguageAsync() => GetAsync<List<LanguageInfo>>($"/api/plagiarism/languages");
 
-        public Task<List<Submission>> ListSubmissionsAsync(string set) => GetAsync<List<Submission>>($"/api/plag/sets/{set}/submissions");
+        public Task<List<Submission>> ListSubmissionsAsync(string set) => GetAsync<List<Submission>>($"/api/plagiarism/sets/{set}/submissions");
 
         public Task<List<PlagiarismSet>> ListSetsAsync(int? skip, int? limit)
         {
-            var link = "/api/plag/sets?api=1";
+            var link = "/api/plagiarism/sets?api=1";
             if (skip.HasValue) link += $"&skip={skip.Value}";
             if (limit.HasValue) link += $"&limit={limit.Value}";
             return GetAsync<List<PlagiarismSet>>(link);
@@ -75,7 +75,7 @@ namespace Plag.Backend.Services
         public Task<PlagiarismSet> CreateSetAsync(string name)
         {
             return PostAsync<PlagiarismSet>(
-                "/api/plag/sets",
+                "/api/plagiarism/sets",
                 new FormUrlEncodedContent(new Dictionary<string, string>
                 {
                     [nameof(name)] = name
@@ -87,7 +87,7 @@ namespace Plag.Backend.Services
             var content = JsonSerializer.SerializeToUtf8Bytes(submission);
             var body = new ByteArrayContent(content);
             body.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
-            return PostAsync<Submission>("/api/plag/submissions", body);
+            return PostAsync<Submission>("/api/plagiarism/submissions", body);
         }
     }
 }

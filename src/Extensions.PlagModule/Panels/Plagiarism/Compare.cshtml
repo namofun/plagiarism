@@ -1,7 +1,7 @@
 ﻿@model (CodeModel, CodeModel)
 @{
     Report rep = ViewBag.Report;
-    ViewData["Title"] = $"Report with s{rep.SubmissionA} and s{rep.SubmissionB}";
+    ViewData["Title"] = $"Report {rep.Id}";
 }
 
 <h2 class="mt-2">@ViewData["Title"]</h2>
@@ -18,15 +18,15 @@
                 <td>@($"{rep.Percent:F2}%")</td>
             </tr>
             <tr>
-                <th>Submission A</th>
+                <th>A</th>
                 <td>@($"{rep.PercentA:F2}%") - @Model.Item1.Sid</td>
             </tr>
             <tr>
-                <th>Submission B</th>
+                <th>B</th>
                 <td>@($"{rep.PercentB:F2}%") - @Model.Item2.Sid</td>
             </tr>
             <tr>
-                <th>Token Matched</th>
+                <th>Match</th>
                 <td>@rep.TokensMatched total, @rep.BiggestMatch consecutive longest</td>
             </tr>
         </table>

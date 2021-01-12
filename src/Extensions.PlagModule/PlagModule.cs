@@ -21,7 +21,11 @@ namespace SatelliteSite.PlagModule
         {
             endpoints.MapControllers();
 
-            endpoints.MapApiDocument("plag", "JPlag Online", "Plagiarism detection API", "v2.12.1");
+            endpoints.MapApiDocument(
+                name: "jplag",
+                title: "JPlag Online",
+                description: "Plagiarism detection API",
+                version: "v2.12.1");
         }
 
         public override void RegisterServices(IServiceCollection services)
@@ -47,7 +51,7 @@ namespace SatelliteSite.PlagModule
             {
                 menu.HasEntry(55)
                     .HasTitle(string.Empty, "JPlag Online API")
-                    .HasLink("/api/doc/plag");
+                    .HasLink("/api/doc/jplag");
             });
         }
     }

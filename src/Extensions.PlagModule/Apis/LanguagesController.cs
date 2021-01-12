@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Plag.Backend;
 using Plag.Backend.Services;
 using System.Collections.Generic;
@@ -11,7 +12,8 @@ namespace SatelliteSite.PlagModule.Apis
     /// The language API
     /// </summary>
     [Area("Api")]
-    [Route("[area]/plag/[controller]")]
+    [Authorize(Roles = "Administrator")]
+    [Route("[area]/plagiarism/[controller]")]
     [Produces("application/json")]
     public class LanguagesController : ApiControllerBase
     {

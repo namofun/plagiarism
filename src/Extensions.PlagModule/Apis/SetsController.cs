@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Plag.Backend.Entities;
 using Plag.Backend.Services;
 using System;
@@ -11,7 +12,8 @@ namespace SatelliteSite.PlagModule.Apis
     /// The set API
     /// </summary>
     [Area("Api")]
-    [Route("[area]/plag/[controller]")]
+    [Authorize(Roles = "Administrator")]
+    [Route("[area]/plagiarism/[controller]")]
     [Produces("application/json")]
     public class SetsController : ApiControllerBase
     {

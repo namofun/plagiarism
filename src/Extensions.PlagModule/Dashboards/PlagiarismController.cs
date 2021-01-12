@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Plag.Backend;
 using Plag.Backend.Services;
@@ -14,6 +15,7 @@ using System.Threading.Tasks;
 namespace SatelliteSite.PlagModule.Dashboards
 {
     [Area("Dashboard")]
+    [Authorize("HasDashboard")]
     [Route("[area]/[controller]")]
     public class PlagiarismController : ViewControllerBase
     {

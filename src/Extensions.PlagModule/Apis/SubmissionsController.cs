@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Plag.Backend;
 using Plag.Backend.Entities;
 using Plag.Backend.Services;
@@ -11,7 +12,8 @@ namespace SatelliteSite.PlagModule.Apis
     /// The submission API
     /// </summary>
     [Area("Api")]
-    [Route("[area]/plag/[controller]")]
+    [Authorize(Roles = "Administrator")]
+    [Route("[area]/plagiarism/[controller]")]
     [Produces("application/json")]
     public class SubmissionsController : ApiControllerBase
     {
@@ -41,7 +43,7 @@ namespace SatelliteSite.PlagModule.Apis
         /// </summary>
         /// <param name="id">The plagiarism set ID</param>
         /// <response code="200">Returns all the submissions for the plagiarism system</response>
-        [HttpGet("/[area]/plag/sets/{id}/submissions")]
+        [HttpGet("/[area]/plagiarism/sets/{id}/submissions")]
         public async Task<ActionResult<Submission[]>> GetSubmissions(
             [FromRoute, Required] string id)
         {
