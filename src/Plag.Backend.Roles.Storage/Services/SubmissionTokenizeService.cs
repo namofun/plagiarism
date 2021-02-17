@@ -6,16 +6,19 @@ using System.Threading.Tasks;
 
 namespace Plag.Backend.Services
 {
-    public class SubmissionTokenizeServiceBase<T> : ContextNotifyService<T>
+    public class SubmissionTokenizeService : ContextNotifyService<SubmissionTokenizeService>
     {
         public IConvertService2 Convert { get; }
 
         public ICompileService Compile { get; }
 
-        public SubmissionTokenizeServiceBase(IServiceProvider serviceProvider) : base(serviceProvider)
+        public IResettableSignal<ReportGenerationService> AnotherSignal { get; }
+
+        public SubmissionTokenizeService(IServiceProvider serviceProvider) : base(serviceProvider)
         {
             Convert = serviceProvider.GetRequiredService<IConvertService2>();
             Compile = serviceProvider.GetRequiredService<ICompileService>();
+            AnotherSignal = serviceProvider.GetRequiredService<IResettableSignal<ReportGenerationService>>();
         }
 
         private async Task<Submission> ResolveAsync(IStoreExtService store)
@@ -49,7 +52,7 @@ namespace Plag.Backend.Services
         {
             if (ss.TokenProduced != true) return;
             await store.ScheduleAsync(ss);
-            ReportGenerationService.Notify();
+            AnotherSignal.Notify();
         }
 
         protected override async Task ProcessAsync(IStoreExtService context, CancellationToken stoppingToken)
@@ -62,13 +65,6 @@ namespace Plag.Backend.Services
                 else
                     break;
             }
-        }
-    }
-
-    public class SubmissionTokenizeService : SubmissionTokenizeServiceBase<SubmissionTokenizeService>
-    {
-        public SubmissionTokenizeService(IServiceProvider serviceProvider) : base(serviceProvider)
-        {
         }
     }
 }

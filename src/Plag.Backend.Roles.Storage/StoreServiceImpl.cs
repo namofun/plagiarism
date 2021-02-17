@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 
 namespace Plag.Backend.Services
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1063:Implement IDisposable Correctly", Justification = "<Pending>")]
     public class EntityFrameworkCoreStoreService<TContext> :
         IStoreExtService, IDisposable
         where TContext : DbContext
@@ -28,12 +27,22 @@ namespace Plag.Backend.Services
 
         public IMemoryCache TransientStore { get; }
 
-        public EntityFrameworkCoreStoreService(TContext context, ICompileService compile)
+        public IResettableSignal<SubmissionTokenizeService> Signal1 { get; }
+
+        public IResettableSignal<ReportGenerationService> Signal2 { get; }
+
+        public EntityFrameworkCoreStoreService(
+            TContext context,
+            ICompileService compile,
+            IResettableSignal<SubmissionTokenizeService> signal1,
+            IResettableSignal<ReportGenerationService> signal2)
         {
             Context = context;
             Compile = compile;
             context.ChangeTracker.AutoDetectChangesEnabled = false;
             TransientStore = new MemoryCache(new MemoryCacheOptions { Clock = new SystemClock() });
+            Signal1 = signal1;
+            Signal2 = signal2;
         }
 
         private Task<List<T>> NotFoundList<T>()
@@ -151,7 +160,7 @@ namespace Plag.Backend.Services
             });
 
             await Context.SaveChangesAsync();
-            SubmissionTokenizeService.Notify();
+            Signal1.Notify();
             return e.Entity;
         }
 
@@ -294,7 +303,6 @@ namespace Plag.Backend.Services
             return Reports.Where(r => r.Pending).FirstOrDefaultAsync();
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1063:Implement IDisposable Correctly", Justification = "<Pending>")]
         public void Dispose()
         {
             TransientStore.Dispose();
@@ -325,6 +333,20 @@ namespace Plag.Backend.Services
             await Submissions
                 .Where(c => sids.Contains(c.Id) && c.MaxPercent < rep.Percent)
                 .BatchUpdateAsync(c => new Submission { MaxPercent = rep.Percent });
+        }
+
+        public Task RescueAsync()
+        {
+            Signal1.Notify();
+            Signal2.Notify();
+            return Task.CompletedTask;
+        }
+
+        public object GetVersion()
+        {
+            var fronend_version = typeof(Frontend.ILanguage).Assembly.GetName().Version.ToString();
+            var backend_version = typeof(Backend.IBackendRoleStrategy).Assembly.GetName().Version.ToString();
+            return new { fronend_version, backend_version, role = "storage" };
         }
     }
 }

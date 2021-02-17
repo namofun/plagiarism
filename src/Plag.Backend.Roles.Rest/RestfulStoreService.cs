@@ -89,5 +89,21 @@ namespace Plag.Backend.Services
             body.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
             return PostAsync<Submission>("/api/plagiarism/submissions", body);
         }
+
+        public async Task RescueAsync()
+        {
+            using var resp = await Client.PostAsync("/api/plagiarism/rescue", new ByteArrayContent(Array.Empty<byte>()));
+
+            if (resp.StatusCode != HttpStatusCode.Ok)
+            {
+                throw new OperationCanceledException();
+            }
+        }
+
+        public object GetVersion()
+        {
+            var backend_version = typeof(Backend.IBackendRoleStrategy).Assembly.GetName().Version.ToString();
+            return new { backend_version, role = "storage" };
+        }
     }
 }

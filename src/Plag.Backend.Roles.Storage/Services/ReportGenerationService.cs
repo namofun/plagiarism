@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Plag.Backend.Services
 {
-    public class ReportGenerationServiceBase<T> : ContextNotifyService<T>
+    public class ReportGenerationService : ContextNotifyService<ReportGenerationService>
     {
         public IConvertService2 Convert { get; }
 
@@ -17,7 +17,7 @@ namespace Plag.Backend.Services
 
         public IReportService Report { get; }
 
-        public ReportGenerationServiceBase(IServiceProvider serviceProvider) : base(serviceProvider)
+        public ReportGenerationService(IServiceProvider serviceProvider) : base(serviceProvider)
         {
             Convert = serviceProvider.GetRequiredService<IConvertService2>();
             Compile = serviceProvider.GetRequiredService<ICompileService>();
@@ -87,13 +87,6 @@ namespace Plag.Backend.Services
                 var s = await ResolveAsync(context);
                 if (s == null) break;
             }
-        }
-    }
-
-    public class ReportGenerationService : ReportGenerationServiceBase<ReportGenerationService>
-    {
-        public ReportGenerationService(IServiceProvider serviceProvider) : base(serviceProvider)
-        {
         }
     }
 }

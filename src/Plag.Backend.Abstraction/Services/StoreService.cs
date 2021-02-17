@@ -10,47 +10,47 @@ namespace Plag.Backend.Services
     public interface IPlagiarismDetectService
     {
         /// <summary>
-        /// Create a plagiarism set.
+        /// Creates a plagiarism set.
         /// </summary>
         /// <param name="name">The name of plagiarism set.</param>
         /// <returns>The created entity.</returns>
         Task<PlagiarismSet> CreateSetAsync(string name);
 
         /// <summary>
-        /// Find a plagiarism set.
+        /// Finds a plagiarism set.
         /// </summary>
         /// <param name="id">The id of plagiarism set.</param>
         /// <returns>The found entity.</returns>
         Task<PlagiarismSet> FindSetAsync(string id);
 
         /// <summary>
-        /// Find the plagiarism report.
+        /// Finds the plagiarism report.
         /// </summary>
         /// <param name="id">The id of plagiarism report.</param>
         /// <returns>The found entity.</returns>
         Task<Report> FindReportAsync(string id);
 
         /// <summary>
-        /// Check whether a language exists.
+        /// Checks whether a language exists.
         /// </summary>
         /// <param name="langName">The name of language.</param>
         /// <returns>The existence of language.</returns>
         Task<LanguageInfo> FindLanguageAsync(string langName);
 
         /// <summary>
-        /// List existing languages.
+        /// Lists existing languages.
         /// </summary>
         /// <returns>The existing languages.</returns>
         Task<List<LanguageInfo>> ListLanguageAsync();
 
         /// <summary>
-        /// Submit a solution file.
+        /// Submits a solution file.
         /// </summary>
         /// <param name="submission">The solution file to detect.</param>
         Task<Submission> SubmitAsync(SubmissionCreation submission);
 
         /// <summary>
-        /// Find the submission with its files.
+        /// Finds the submission with its files.
         /// </summary>
         /// <param name="id">The id of submission.</param>
         /// <param name="includeFiles">Whether to include files.</param>
@@ -58,14 +58,14 @@ namespace Plag.Backend.Services
         Task<Submission> FindSubmissionAsync(string id, bool includeFiles = true);
 
         /// <summary>
-        /// List the submissions in one plagiarism set.
+        /// Lists the submissions in one plagiarism set.
         /// </summary>
         /// <param name="setId">The plagiarism set ID.</param>
         /// <returns>The submissions.</returns>
         Task<List<Submission>> ListSubmissionsAsync(string setId);
 
         /// <summary>
-        /// List the plagiarism sets.
+        /// Lists the plagiarism sets.
         /// </summary>
         /// <param name="skip">The count to skip.</param>
         /// <param name="limit">The count to take.</param>
@@ -73,17 +73,29 @@ namespace Plag.Backend.Services
         Task<List<PlagiarismSet>> ListSetsAsync(int? skip = null, int? limit = null);
 
         /// <summary>
-        /// Get the compilation for such submission.
+        /// Gets the compilation for such submission.
         /// </summary>
         /// <param name="submitId">The submission ID.</param>
         /// <returns>The compilation result.</returns>
         Task<Compilation> GetCompilationAsync(string submitId);
 
         /// <summary>
-        /// Get the comparison between the submission and other submissions.
+        /// Gets the comparison between the submission and other submissions.
         /// </summary>
         /// <param name="submitId">The submission ID.</param>
         /// <returns>The comparison result.</returns>
         Task<List<Comparison>> GetComparisonsBySubmissionAsync(string submitId);
+
+        /// <summary>
+        /// Sends a signal and try to rescue the background service.
+        /// </summary>
+        /// <returns>The rescue signal task.</returns>
+        Task RescueAsync();
+
+        /// <summary>
+        /// Gets the version object.
+        /// </summary>
+        /// <returns>The version object.</returns>
+        object GetVersion();
     }
 }

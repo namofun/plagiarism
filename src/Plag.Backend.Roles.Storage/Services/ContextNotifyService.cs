@@ -9,22 +9,17 @@ namespace Plag.Backend.Services
 {
     public abstract class ContextNotifyService<T> : BackgroundService
     {
-        static readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
-
         private IServiceProvider ServiceProvider { get; }
 
         public ILogger<T> Logger { get; }
 
-        public static void Notify()
-        {
-            if (_semaphore.CurrentCount != 1)
-                _semaphore.Release();
-        }
+        public IResettableSignal<T> CurrentSignal { get; }
 
         public ContextNotifyService(IServiceProvider serviceProvider)
         {
             ServiceProvider = serviceProvider;
             Logger = serviceProvider.GetRequiredService<ILogger<T>>();
+            CurrentSignal = serviceProvider.GetRequiredService<IResettableSignal<T>>();
         }
 
         protected abstract Task ProcessAsync(IStoreExtService context, CancellationToken stoppingToken);
@@ -33,7 +28,7 @@ namespace Plag.Backend.Services
         {
             while (true)
             {
-                await _semaphore.WaitAsync(stoppingToken);
+                await CurrentSignal.WaitAsync(stoppingToken);
                 if (stoppingToken.IsCancellationRequested) break;
 
                 try

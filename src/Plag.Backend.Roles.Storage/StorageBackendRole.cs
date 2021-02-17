@@ -17,6 +17,9 @@ namespace Plag.Backend
             services.AddScoped<IStoreExtService, EntityFrameworkCoreStoreService<TContext>>();
             services.AddScopedUpcast<IPlagiarismDetectService, IStoreExtService>();
 
+            services.AddSingleton<IResettableSignalSource, ResettableSignalSource<SemaphoreSlimResettableSignal>>();
+            services.Add(ServiceDescriptor.Singleton(typeof(IResettableSignal<>), typeof(TypedResettableSignal<>)));
+
             services.AddHostedService<SubmissionTokenizeService>();
             services.AddHostedService<ReportGenerationService>();
 

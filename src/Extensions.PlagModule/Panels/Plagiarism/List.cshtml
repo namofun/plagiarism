@@ -5,9 +5,9 @@
 
 <h2 class="mt-2">@ViewData["Title"]</h2>
 
-<datatable data="Model" />
+<pagination bs-current-page="ViewBag.Page" class="mb-2" />
 
-<pagination bs-current-page="ViewBag.Page" />
+<datatable data="Model" />
 
 <p>
     <a class="btn btn-primary" asp-action="Create" data-toggle="ajaxWindow" data-target="create"><i class="fas fa-plus"></i> Create</a>
