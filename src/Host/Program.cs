@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Plag.Backend;
 using System.Linq;
@@ -18,17 +19,20 @@ namespace SatelliteSite
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args)
-        {
-            var host = Host.CreateDefaultBuilder(args)
-                .MarkDomain<Program>();
-
-            if (args.Contains("--restful"))
-                host.AddModule<PlagModule.PlagModule<RestfulBackendRole>>();
-            else
-                host.AddModule<PlagModule.PlagModule<StorageBackendRole<DefaultContext>>>();
-
-            host.AddDatabaseMssql<DefaultContext>("UserDbConnection")
+            => Host.CreateDefaultBuilder(args)
+                .MarkDomain<Program>()
+                .AddModuleIf<PlagModule.PlagModule<RestfulBackendRole>>(args.Contains("--restful"))
+                .AddModuleIf<PlagModule.PlagModule<StorageBackendRole<DefaultContext>>>(!args.Contains("--restful"))
+                .AddModule<TelemetryModule.TelemetryModule>()
+                .AddDatabase<DefaultContext>((c, b) => b.UseSqlServer(c.GetConnectionString("UserDbConnection"), b => b.UseBulk()))
                 .ConfigureSubstrateDefaults<DefaultContext>();
+    }
+
+    internal static class HostExt
+    {
+        public static IHostBuilder AddModuleIf<TModule>(this IHostBuilder host, bool condition) where TModule : AbstractModule, new()
+        {
+            if (condition) host.AddModule<TModule>();
             return host;
         }
     }
