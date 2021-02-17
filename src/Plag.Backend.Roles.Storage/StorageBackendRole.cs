@@ -15,7 +15,7 @@ namespace Plag.Backend
             services.AddSingleton<IReportService, GstReportService>();
 
             services.AddScoped<IStoreExtService, EntityFrameworkCoreStoreService<TContext>>();
-            services.AddScopedUpcast<IStoreService, IStoreExtService>();
+            services.AddScopedUpcast<IPlagiarismDetectService, IStoreExtService>();
 
             services.AddHostedService<SubmissionTokenizeService>();
             services.AddHostedService<ReportGenerationService>();

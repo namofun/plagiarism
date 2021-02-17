@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Plag.Backend;
-using Plag.Backend.Services;
 using SatelliteSite.PlagModule.Models;
 using System;
 using System.Collections.Generic;
@@ -11,6 +10,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using IStoreService = Plag.Backend.Services.IPlagiarismDetectService;
 
 namespace SatelliteSite.PlagModule.Dashboards
 {
@@ -187,7 +187,6 @@ namespace SatelliteSite.PlagModule.Dashboards
         {
             var report = await Store.FindReportAsync(rid);
             if (report == null) return NotFound();
-            ViewBag.Report = report;
 
             var subA = await Store.FindSubmissionAsync(report.SubmissionA);
             var subB = await Store.FindSubmissionAsync(report.SubmissionB);
@@ -195,7 +194,7 @@ namespace SatelliteSite.PlagModule.Dashboards
             var retA = CodeModel.CreateView(report, c => c.FileA, c => c.ContentStartA, c => c.ContentEndA, subA);
             var retB = CodeModel.CreateView(report, c => c.FileB, c => c.ContentStartB, c => c.ContentEndB, subB);
             
-            return View((retA, retB));
+            return View(new ReportModel(report, retA, retB));
         }
     }
 }

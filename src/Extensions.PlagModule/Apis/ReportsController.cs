@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Plag.Backend.Entities;
-using Plag.Backend.Services;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
+using IStoreService = Plag.Backend.Services.IPlagiarismDetectService;
 
 namespace SatelliteSite.PlagModule.Apis
 {

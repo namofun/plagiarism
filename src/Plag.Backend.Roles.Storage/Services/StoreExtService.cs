@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Plag.Backend.Services
 {
-    public interface IStoreExtService : IStoreService
+    public interface IStoreExtService : IPlagiarismDetectService
     {
         /// <summary>
         /// Set the submission compiled with error and result.

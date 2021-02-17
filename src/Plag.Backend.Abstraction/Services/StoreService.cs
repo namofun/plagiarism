@@ -7,7 +7,7 @@ namespace Plag.Backend.Services
     /// <summary>
     /// The service for storing plagiarism reports.
     /// </summary>
-    public interface IStoreService
+    public interface IPlagiarismDetectService
     {
         /// <summary>
         /// Create a plagiarism set.

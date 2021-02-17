@@ -10,7 +10,7 @@ namespace Plag.Backend
     {
         public void Apply(IServiceCollection services)
         {
-            services.AddHttpClient<IStoreService, RestfulStoreService>()
+            services.AddHttpClient<IPlagiarismDetectService, RestfulStoreService>()
                 .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false })
                 .ConfigureHttpClient((services, httpClient) =>
                 {

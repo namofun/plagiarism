@@ -29,7 +29,7 @@ namespace SatelliteSite.PlagModule
         public override void RegisterServices(IServiceCollection services)
         {
             new TRole().Apply(services);
-            services.EnsureScoped<IStoreService>();
+            services.EnsureScoped<IPlagiarismDetectService>();
         }
 
         public override void RegisterMenu(IMenuContributor menus)

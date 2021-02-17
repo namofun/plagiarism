@@ -1,0 +1,284 @@
+﻿@namespace SatelliteSite.PlagModule.Components.PlagiarismReport
+@using SatelliteSite.PlagModule.Models
+@model ReportModel 
+@functions {
+    string Solve(string name, CodeModel model)
+    {
+<h4>@name</h4>
+        foreach (var f in model.Files)
+        {
+<h6>@f.FilePath</h6>int index = 0;
+<figure class="highlight"><pre><code class="language-html" data-lang="html">@foreach (var c in f.Code)
+{if (c.End > f.Content.Length) { c.End = f.Content.Length; }<span class="@string.Join(' ', c.Marks.Select(s => $"mark-{s % 10} show-{s % 10}"))">@f.Content[c.Begin..c.End]</span>index = c.End;
+}<span>@if(f.Content.Length > index){@f.Content.Substring(index)}</span></code></pre></figure>
+        }
+        return "";
+    }
+}
+
+<div class="check-bar">
+    <span style="color:gray;box-shadow: none;">Marks：</span>
+    <div class="chkbox">
+        <input type="checkbox" id="all" checked="checked">
+        <label for="all"></label>
+        <span style="color:gray;box-shadow: none;">All</span>
+    </div>
+    @for (var i = 0; i < 10; i++)
+    {
+        <div class="chkbox">
+            <input type="checkbox" class="color-@i" id="@i" checked="checked">
+            <label for="@i"></label>
+            <span class="color-@i">@i</span>
+        </div>
+    }
+</div>
+
+<div class="row code-review">
+    <div class="col-md-6">
+        @Solve("A", Model.A)
+    </div>
+    <div class="col-md-6">
+        @Solve("B", Model.B)
+    </div>
+</div>
+
+<style>
+    .highlight {
+        padding: 1rem;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        background-color: #f8f9fa;
+        -ms-overflow-style: -ms-autohiding-scrollbar;
+    }
+
+        .highlight pre {
+            padding: 0;
+            margin-top: 0;
+            margin-bottom: 0;
+            background-color: transparent;
+            border: 0;
+            white-space: pre-wrap;
+        }
+
+            .highlight pre code {
+                font-size: inherit;
+                color: #212529;
+            }
+
+    .mark {
+        color: red;
+        background: #ffeeee
+    }
+
+    .mark-0.show-0 {
+        color: #ee2550;
+        background: rgba(238,37,80,0.1);
+    }
+
+    .mark-1.show-1 {
+        color: #6666a0;
+        background: rgba(102,102,160,0.1);
+    }
+
+    .mark-2.show-2 {
+        color: #dddd20;
+        background: rgba(221,221,32,0.1);
+    }
+
+    .mark-3.show-3 {
+        color: #ee10a0;
+        background: rgba(238,16,160,0.1);
+    }
+
+    .mark-4.show-4 {
+        color: #aa2050;
+        background: rgba(170,32,80,0.1);
+    }
+
+    .mark-5.show-5 {
+        color: #11eeee;
+        background: rgba(17,238,238,0.1);
+    }
+
+    .mark-6.show-6 {
+        color: #aa22cc;
+        background: rgba(170,34,204,0.1);
+    }
+
+    .mark-7.show-7 {
+        color: #008800;
+        background: rgba(0,136,0,0.1);
+    }
+
+    .mark-8.show-8 {
+        color: #2260ee;
+        background: rgba(34,96,238,0.1);
+    }
+
+    .mark-9.show-9 {
+        color: #982420;
+        background: rgba(152,36,32,0.1);
+    }
+
+    .chkbox {
+        display: inline-block;
+        width: 2em;
+        margin: 0;
+    }
+
+        .chkbox span {
+            color: white;
+            width: 1.2em;
+            height: 1.2em;
+            line-height: 1.2em;
+            text-align: center;
+            box-sizing: border-box;
+            display: block;
+            margin: auto;
+            border-radius: 50%;
+            box-shadow: 0 0 5px 1px #00000047;
+            text-shadow: 0px 0px 2px #00000059;
+        }
+
+    input[type="checkbox"] {
+        display: none;
+    }
+
+        input[type="checkbox"] + label {
+            margin: 0;
+            display: inline-block;
+            border-radius: 50%;
+            width: 2em;
+            height: 2em;
+            position: relative;
+            -webkit-transition: 0.3s;
+            transition: 0.3s;
+            box-sizing: border-box;
+            border: solid 10px #ffffff78;
+            box-shadow: 0 0 5px 1px #00000047;
+        }
+
+        input[type="checkbox"][id="all"] + label {
+            background-color: mediumseagreen;
+            border: solid 5px #ffffff78
+        }
+
+        input[type="checkbox"]:checked + label {
+            border: solid 0px #ffffff78;
+        }
+
+        input[type="checkbox"][class="color-0"] + label, span[class="color-0"] {
+            background-color: #ee2550;
+        }
+
+        input[type="checkbox"][class="color-1"] + label, span[class="color-1"] {
+            background-color: #6666a0;
+        }
+
+        input[type="checkbox"][class="color-2"] + label, span[class="color-2"] {
+            background-color: #b1b117;
+        }
+
+        input[type="checkbox"][class="color-3"] + label, span[class="color-3"] {
+            background-color: #ee10a0;
+        }
+
+        input[type="checkbox"][class="color-4"] + label, span[class="color-4"] {
+            background-color: #aa2050;
+        }
+
+        input[type="checkbox"][class="color-5"] + label, span[class="color-5"] {
+            background-color: #18d4d4;
+        }
+
+        input[type="checkbox"][class="color-6"] + label, span[class="color-6"] {
+            background-color: #aa22cc;
+        }
+
+        input[type="checkbox"][class="color-7"] + label, span[class="color-7"] {
+            background-color: #158d47;
+        }
+
+        input[type="checkbox"][class="color-8"] + label, span[class="color-8"] {
+            background-color: #2260ee;
+        }
+
+        input[type="checkbox"][class="color-9"] + label, span[class="color-9"] {
+            background-color: #982420;
+        }
+
+        input[type="checkbox"][class="color-10"] + label, span[class="color-10"] {
+            background-color: red;
+        }
+
+    .check-bar {
+        position: fixed;
+        top: 4em;
+        right: 5em;
+        z-index: 100;
+        padding: 1em;
+        background-color: #ffffffb6;
+        border-radius: 2em;
+        box-shadow: 0 0 3px 1px #00000023;
+    }
+</style>
+
+<script>
+    function show(id, f) {
+        if (f) {
+            $('.mark-' + id).addClass("show-" + id);
+        }
+        else {
+            $('.mark-' + id).removeClass("show-" + id);
+        }
+    }
+
+    function c2(id) {
+        if ($("#" + id).prop("checked")) {
+            $("#" + id).prop("checked", false);
+            show(id, f);
+        }
+        else {
+            $("#" + id).prop("checked", true);
+            show(id, f);
+        }
+    }
+
+    function c1(id, f) {
+        if ($("#" + id).prop("checked") != f) {
+            $("#" + id).prop("checked", f);
+            show(id, f);
+        }
+        else {
+            show(id, f);
+        }
+    }
+
+    $("#all").click(function () {
+        if (this.checked) {
+            // this.checked=true;
+            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].forEach(element => {
+                c1(element, true);
+            });
+        }
+        else {
+            // this.checked=false;
+            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].forEach(element => {
+                c1(element, false);
+            });
+        }
+    });
+
+    $(function () {
+        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].forEach(element => {
+            $("#" + element).click(function () {
+                if (this.checked) {
+                    show(element, true)
+                }
+                else {
+                    show(element, false)
+                }
+            });
+        });
+    });
+</script>

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Plag.Backend.Services
 {
-    public class RestfulStoreService : IStoreService
+    public class RestfulStoreService : IPlagiarismDetectService
     {
         public HttpClient Client { get; }
 

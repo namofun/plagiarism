@@ -1,6 +1,11 @@
-﻿@model ReportModel
+﻿@using SatelliteSite.PlagModule.Models
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@addTagHelper *, SatelliteSite.Substrate
+@addTagHelper *, SatelliteSite.PlagModule
+@model ReportModel
 @{
     ViewData["Title"] = $"Report {Model.Report.Id}";
+    Layout = "_Layout";
 }
 
 <h2 class="mt-2">@ViewData["Title"]</h2>
