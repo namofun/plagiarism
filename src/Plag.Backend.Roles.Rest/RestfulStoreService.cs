@@ -1,4 +1,4 @@
-﻿using Plag.Backend.Entities;
+﻿using Plag.Backend.Models;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -102,8 +102,8 @@ namespace Plag.Backend.Services
 
         public object GetVersion()
         {
-            var backend_version = typeof(Backend.IBackendRoleStrategy).Assembly.GetName().Version.ToString();
-            return new { backend_version, role = "storage" };
+            var backend_version = typeof(IBackendRoleStrategy).Assembly.GetName().Version.ToString();
+            return new { backend_version, role = "restful" };
         }
     }
 }

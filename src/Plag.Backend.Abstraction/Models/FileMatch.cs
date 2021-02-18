@@ -1,4 +1,4 @@
-﻿namespace Plag.Backend.Entities
+﻿namespace Plag.Backend.Models
 {
     public class FileMatch
     {

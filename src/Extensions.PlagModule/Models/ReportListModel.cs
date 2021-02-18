@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.DataTables;
-using Plag.Backend.Entities;
+using Plag.Backend.Models;
 using System;
 
 namespace SatelliteSite.PlagModule.Models

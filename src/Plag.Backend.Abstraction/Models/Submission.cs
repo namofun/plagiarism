@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace Plag.Backend.Entities
+namespace Plag.Backend.Models
 {
     public class Submission
     {
@@ -11,6 +11,9 @@ namespace Plag.Backend.Entities
 
         [JsonPropertyName("setid")]
         public string SetId { get; set; }
+
+        [JsonPropertyName("category")]
+        public int? Category { get; set; }
 
         [JsonPropertyName("name")]
         public string Name { get; set; }

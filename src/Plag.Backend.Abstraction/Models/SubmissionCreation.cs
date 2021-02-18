@@ -1,12 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace Plag.Backend
+namespace Plag.Backend.Models
 {
     public class SubmissionCreation
     {
         [JsonPropertyName("setid")]
         public string SetId { get; set; }
+
+        [JsonPropertyName("category")]
+        public int? Category { get; set; }
 
         [JsonPropertyName("name")]
         public string Name { get; set; }

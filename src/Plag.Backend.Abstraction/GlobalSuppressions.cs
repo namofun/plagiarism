@@ -5,5 +5,5 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: SuppressMessage("Performance", "CA1819:Properties should not return arrays", Justification = "Design purpose", Scope = "member", Target = "~P:Plag.Backend.Entities.Report.Matches")]
-[assembly: SuppressMessage("Performance", "CA1819:Properties should not return arrays", Justification = "Design purpose", Scope = "member", Target = "~P:Plag.Backend.Entities.Compilation.Tokens")]
+[assembly: SuppressMessage("Performance", "CA1819:Properties should not return arrays", Justification = "Design purpose", Scope = "member", Target = "~P:Plag.Backend.Models.Report.Matches")]
+[assembly: SuppressMessage("Performance", "CA1819:Properties should not return arrays", Justification = "Design purpose", Scope = "member", Target = "~P:Plag.Backend.Models.Compilation.Tokens")]

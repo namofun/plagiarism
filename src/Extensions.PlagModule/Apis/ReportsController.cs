@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Plag.Backend.Entities;
+using Plag.Backend.Models;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using IStoreService = Plag.Backend.Services.IPlagiarismDetectService;

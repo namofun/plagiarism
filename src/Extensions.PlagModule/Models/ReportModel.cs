@@ -1,4 +1,4 @@
-﻿using Plag.Backend.Entities;
+﻿using Plag.Backend.Models;
 
 namespace SatelliteSite.PlagModule.Models
 {

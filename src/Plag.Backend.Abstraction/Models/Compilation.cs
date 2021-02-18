@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Plag.Backend.Entities
+namespace Plag.Backend.Models
 {
     public class Compilation
     {

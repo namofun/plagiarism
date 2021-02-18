@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace Plag.Backend
+namespace Plag.Backend.Models
 {
     public class LanguageInfo
     {

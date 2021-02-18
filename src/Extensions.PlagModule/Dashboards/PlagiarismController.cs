@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Plag.Backend;
+using Plag.Backend.Models;
 using SatelliteSite.PlagModule.Models;
 using System;
 using System.Collections.Generic;

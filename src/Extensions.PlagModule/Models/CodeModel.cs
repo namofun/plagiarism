@@ -1,4 +1,4 @@
-﻿using Plag.Backend.Entities;
+﻿using Plag.Backend.Models;
 using Plag.Backend.Services;
 using System;
 using System.Collections.Generic;
