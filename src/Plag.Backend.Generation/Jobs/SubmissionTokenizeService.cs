@@ -1,10 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Plag.Backend.Entities;
+using Plag.Backend.Models;
+using Plag.Backend.Services;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Plag.Backend.Services
+namespace Plag.Backend.Jobs
 {
     public class SubmissionTokenizeService : ContextNotifyService<SubmissionTokenizeService>
     {
@@ -21,9 +22,9 @@ namespace Plag.Backend.Services
             AnotherSignal = serviceProvider.GetRequiredService<IResettableSignal<ReportGenerationService>>();
         }
 
-        private async Task<Submission> ResolveAsync(IStoreExtService store)
+        private async Task<Submission> ResolveAsync(IJobContext store)
         {
-            var ss = await store.FetchAsync();
+            var ss = await store.DequeueSubmissionAsync();
             if (ss == null) return null;
 
             var file = new Frontend.SubmissionFileProxy(ss.Files);
@@ -31,16 +32,16 @@ namespace Plag.Backend.Services
 
             if (lang == null)
             {
-                await store.CompileAsync(ss, "Compiler not found.", null);
+                await store.CompileAsync(ss.Id, "Compiler not found.", null);
             }
             else if (Compile.TryCompile(lang, file, ss.Id, out var tokens))
             {
-                await store.CompileAsync(ss, "Compilation succeeded.",
+                await store.CompileAsync(ss.Id, "Compilation succeeded.",
                     Convert.TokenSerialize(tokens.IL));
             }
             else
             {
-                await store.CompileAsync(ss,
+                await store.CompileAsync(ss.Id,
                     $"ANTLR4 failed with {tokens.IL.ErrorsCount} errors.\r\n"
                     + tokens.IL.ErrorInfo.ToString(), null);
             }
@@ -48,22 +49,15 @@ namespace Plag.Backend.Services
             return ss;
         }
 
-        private async Task ScheduleAsync(IStoreExtService store, Submission ss)
-        {
-            if (ss.TokenProduced != true) return;
-            await store.ScheduleAsync(ss);
-            AnotherSignal.Notify();
-        }
-
-        protected override async Task ProcessAsync(IStoreExtService context, CancellationToken stoppingToken)
+        protected override async Task ProcessAsync(IJobContext context, CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {
                 var s = await ResolveAsync(context);
-                if (s != null)
-                    await ScheduleAsync(context, s);
-                else
-                    break;
+                if (s == null) break;
+                if (s.TokenProduced != true) continue;
+                await context.ScheduleAsync(s.SetId, s.Id, s.Language);
+                AnotherSignal.Notify();
             }
         }
     }

@@ -1,11 +1,12 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Plag.Backend.Services;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Plag.Backend.Services
+namespace Plag.Backend.Jobs
 {
     public abstract class ContextNotifyService<T> : BackgroundService
     {
@@ -22,7 +23,7 @@ namespace Plag.Backend.Services
             CurrentSignal = serviceProvider.GetRequiredService<IResettableSignal<T>>();
         }
 
-        protected abstract Task ProcessAsync(IStoreExtService context, CancellationToken stoppingToken);
+        protected abstract Task ProcessAsync(IJobContext context, CancellationToken stoppingToken);
 
         protected sealed override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -34,7 +35,7 @@ namespace Plag.Backend.Services
                 try
                 {
                     using var scope = ServiceProvider.CreateScope();
-                    var dbContext = scope.ServiceProvider.GetRequiredService<IStoreExtService>();
+                    var dbContext = scope.ServiceProvider.GetRequiredService<IJobContext>();
                     await ProcessAsync(dbContext, stoppingToken);
                 }
                 catch (Exception ex)
