@@ -50,6 +50,26 @@ namespace SatelliteSite.PlagModule.Dashboards
 
 
         [HttpGet("[action]")]
+        public IActionResult Refresh()
+        {
+            return AskPost(
+                title: "Plagiarism service",
+                message: "If the service isn't running, use this function to notify.",
+                area: "Dashboard", controller: "Plagiarism", action: "Refresh", routeValues: new { },
+                type: BootstrapColor.danger);
+        }
+
+
+        [HttpPost("[action]")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Refresh(bool _ = false)
+        {
+            await Store.RescueAsync();
+            return RedirectToAction(nameof(List));
+        }
+
+
+        [HttpGet("[action]")]
         public IActionResult Create()
         {
             return View(new SetCreateModel());

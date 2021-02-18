@@ -94,7 +94,7 @@ namespace Plag.Backend.Services
         {
             using var resp = await Client.PostAsync("/api/plagiarism/rescue", new ByteArrayContent(Array.Empty<byte>()));
 
-            if (resp.StatusCode != HttpStatusCode.Ok)
+            if (resp.StatusCode != HttpStatusCode.OK)
             {
                 throw new OperationCanceledException();
             }
