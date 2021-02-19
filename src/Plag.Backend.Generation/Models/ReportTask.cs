@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Plag.Backend.Models
+﻿namespace Plag.Backend.Models
 {
     public class ReportTask
     {
@@ -16,14 +14,6 @@ namespace Plag.Backend.Models
         {
             Id = reportid;
             SetId = setid;
-            SubmissionA = a;
-            SubmissionB = b;
-        }
-
-        public ReportTask(Guid reportid, Guid setid, int a, int b)
-        {
-            Id = reportid.ToString();
-            SetId = setid.ToString();
             SubmissionA = a;
             SubmissionB = b;
         }

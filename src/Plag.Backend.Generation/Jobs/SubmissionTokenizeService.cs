@@ -56,7 +56,7 @@ namespace Plag.Backend.Jobs
                 var s = await ResolveAsync(context);
                 if (s == null) break;
                 if (s.TokenProduced != true) continue;
-                await context.ScheduleAsync(s.SetId, s.Id, s.Language);
+                await context.ScheduleAsync(s.SetId, s.Id, s.ExclusiveCategory, s.InclusiveCategory, s.Language);
                 AnotherSignal.Notify();
             }
         }

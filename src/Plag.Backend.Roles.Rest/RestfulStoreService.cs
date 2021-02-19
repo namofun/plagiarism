@@ -130,5 +130,30 @@ namespace Plag.Backend.Services
         {
             throw new NotImplementedException();
         }
+
+        Task<IReadOnlyList<LanguageInfo>> IPlagiarismDetectService.ListLanguageAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IReadOnlyList<SubmissionFile>> GetFilesAsync(string setId, int submitId)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<IReadOnlyList<Submission>> IPlagiarismDetectService.ListSubmissionsAsync(string setid, int? exclusive_category, int? inclusive_category, double? min_percent)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<IReadOnlyList<PlagiarismSet>> IPlagiarismDetectService.ListSetsAsync(int? skip, int? limit)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<IReadOnlyList<Comparison>> IPlagiarismDetectService.GetComparisonsBySubmissionAsync(string setid, int submitid)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

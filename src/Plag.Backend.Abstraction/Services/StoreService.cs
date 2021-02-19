@@ -50,12 +50,21 @@ namespace Plag.Backend.Services
         /// Lists existing languages.
         /// </summary>
         /// <returns>The existing languages.</returns>
-        Task<List<LanguageInfo>> ListLanguageAsync();
+        Task<IReadOnlyList<LanguageInfo>> ListLanguageAsync();
+
+        /// <summary>
+        /// Gets the submission files.
+        /// </summary>
+        /// <param name="setId">The set ID.</param>
+        /// <param name="submitId">The submission ID.</param>
+        /// <returns>The submission files.</returns>
+        Task<IReadOnlyList<SubmissionFile>> GetFilesAsync(string setId, int submitId);
 
         /// <summary>
         /// Submits a solution file.
         /// </summary>
         /// <param name="submission">The solution file to detect.</param>
+        /// <returns>The created entity.</returns>
         Task<Submission> SubmitAsync(SubmissionCreation submission);
 
         /// <summary>
@@ -83,7 +92,7 @@ namespace Plag.Backend.Services
         /// <param name="inclusive_category">The non-exclusive category ID, null for not filtered.</param>
         /// <param name="min_percent">The minimal percent to show, null for not filtered.</param>
         /// <returns>The submissions.</returns>
-        Task<List<Submission>> ListSubmissionsAsync(string setid, int? exclusive_category, int? inclusive_category, double? min_percent);
+        Task<IReadOnlyList<Submission>> ListSubmissionsAsync(string setid, int? exclusive_category, int? inclusive_category, double? min_percent);
 
         /// <summary>
         /// Lists the plagiarism sets.
@@ -91,7 +100,7 @@ namespace Plag.Backend.Services
         /// <param name="skip">The count to skip.</param>
         /// <param name="limit">The count to take.</param>
         /// <returns>The sets.</returns>
-        Task<List<PlagiarismSet>> ListSetsAsync(int? skip = null, int? limit = null);
+        Task<IReadOnlyList<PlagiarismSet>> ListSetsAsync(int? skip = null, int? limit = null);
 
         /// <summary>
         /// Gets the compilation for such submission.
@@ -107,7 +116,7 @@ namespace Plag.Backend.Services
         /// <param name="setid">The id of plagiarism set.</param>
         /// <param name="submitid">The id of submission.</param>
         /// <returns>The comparison result.</returns>
-        Task<List<Comparison>> GetComparisonsBySubmissionAsync(string setid, int submitid);
+        Task<IReadOnlyList<Comparison>> GetComparisonsBySubmissionAsync(string setid, int submitid);
 
         /// <summary>
         /// Sends a signal and try to rescue the background service.
