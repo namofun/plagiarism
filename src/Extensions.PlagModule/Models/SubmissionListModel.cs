@@ -3,15 +3,16 @@ using Plag.Backend.Models;
 
 namespace SatelliteSite.PlagModule.Models
 {
-    [DtWrapUrl("/dashboard/plagiarism/report/{Id}")]
+    [DtWrapUrl("/dashboard/plagiarism/{SetId}/reports/{Id}")]
     public class SubmissionListModel
     {
-        public SubmissionListModel(Comparison comparison)
+        public SubmissionListModel(string setid, Comparison comparison)
         {
             Id = comparison.Id;
             SubmissionIdAnother = comparison.SubmissionIdAnother;
-            SubmissionAnother = comparison.SubmissionAnother;
-            Pending = comparison.Pending;
+            SubmissionAnother = comparison.SubmissionNameAnother;
+            Pending = !(comparison.Finished ?? false);
+            SetId = setid;
 
             if (!Pending)
             {
@@ -24,11 +25,14 @@ namespace SatelliteSite.PlagModule.Models
         }
 
         [DtIgnore]
+        public string SetId { get; }
+
+        [DtIgnore]
         public string Id { get; }
 
         [DtIcon(8, "fa fa-file-code")]
-        [DtWrapUrl("/dashboard/plagiarism/submit/{SubmissionIdAnother}/source-code")]
-        public string SubmissionIdAnother { get; }
+        [DtWrapUrl("/dashboard/plagiarism/{SetId}/submissions/{SubmissionIdAnother}/source-code")]
+        public int SubmissionIdAnother { get; }
 
         [DtDisplay(1, "SID", "{SubmissionAnother} (s{SubmissionIdAnother})", Searchable = true, Sortable = true)]
         public string SubmissionAnother { get; }

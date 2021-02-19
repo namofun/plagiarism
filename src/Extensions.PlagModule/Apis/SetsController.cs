@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Plag.Backend.Models;
-using System;
+using Plag.Backend.Services;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Threading.Tasks;
-using IStoreService = Plag.Backend.Services.IPlagiarismDetectService;
 
 namespace SatelliteSite.PlagModule.Apis
 {
@@ -17,9 +17,9 @@ namespace SatelliteSite.PlagModule.Apis
     [Produces("application/json")]
     public class SetsController : ApiControllerBase
     {
-        public IStoreService Store { get; }
+        public IPlagiarismDetectService Store { get; }
 
-        public SetsController(IStoreService store)
+        public SetsController(IPlagiarismDetectService store)
         {
             Store = store;
         }
@@ -35,20 +35,19 @@ namespace SatelliteSite.PlagModule.Apis
             [FromForm, Required] string name)
         {
             var result = await Store.CreateSetAsync(name);
-            result.Submissions ??= Array.Empty<Submission>();
             return CreatedAtAction(nameof(GetOne), new { id = result.Id }, result);
         }
 
         /// <summary>
         /// Get the given set for the plagiarism system
         /// </summary>
-        /// <param name="id">The ID of the entity to get</param>
+        /// <param name="sid">The ID of the entity to get</param>
         /// <response code="200">Returns the given set for the plagiarism system</response>
-        [HttpGet("{id}")]
+        [HttpGet("{sid}")]
         public async Task<ActionResult<PlagiarismSet>> GetOne(
-            [FromRoute, Required] string id)
+            [FromRoute, Required] string sid)
         {
-            return await Store.FindSetAsync(id);
+            return await Store.FindSetAsync(sid);
         }
 
         /// <summary>

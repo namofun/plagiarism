@@ -17,12 +17,18 @@ namespace Plag.Backend.Jobs
             _capacity = capacity;
         }
 
-        public TValue Get(TKey key)
+        public bool TryGet(TKey key, out TValue value)
         {
-            if (!_quickAccess.TryGetValue(key, out var node)) return default;
+            if (!_quickAccess.TryGetValue(key, out var node))
+            {
+                value = default;
+                return false;
+            }
+
             _list.Remove(node);
             _list.AddFirst(node);
-            return node.Value.Value;
+            value = node.Value.Value;
+            return true;
         }
 
         public void Set(TKey key, TValue value)
@@ -49,20 +55,24 @@ namespace Plag.Backend.Jobs
         /// <remarks>NOT thread safe. Please check <paramref name="key"/> is not null.</remarks>
         public async ValueTask<TValue> GetOrLoadAsync(TKey key, Func<TKey, Task<TValue>> valueFactory)
         {
-            var entity = Get(key);
-            if (entity != null) return entity;
-            var value = await valueFactory(key);
-            Set(key, value);
+            if (!TryGet(key, out var value))
+            {
+                value = await valueFactory(key);
+                Set(key, value);
+            }
+
             return value;
         }
 
         /// <remarks>NOT thread safe. Please check <paramref name="key"/> is not null.</remarks>
         public async ValueTask<TValue> GetOrLoadAsync<TContext>(TKey key, TContext context, Func<TKey, TContext, Task<TValue>> valueFactory)
         {
-            var entity = Get(key);
-            if (entity != null) return entity;
-            var value = await valueFactory(key, context);
-            Set(key, value);
+            if (!TryGet(key, out var value))
+            {
+                value = await valueFactory(key, context);
+                Set(key, value);
+            }
+
             return value;
         }
 

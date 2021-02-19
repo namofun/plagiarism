@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Plag.Backend.Models;
+using Plag.Backend.Services;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
-using IStoreService = Plag.Backend.Services.IPlagiarismDetectService;
 
 namespace SatelliteSite.PlagModule.Apis
 {
@@ -16,12 +16,13 @@ namespace SatelliteSite.PlagModule.Apis
     [Produces("application/json")]
     public class ReportsController : ApiControllerBase
     {
-        public IStoreService Store { get; }
+        public IPlagiarismDetectService Store { get; }
 
-        public ReportsController(IStoreService store)
+        public ReportsController(IPlagiarismDetectService store)
         {
             Store = store;
         }
+
 
         /// <summary>
         /// Get the given report for the plagiarism system

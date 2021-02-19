@@ -4,11 +4,14 @@ using System;
 
 namespace SatelliteSite.PlagModule.Models
 {
-    [DtWrapUrl("/dashboard/plagiarism/submit/{Id}")]
+    [DtWrapUrl("/dashboard/plagiarism/{SetId}/submissions/{Id}")]
     public class ReportListModel
     {
+        [DtIgnore]
+        public string SetId { get; set; }
+
         [DtDisplay(0, "ID", Searchable = true, Sortable = true)]
-        public string Id { get; set; }
+        public int Id { get; set; }
 
         [DtDisplay(1, "name", Searchable = true, Sortable = true)]
         public string Name { get; set; }
@@ -24,13 +27,14 @@ namespace SatelliteSite.PlagModule.Models
         public double Percent { get; set; }
 
         [DtIcon(5, "fas fa-file-code")]
-        [DtWrapUrl("/dashboard/plagiarism/submit/{Id}/source-code")]
+        [DtWrapUrl("/dashboard/plagiarism/{SetId}/submissions/{Id}/source-code")]
         public object ViewSubmission { set { } }
 
         public static ReportListModel Conv(Submission s)
         {
             return new ReportListModel
             {
+                SetId = s.SetId,
                 Id = s.Id,
                 Name = s.Name,
                 Percent = s.MaxPercent,

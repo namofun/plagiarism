@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace Plag.Backend.Models
@@ -20,8 +19,5 @@ namespace Plag.Backend.Models
 
         [JsonPropertyName("report_pending")]
         public int ReportPending { get; set; }
-
-        [JsonPropertyName("submissions")]
-        public ICollection<Submission> Submissions { get; set; }
     }
 }

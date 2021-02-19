@@ -5,13 +5,16 @@ namespace Plag.Backend.Models
     public class Comparison
     {
         [JsonPropertyName("reportid")]
-        public string Id { get; set; }
+        public virtual string Id { get; set; }
 
         [JsonPropertyName("submitid")]
         public int SubmissionIdAnother { get; set; }
 
-        [JsonPropertyName("pending")]
-        public bool Pending { get; set; }
+        [JsonPropertyName("submit")]
+        public string SubmissionNameAnother { get; set; }
+
+        [JsonPropertyName("finished")]
+        public bool? Finished { get; set; }
 
         [JsonPropertyName("tokens_matched")]
         public int TokensMatched { get; set; }
@@ -27,11 +30,5 @@ namespace Plag.Backend.Models
 
         [JsonPropertyName("percent_another")]
         public double PercentIt { get; set; }
-
-        public Comparison() { }
-
-        public Comparison(string id) { Id = id; }
-
-        public Comparison(System.Guid id) { Id = id.ToString(); }
     }
 }

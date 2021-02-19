@@ -176,34 +176,47 @@ namespace Plag.Backend.Services
             return e.Entity;
         }
 
+        private class HoistedComparison : Comparison
+        {
+            public Guid ExternalId { get; set; }
+
+            public override string Id { get => ExternalId.ToString(); set { } }
+        }
+
         public override async Task<IReadOnlyList<Comparison>> GetComparisonsBySubmissionAsync(Guid setid, int submitid)
         {
             var reportA =
                 from r in Reports
                 where r.SetId == setid && r.SubmissionB == submitid
-                select new Comparison(r.ExternalId)
+                join s in Submissions on new { r.SetId, Id = r.SubmissionA } equals new { s.SetId, s.Id }
+                select new HoistedComparison
                 {
                     BiggestMatch = r.BiggestMatch,
                     SubmissionIdAnother = r.SubmissionA,
-                    Pending = r.Finished != true,
+                    SubmissionNameAnother = s.Name,
+                    Finished = r.Finished,
                     TokensMatched = r.TokensMatched,
                     Percent = r.Percent,
                     PercentIt = r.PercentA,
-                    PercentSelf = r.PercentB
+                    PercentSelf = r.PercentB,
+                    ExternalId = r.ExternalId,
                 };
 
             var reportB =
                 from r in Reports
                 where r.SetId == setid && r.SubmissionA == submitid
-                select new Comparison(r.ExternalId)
+                join s in Submissions on new { r.SetId, Id = r.SubmissionB } equals new { s.SetId, s.Id }
+                select new HoistedComparison
                 {
                     BiggestMatch = r.BiggestMatch,
                     SubmissionIdAnother = r.SubmissionB,
-                    Pending = r.Finished != true,
+                    SubmissionNameAnother = s.Name,
+                    Finished = r.Finished,
                     TokensMatched = r.TokensMatched,
                     Percent = r.Percent,
                     PercentIt = r.PercentB,
-                    PercentSelf = r.PercentA
+                    PercentSelf = r.PercentA,
+                    ExternalId = r.ExternalId,
                 };
 
             return await reportA.Concat(reportB).ToListAsync();
@@ -225,9 +238,9 @@ namespace Plag.Backend.Services
 
         public override async Task<Submission> DequeueSubmissionAsync()
         {
-            // likely the compilation fields are nulls
             var s = await Submissions.AsNoTracking()
                 .Where(s => s.TokenProduced == null)
+                .Select(Submission<Guid>.Minify)
                 .FirstOrDefaultAsync();
 
             if (s == null) return null;
@@ -266,6 +279,8 @@ namespace Plag.Backend.Services
                .Where(r => r.Finished == null)
                .Select(r => new { r.ExternalId, r.SetId, r.SubmissionA, r.SubmissionB })
                .FirstOrDefaultAsync();
+
+            if (r == null) return null;
 
             await Reports
                 .Where(o => o.ExternalId == r.ExternalId)

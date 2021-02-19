@@ -92,7 +92,7 @@ namespace Plag.Backend.Services
         /// <param name="inclusive_category">The non-exclusive category ID, null for not filtered.</param>
         /// <param name="min_percent">The minimal percent to show, null for not filtered.</param>
         /// <returns>The submissions.</returns>
-        Task<IReadOnlyList<Submission>> ListSubmissionsAsync(string setid, int? exclusive_category, int? inclusive_category, double? min_percent);
+        Task<IReadOnlyList<Submission>> ListSubmissionsAsync(string setid, int? exclusive_category = null, int? inclusive_category = null, double? min_percent = null);
 
         /// <summary>
         /// Lists the plagiarism sets.

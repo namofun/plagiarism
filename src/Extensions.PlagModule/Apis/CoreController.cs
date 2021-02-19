@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Plag.Backend.Services;
 using System.Threading.Tasks;
-using IStoreService = Plag.Backend.Services.IPlagiarismDetectService;
 
 namespace SatelliteSite.PlagModule.Apis
 {
@@ -14,9 +14,9 @@ namespace SatelliteSite.PlagModule.Apis
     [Produces("application/json")]
     public class CoreController : ApiControllerBase
     {
-        public IStoreService Store { get; }
+        public IPlagiarismDetectService Store { get; }
 
-        public CoreController(IStoreService store)
+        public CoreController(IPlagiarismDetectService store)
         {
             Store = store;
         }

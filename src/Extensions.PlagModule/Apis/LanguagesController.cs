@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Plag.Backend.Models;
+using Plag.Backend.Services;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
-using IStoreService = Plag.Backend.Services.IPlagiarismDetectService;
 
 namespace SatelliteSite.PlagModule.Apis
 {
@@ -17,12 +17,13 @@ namespace SatelliteSite.PlagModule.Apis
     [Produces("application/json")]
     public class LanguagesController : ApiControllerBase
     {
-        public IStoreService Store { get; }
+        public IPlagiarismDetectService Store { get; }
 
-        public LanguagesController(IStoreService store)
+        public LanguagesController(IPlagiarismDetectService store)
         {
             Store = store;
         }
+
 
         /// <summary>
         /// Get all the languages for the plagiarism system
@@ -33,6 +34,7 @@ namespace SatelliteSite.PlagModule.Apis
         {
             return await Store.ListLanguageAsync();
         }
+
 
         /// <summary>
         /// Get the given language for the plagiarism system

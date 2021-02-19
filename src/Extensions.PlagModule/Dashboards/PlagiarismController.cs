@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Plag.Backend.Models;
+using Plag.Backend.Services;
 using SatelliteSite.PlagModule.Models;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,6 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using IStoreService = Plag.Backend.Services.IPlagiarismDetectService;
 
 namespace SatelliteSite.PlagModule.Dashboards
 {
@@ -19,11 +19,11 @@ namespace SatelliteSite.PlagModule.Dashboards
     [Route("[area]/[controller]")]
     public class PlagiarismController : ViewControllerBase
     {
-        public IStoreService Store { get; }
+        public IPlagiarismDetectService Store { get; }
 
         public ILogger<PlagiarismController> Logger { get; }
 
-        public PlagiarismController(IStoreService store, ILogger<PlagiarismController> logger)
+        public PlagiarismController(IPlagiarismDetectService store, ILogger<PlagiarismController> logger)
         {
             Store = store;
             Logger = logger;
@@ -76,44 +76,51 @@ namespace SatelliteSite.PlagModule.Dashboards
         }
 
 
-        [HttpGet("set/{pid}")]
-        public async Task<IActionResult> Detail(string pid)
-        {
-            var report = await Store.FindSetAsync(pid);
-            if (report == null) return NotFound();
-
-            report.Submissions = await Store.ListSubmissionsAsync(pid);
-            ViewBag.ViewModel = report.Submissions.Select(ReportListModel.Conv);
-            return View(report);
-        }
-
-
         [HttpPost("[action]")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(SetCreateModel model)
         {
             if (!ModelState.IsValid) return View(model);
             var set = await Store.CreateSetAsync(model.Name);
-            return RedirectToAction(nameof(Detail), new { pid = set.Id });
+            return RedirectToAction(nameof(Detail), new { sid = set.Id });
         }
 
 
-        [HttpGet("set/{pid}/[action]")]
-        public async Task<IActionResult> Upload(string pid)
+        [HttpGet("{sid}")]
+        public async Task<IActionResult> Detail(string sid)
         {
-            var report = await Store.FindSetAsync(pid);
+            var report = await Store.FindSetAsync(sid);
+            if (report == null) return NotFound();
+
+            var ss = await Store.ListSubmissionsAsync(sid);
+            int ok = 0, no = 0, fail = 0;
+            foreach (var s in ss)
+            {
+                (!s.TokenProduced.HasValue ? ref no : ref (s.TokenProduced.Value ? ref ok : ref fail))++;
+            }
+
+            ViewBag.Statistics = (ok, no, fail);
+            ViewBag.ViewModel = ss.Select(ReportListModel.Conv);
+            return View(report);
+        }
+
+
+        [HttpGet("{sid}/[action]")]
+        public async Task<IActionResult> Upload(string sid)
+        {
+            var report = await Store.FindSetAsync(sid);
             if (report == null) return NotFound();
             ViewBag.Languages = await Store.ListLanguageAsync();
             return View(new SetUploadModel());
         }
 
 
-        [HttpPost("set/{pid}/[action]")]
+        [HttpPost("{sid}/[action]")]
         [ValidateAjaxWindow]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Upload(string pid, SetUploadModel model)
+        public async Task<IActionResult> Upload(string sid, SetUploadModel model)
         {
-            var set = await Store.FindSetAsync(pid);
+            var set = await Store.FindSetAsync(sid);
             if (set == null) ModelState.AddModelError("checkset", "Plagiarism set not found.");
             var lang = await Store.FindLanguageAsync(model.Language);
             if (lang == null) ModelState.AddModelError("lang", "Language not found.");
@@ -132,7 +139,7 @@ namespace SatelliteSite.PlagModule.Dashboards
                     {
                         Name = Path.GetFileNameWithoutExtension(item.FileName),
                         Language = model.Language,
-                        SetId = pid,
+                        SetId = sid,
                     };
 
                     var files = new List<SubmissionCreation.SubmissionFileCreation>();
@@ -166,22 +173,22 @@ namespace SatelliteSite.PlagModule.Dashboards
 
             err.Append("Import finished.");
             StatusMessage = err.ToString();
-            return RedirectToAction(nameof(Detail), new { pid });
+            return RedirectToAction(nameof(Detail), new { sid });
         }
 
 
-        [HttpGet("submit/{sid}")]
-        public async Task<IActionResult> Submission(string sid)
+        [HttpGet("{sid}/submissions/{id}")]
+        public async Task<IActionResult> Submission(string sid, int id)
         {
-            var ss = await Store.FindSubmissionAsync(sid, false);
+            var ss = await Store.FindSubmissionAsync(sid, id, false);
             if (ss == null) return NotFound();
 
-            var rep = await Store.GetComparisonsBySubmissionAsync(sid);
-            ViewBag.Reports = rep.Select(c => new SubmissionListModel(c));
+            var rep = await Store.GetComparisonsBySubmissionAsync(sid, id);
+            ViewBag.Reports = rep.Select(c => new SubmissionListModel(sid, c));
 
             if (ss.TokenProduced == false)
             {
-                var er = await Store.GetCompilationAsync(sid);
+                var er = await Store.GetCompilationAsync(sid, id);
                 ViewBag.Error = er.Error;
             }
             else
@@ -193,23 +200,23 @@ namespace SatelliteSite.PlagModule.Dashboards
         }
 
 
-        [HttpGet("submit/{sid}/[action]")]
-        public async Task<IActionResult> SourceCode(string sid)
+        [HttpGet("{sid}/submissions/{id}/[action]")]
+        public async Task<IActionResult> SourceCode(string sid, int id)
         {
-            var ss = await Store.FindSubmissionAsync(sid);
+            var ss = await Store.FindSubmissionAsync(sid, id);
             if (ss == null) return NotFound();
             return View(ss);
         }
 
 
-        [HttpGet("report/{rid}")]
-        public async Task<IActionResult> Compare(string rid)
+        [HttpGet("{sid}/reports/{rid}")]
+        public async Task<IActionResult> Compare(string sid, string rid)
         {
             var report = await Store.FindReportAsync(rid);
-            if (report == null) return NotFound();
+            if (report == null || sid != report.SetId) return NotFound();
 
-            var subA = await Store.FindSubmissionAsync(report.SubmissionA);
-            var subB = await Store.FindSubmissionAsync(report.SubmissionB);
+            var subA = await Store.FindSubmissionAsync(sid, report.SubmissionA);
+            var subB = await Store.FindSubmissionAsync(sid, report.SubmissionB);
 
             var retA = CodeModel.CreateView(report, c => c.FileA, c => c.ContentStartA, c => c.ContentEndA, subA);
             var retB = CodeModel.CreateView(report, c => c.FileB, c => c.ContentStartB, c => c.ContentEndB, subB);

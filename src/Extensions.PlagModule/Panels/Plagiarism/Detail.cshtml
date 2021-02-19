@@ -1,12 +1,7 @@
 ﻿@model PlagiarismSet
 @{
     ViewData["Title"] = "Plagiarism Set: " + Model.Name;
-
-    int ok = 0, no = 0, fail = 0;
-    foreach (var s in Model.Submissions)
-    {
-        (!s.TokenProduced.HasValue ? ref no : ref (s.TokenProduced.Value ? ref ok : ref fail))++;
-    }
+    (int ok, int no, int fail) = ((int, int, int))ViewBag.Statistics;
 }
 
 <h2 class="mt-2">@ViewData["Title"]</h2>

@@ -3,7 +3,7 @@ using System;
 
 namespace SatelliteSite.PlagModule.Models
 {
-    [DtWrapUrl("/dashboard/plagiarism/set/{Id}")]
+    [DtWrapUrl("/dashboard/plagiarism/{Id}")]
     public class SetListModel
     {
         [DtDisplay(0, "ID", Sortable = true)]
