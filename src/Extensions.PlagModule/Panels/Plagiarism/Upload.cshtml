@@ -1,9 +1,9 @@
-﻿@using Plag.Backend
-@model SetUploadModel
+﻿@model SetUploadModel
 @{
-    ViewData["Title"] = "Upload submissions";
     Layout = "_WindowLayout";
-    var guid = Guid.NewGuid().ToString();
+    ViewData["Title"] = "Upload submissions";
+    ViewData["StaticBackdrop"] = true;
+    ViewData["FormAjaxUpload"] = Url.Action("Upload");
     List<LanguageInfo> langs = ViewBag.Languages;
 }
 
@@ -41,71 +41,10 @@
     </small>
 </div>
 
-<div class="upload-progress"><div></div></div>
-
-<script>
-    $(function () {
-        return;
-        let frm = $('#@guid');
-        let btn = $('#@guid');
-        while (frm[0].tagName != 'FORM') {
-            frm = frm.parent();
-        }
-        frm.attr('action', btn.attr('formaction'));
-        frm.attr('enctype', btn.attr('enctype'));
-        alert(frm.prop('action'));
-    });
-</script>
-
-<script>
-    function ajaxpost2(Button, handlekey, parent, arg2) {
-        let $Button = $(Button);
-        let Form = $Button.parent().parent().parent().parent().parent()[0];
-        let $Form = $(Form);
-        $Form.attr("action", $Button.attr("formaction"));
-        $Form.attr("enctype", $Button.attr("formenctype"));
-        let form = new FormData(Form);
-        form.append("handlekey", handlekey);
-        $.ajax({
-            url: $(Form).prop("action"),
-            type: "post",
-            data: form,
-            processData: false,
-            contentType: false,
-            xhr: function () {
-                let xhr = new XMLHttpRequest();
-                xhr.upload.addEventListener('progress', function (e) {
-                    var progressRate = (e.loaded / e.total) * 100 + '%';
-                    $('#modal-' + parent + ' .upload-progress > div').css('width', progressRate);
-                });
-                return xhr;
-            },
-            success: function (data, statusCode, jqXHR) {
-                if (jqXHR.getResponseHeader('X-Login-Page')) {
-                    window.location = jqXHR.getResponseHeader('X-Login-Page');
-                }
-                parent && $("#modal-" + parent).modal("hide");
-                $("#append-parent").append('<div id="ajax_result_' + handlekey + '">' + data + '</div>');
-                $("#modal-" + handlekey).on(
-                    "hidden.bs.modal",
-                    function (e) {
-                        $('#ajax_result_' + handlekey).remove()
-                    }
-                ).modal("show");
-            },
-            error: function (jqXHR) {
-                if (jqXHR.getResponseHeader('X-Login-Page')) {
-                    window.location = jqXHR.getResponseHeader('X-Login-Page');
-                }
-                notice("请联系管理员。" + jqXHR.status + ' ' + jqXHR.statusText + "<br><pre>" + jqXHR.responseText, "danger", "内部错误");
-            }
-        });
-        return false;
-    }
-</script>
+<div class="upload-progress" asp-viewdata-key="InAjax"><div></div></div>
 
 @section Footer {
-    <button id="@guid" formenctype="multipart/form-data" onclick="ajaxpost2(this,'@ViewData["HandleKey2"]','@ViewData["HandleKey"]');return false" asp-action="Upload" asp-route-pid="@Context.Request.RouteValues["pid"]" class="btn btn-primary">Upload</button>
+    <button type="submit" class="btn btn-primary">Upload</button>
 }
 
 @section Scripts {

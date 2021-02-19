@@ -38,6 +38,7 @@ namespace SatelliteSite.PlagModule.Apis
             [FromRoute, Required] string sid,
             [FromBody, Required] SubmissionCreation submission)
         {
+            if (!ModelState.IsValid) return BadRequest();
             if (submission.SetId != sid) return BadRequest();
             if (submission.Files == null || submission.Files.Count == 0) return BadRequest();
             var s = await Store.SubmitAsync(submission);
@@ -92,6 +93,22 @@ namespace SatelliteSite.PlagModule.Apis
             [FromQuery] bool includeFiles = true)
         {
             return await Store.FindSubmissionAsync(sid, id, includeFiles);
+        }
+
+
+        /// <summary>
+        /// Get the files of given submission for the plagiarism system
+        /// </summary>
+        /// <param name="sid">The plagiarism set ID</param>
+        /// <param name="id">The ID of the entity to get</param>
+        /// <response code="200">Returns the files of given submission for the plagiarism system</response>
+        [HttpGet("{id}/files")]
+        public async Task<ActionResult<SubmissionFile[]>> GetFiles(
+            [FromRoute, Required] string sid,
+            [FromRoute, Required] int id)
+        {
+            var result = await Store.GetFilesAsync(sid, id);
+            return result.ToArray();
         }
 
 

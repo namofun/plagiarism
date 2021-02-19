@@ -35,6 +35,7 @@ namespace SatelliteSite.PlagModule.Apis
         public async Task<ActionResult<PlagiarismSet>> CreateOne(
             [FromBody, Required] SetCreation model)
         {
+            if (!ModelState.IsValid) return BadRequest();
             var result = await Store.CreateSetAsync(model);
             return CreatedAtAction(nameof(GetOne), new { sid = result.Id }, result);
         }

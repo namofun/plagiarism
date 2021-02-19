@@ -118,7 +118,6 @@ namespace SatelliteSite.PlagModule.Dashboards
 
 
         [HttpPost("{sid}/[action]")]
-        [ValidateAjaxWindow]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Upload(string sid, SetUploadModel model)
         {

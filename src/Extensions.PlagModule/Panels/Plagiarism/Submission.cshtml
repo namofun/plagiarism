@@ -4,6 +4,13 @@
     string error = ViewBag.Error;
 }
 
-<h2 class="mt-2">Submission s@(Model.Id): <a asp-action="SourceCode" asp-route-sid="@Model.Id">@Model.Name</a></h2>
-<datatable data="ViewBag.Reports" asp-show-if="error == null" />
-<pre class="output_text" asp-show-if="error != null">@error</pre>
+<h2 class="mt-2">Submission s@(Model.Id): <a asp-action="SourceCode">@Model.Name</a></h2>
+@if (error == null)
+{
+<datatable data="ViewBag.Reports" />
+}
+else
+{
+<div class="alert alert-danger">Compilation failed. Frontend should be updated, or this submission cannot compile simply.</div>
+<pre class="output_text">@error</pre>
+}
