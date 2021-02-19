@@ -1,159 +1,69 @@
 ﻿using Plag.Backend.Models;
-using System;
 using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Plag.Backend.Services
 {
     public class RestfulStoreService : IPlagiarismDetectService
     {
-        public HttpClient Client { get; }
+        public RestfulClient Client { get; }
 
-        public JsonSerializerOptions Options { get; }
+        public RestfulStoreService(RestfulClient client)
+            => Client = client;
 
-        public RestfulStoreService(HttpClient client)
-        {
-            Client = client;
-            Options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-        }
+        public Task<LanguageInfo> FindLanguageAsync(string id)
+            => Client.GetAsync<LanguageInfo>($"/languages/{id}");
 
-        private async Task<T> SendAsync<T>(HttpRequestMessage request) where T : class
-        {
-            using var resp = await Client.SendAsync(request);
+        public Task<Report> FindReportAsync(string id)
+            => Client.GetAsync<Report>($"/reports/{id}");
 
-            if (resp.StatusCode == HttpStatusCode.NotFound)
-            {
-                return null;
-            }
-            else if (resp.StatusCode == HttpStatusCode.OK || resp.StatusCode == HttpStatusCode.Created)
-            {
-                using var stream = await resp.Content.ReadAsStreamAsync();
-                return await JsonSerializer.DeserializeAsync<T>(stream, Options);
-            }
+        public Task<PlagiarismSet> FindSetAsync(string id)
+            => Client.GetAsync<PlagiarismSet>($"/sets/{id}");
 
-            throw new NotImplementedException();
-        }
+        public Task<Compilation> GetCompilationAsync(string sid, int id)
+            => Client.GetAsync<Compilation>($"/sets/{sid}/submissions/{id}/compilation");
 
-        private Task<T> GetAsync<T>(string url) where T : class
-        {
-            return SendAsync<T>(new HttpRequestMessage(HttpMethod.Get, url));
-        }
+        public Task<Submission> FindSubmissionAsync(string sid, int id, bool includeFiles = true)
+            => Client.GetAsync<Submission>($"/sets/{sid}/submissions/{id}?includeFiles={includeFiles}");
 
-        private Task<T> PostAsync<T>(string url, HttpContent body) where T : class
-        {
-            return SendAsync<T>(new HttpRequestMessage(HttpMethod.Post, url) { Content = body });
-        }
+        public async Task<IReadOnlyList<Comparison>> GetComparisonsBySubmissionAsync(string sid, int id)
+            => await Client.GetAsync<List<Comparison>>($"/sets/{sid}/submissions/{id}/comparisons");
 
-        public Task<LanguageInfo> FindLanguageAsync(string id) => GetAsync<LanguageInfo>($"/api/plagiarism/languages/{id}");
+        public async Task<IReadOnlyList<SubmissionFile>> GetFilesAsync(string sid, int id)
+            => await Client.GetAsync<List<SubmissionFile>>($"/sets/{sid}/submissions/{id}/files");
 
-        public Task<Report> FindReportAsync(string id) => GetAsync<Report>($"/api/plagiarism/reports/{id}");
+        public Task<List<LanguageInfo>> ListLanguageAsync()
+            => Client.GetAsync<List<LanguageInfo>>("/languages");
 
-        public Task<PlagiarismSet> FindSetAsync(string id) => GetAsync<PlagiarismSet>($"/api/plagiarism/sets/{id}");
+        public async Task<IReadOnlyList<Submission>> ListSubmissionsAsync(string sid, int? exclusive_category, int? inclusive_category, double? min_percent)
+            => await Client.GetAsync<List<Submission>>($"/sets/{sid}/submissions?_=_"
+                + (exclusive_category.HasValue ? $"&{nameof(exclusive_category)}={exclusive_category}" : string.Empty)
+                + (inclusive_category.HasValue ? $"&{nameof(inclusive_category)}={inclusive_category}" : string.Empty)
+                + (min_percent.HasValue ? $"&{nameof(min_percent)}={min_percent}" : string.Empty));
 
-        public Task<Compilation> GetCompilationAsync(string id) => GetAsync<Compilation>($"/api/plagiarism/submissions/{id}/compilation");
-
-        public Task<Submission> FindSubmissionAsync(string id, bool includeFiles = true) => GetAsync<Submission>($"/api/plagiarism/submissions/{id}?includeFiles={includeFiles}");
-
-        public Task<List<Comparison>> GetComparisonsBySubmissionAsync(string id) => GetAsync<List<Comparison>>($"/api/plagiarism/submissions/{id}/comparisons");
-
-        public Task<List<LanguageInfo>> ListLanguageAsync() => GetAsync<List<LanguageInfo>>($"/api/plagiarism/languages");
-
-        public Task<List<Submission>> ListSubmissionsAsync(string set) => GetAsync<List<Submission>>($"/api/plagiarism/sets/{set}/submissions");
-
-        public Task<List<PlagiarismSet>> ListSetsAsync(int? skip, int? limit)
-        {
-            var link = "/api/plagiarism/sets?api=1";
-            if (skip.HasValue) link += $"&skip={skip.Value}";
-            if (limit.HasValue) link += $"&limit={limit.Value}";
-            return GetAsync<List<PlagiarismSet>>(link);
-        }
-
-        public Task<PlagiarismSet> CreateSetAsync(string name)
-        {
-            return PostAsync<PlagiarismSet>(
-                "/api/plagiarism/sets",
-                new FormUrlEncodedContent(new Dictionary<string, string>
-                {
-                    [nameof(name)] = name
-                }));
-        }
-
-        public Task<Submission> SubmitAsync(SubmissionCreation submission)
-        {
-            var content = JsonSerializer.SerializeToUtf8Bytes(submission);
-            var body = new ByteArrayContent(content);
-            body.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
-            return PostAsync<Submission>("/api/plagiarism/submissions", body);
-        }
-
-        public async Task RescueAsync()
-        {
-            using var resp = await Client.PostAsync("/api/plagiarism/rescue", new ByteArrayContent(Array.Empty<byte>()));
-
-            if (resp.StatusCode != HttpStatusCode.OK)
-            {
-                throw new OperationCanceledException();
-            }
-        }
-
-        public object GetVersion()
-        {
-            var backend_version = typeof(IBackendRoleStrategy).Assembly.GetName().Version.ToString();
-            return new { backend_version, role = "restful" };
-        }
-
-        public Task<Report> FindReportAsync(string setid, int submitid_a, int submitid_b)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Submission> FindSubmissionAsync(string setid, int submitid, bool includeFiles = true)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Compilation> GetCompilationAsync(string setid, int submitid)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<List<Comparison>> GetComparisonsBySubmissionAsync(string setid, int submitid)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<List<Submission>> ListSubmissionsAsync(string setid, int? exclusive_category, int? inclusive_category, double? min_percent)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IReadOnlyList<SubmissionFile>> GetFilesAsync(string setId, int submitId)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<IReadOnlyList<Submission>> IPlagiarismDetectService.ListSubmissionsAsync(string setid, int? exclusive_category, int? inclusive_category, double? min_percent)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<IReadOnlyList<Comparison>> IPlagiarismDetectService.GetComparisonsBySubmissionAsync(string setid, int submitid)
-        {
-            throw new NotImplementedException();
-        }
+        public async Task<IReadOnlyList<PlagiarismSet>> ListSetsAsync(int? related, int? creator, int? skip, int? limit)
+            => await Client.GetAsync<List<PlagiarismSet>>($"/sets?_=_"
+                + (related.HasValue ? $"&{nameof(related)}={related}" : string.Empty)
+                + (creator.HasValue ? $"&{nameof(creator)}={creator}" : string.Empty)
+                + (skip.HasValue ? $"&{nameof(skip)}={skip}" : string.Empty)
+                + (limit.HasValue ? $"&{nameof(limit)}={limit}" : string.Empty));
 
         public Task<PlagiarismSet> CreateSetAsync(SetCreation metadata)
-        {
-            throw new NotImplementedException();
-        }
+            => Client.PostAsync<PlagiarismSet>("/sets", Client.JsonContent(metadata));
 
-        public Task<IReadOnlyList<PlagiarismSet>> ListSetsAsync(int? cid = null, int? uid = null, int? skip = null, int? limit = null)
+        public Task<Submission> SubmitAsync(SubmissionCreation submission)
+            => Client.PostAsync<Submission>($"/sets/{submission.SetId}/submissions", Client.JsonContent(submission));
+
+        public Task RescueAsync()
+            => Client.PostAsync<ServiceVersion>("/rescue", RestfulClient.EmptyContent);
+
+        public ServiceVersion GetVersion()
         {
-            throw new NotImplementedException();
+            return new ServiceVersion
+            {
+                BackendVersion = typeof(IBackendRoleStrategy).Assembly.GetName().Version.ToString(),
+                Role = "restful"
+            };
         }
     }
 }

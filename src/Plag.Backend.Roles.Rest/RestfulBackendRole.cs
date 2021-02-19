@@ -10,7 +10,9 @@ namespace Plag.Backend
     {
         public void Apply(IServiceCollection services)
         {
-            services.AddHttpClient<IPlagiarismDetectService, RestfulStoreService>()
+            services.AddScoped<IPlagiarismDetectService, RestfulStoreService>();
+
+            services.AddHttpClient<RestfulClient>()
                 .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false })
                 .ConfigureHttpClient((services, httpClient) =>
                 {
@@ -26,7 +28,7 @@ namespace Plag.Backend
                     }
 
                     httpClient.BaseAddress = baseUri;
-                    httpClient.DefaultRequestHeaders.Add("User-Agent", "PlagiarismRestful/1.1.0");
+                    httpClient.DefaultRequestHeaders.Add("User-Agent", "PlagiarismRestful/1.2.0");
                 });
         }
     }
