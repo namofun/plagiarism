@@ -87,7 +87,7 @@ namespace Plag.Backend.Services
         {
             if (!TryGetKey(submission.SetId, out var setid))
             {
-                throw new InvalidOperationException("Set not found.");
+                throw new ArgumentOutOfRangeException("SetId", "Set not found.");
             }
 
             var entity = await SubmitAsync(setid, submission);

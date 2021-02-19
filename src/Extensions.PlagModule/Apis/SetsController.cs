@@ -15,6 +15,7 @@ namespace SatelliteSite.PlagModule.Apis
     [Authorize(Roles = "Administrator")]
     [Route("[area]/plagiarism/[controller]")]
     [Produces("application/json")]
+    [CustomedExceptionFilter]
     public class SetsController : ApiControllerBase
     {
         public IPlagiarismDetectService Store { get; }
@@ -35,7 +36,7 @@ namespace SatelliteSite.PlagModule.Apis
             [FromBody, Required] SetCreation model)
         {
             var result = await Store.CreateSetAsync(model);
-            return CreatedAtAction(nameof(GetOne), new { id = result.Id }, result);
+            return CreatedAtAction(nameof(GetOne), new { sid = result.Id }, result);
         }
 
         /// <summary>
@@ -53,15 +54,19 @@ namespace SatelliteSite.PlagModule.Apis
         /// <summary>
         /// Get all the sets for the plagiarism system
         /// </summary>
+        /// <param name="creator">The creator of entity</param>
+        /// <param name="related">The related of entity</param>
         /// <param name="skip">The count to skip</param>
         /// <param name="limit">The count to take</param>
         /// <response code="200">Returns all the sets for the plagiarism system</response>
         [HttpGet]
         public async Task<ActionResult<PlagiarismSet[]>> GetAll(
+            [FromQuery] int? creator = null,
+            [FromQuery] int? related = null,
             [FromQuery] int? skip = null,
             [FromQuery] int? limit = null)
         {
-            var items = await Store.ListSetsAsync(skip, limit);
+            var items = await Store.ListSetsAsync(related, creator, skip, limit);
             return items.ToArray();
         }
     }

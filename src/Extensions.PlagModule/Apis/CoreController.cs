@@ -12,6 +12,7 @@ namespace SatelliteSite.PlagModule.Apis
     [Authorize(Roles = "Administrator")]
     [Route("[area]/plagiarism/[action]")]
     [Produces("application/json")]
+    [CustomedExceptionFilter]
     public class CoreController : ApiControllerBase
     {
         public IPlagiarismDetectService Store { get; }

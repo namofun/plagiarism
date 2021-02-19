@@ -15,6 +15,7 @@ namespace SatelliteSite.PlagModule.Apis
     [Authorize(Roles = "Administrator")]
     [Route("/api/plagiarism/sets/{sid}/submissions")]
     [Produces("application/json")]
+    [CustomedExceptionFilter]
     public class SubmissionsController : ApiControllerBase
     {
         public IPlagiarismDetectService Store { get; }
@@ -38,7 +39,21 @@ namespace SatelliteSite.PlagModule.Apis
             [FromBody, Required] SubmissionCreation submission)
         {
             if (submission.SetId != sid) return BadRequest();
+            if (submission.Files == null || submission.Files.Count == 0) return BadRequest();
             var s = await Store.SubmitAsync(submission);
+
+            if (s.Files == null)
+            {
+                s.Files = submission.Files
+                    .Select((s, j) => new SubmissionFile
+                    {
+                        FileId = j + 1,
+                        FileName = s.FileName,
+                        FilePath = s.FilePath,
+                    })
+                    .ToList();
+            }
+
             return CreatedAtAction(nameof(GetOne), new { id = s.Id }, s);
         }
 

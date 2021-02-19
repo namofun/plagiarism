@@ -133,6 +133,9 @@ namespace Plag.Backend.Services
 
         public override async Task<Submission<Guid>> SubmitAsync(Guid setId, SubmissionCreation submission)
         {
+            var set = await FindSetAsync(setId);
+            if (set == null) throw new ArgumentOutOfRangeException(nameof(setId), "Set not found.");
+
             var id = SequentialGuidGenerator.Create(Context);
             var submissionId = submission.Id ??
                 ((await Submissions.Where(s => s.SetId == setId).Select(s => (int?)s.Id).MaxAsync() ?? 0) + 1);
