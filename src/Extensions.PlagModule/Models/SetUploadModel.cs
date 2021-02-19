@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace SatelliteSite.PlagModule.Models
@@ -10,5 +11,11 @@ namespace SatelliteSite.PlagModule.Models
 
         [Required]
         public IFormFileCollection Files { get; set; }
+
+        [DisplayName("Non-exclusive category")]
+        public int Inclusive { get; set; }
+
+        [DisplayName("Exclusive category")]
+        public int? Exclusive { get; set; }
     }
 }

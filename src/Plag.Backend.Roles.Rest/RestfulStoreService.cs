@@ -141,17 +141,17 @@ namespace Plag.Backend.Services
             throw new NotImplementedException();
         }
 
-        Task<IReadOnlyList<PlagiarismSet>> IPlagiarismDetectService.ListSetsAsync(int? skip, int? limit)
-        {
-            throw new NotImplementedException();
-        }
-
         Task<IReadOnlyList<Comparison>> IPlagiarismDetectService.GetComparisonsBySubmissionAsync(string setid, int submitid)
         {
             throw new NotImplementedException();
         }
 
         public Task<PlagiarismSet> CreateSetAsync(SetCreation metadata)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IReadOnlyList<PlagiarismSet>> ListSetsAsync(int? cid = null, int? uid = null, int? skip = null, int? limit = null)
         {
             throw new NotImplementedException();
         }

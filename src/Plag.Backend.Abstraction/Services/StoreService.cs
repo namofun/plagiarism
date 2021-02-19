@@ -80,10 +80,12 @@ namespace Plag.Backend.Services
         /// <summary>
         /// Lists the plagiarism sets.
         /// </summary>
+        /// <param name="cid">The contest ID.</param>
+        /// <param name="uid">The user ID.</param>
         /// <param name="skip">The count to skip.</param>
         /// <param name="limit">The count to take.</param>
         /// <returns>The sets.</returns>
-        Task<IReadOnlyList<PlagiarismSet>> ListSetsAsync(int? skip = null, int? limit = null);
+        Task<IReadOnlyList<PlagiarismSet>> ListSetsAsync(int? cid = null, int? uid = null, int? skip = null, int? limit = null);
 
         /// <summary>
         /// Gets the compilation for such submission.

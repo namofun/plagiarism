@@ -35,7 +35,8 @@ namespace SatelliteSite.PlagModule.Dashboards
         {
             if (page < 1) return NotFound();
             const int PageCount = 30;
-            var lsts = await Store.ListSetsAsync((page - 1) * PageCount, PageCount);
+            int? userId = !User.IsInRole("Administrator") && int.TryParse(User.GetUserId(), out var uuid) ? uuid : default(int?);
+            var lsts = await Store.ListSetsAsync(uid: userId, skip: (page - 1) * PageCount, limit: PageCount);
             ViewBag.Page = page;
             
             return View(lsts.Select(s => new SetListModel
@@ -141,6 +142,8 @@ namespace SatelliteSite.PlagModule.Dashboards
                         Name = Path.GetFileNameWithoutExtension(item.FileName),
                         Language = model.Language,
                         SetId = sid,
+                        InclusiveCategory = model.Inclusive,
+                        ExclusiveCategory = model.Exclusive,
                     };
 
                     var files = new List<SubmissionCreation.SubmissionFileCreation>();

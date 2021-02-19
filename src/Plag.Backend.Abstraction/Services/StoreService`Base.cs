@@ -48,8 +48,8 @@ namespace Plag.Backend.Services
         /// <inheritdoc cref="IPlagiarismDetectService.GetCompilationAsync(string, int)" />
         public abstract Task<Compilation> GetCompilationAsync(TKey setid, int submitid);
 
-        /// <inheritdoc cref="IPlagiarismDetectService.ListSetsAsync(int?, int?)" />
-        public abstract Task<List<PlagiarismSet<TKey>>> ListSetsAsync(int? skip = null, int? limit = null);
+        /// <inheritdoc cref="IPlagiarismDetectService.ListSetsAsync(int?, int?, int?, int?)" />
+        public abstract Task<List<PlagiarismSet<TKey>>> ListSetsAsync(int? cid = null, int? uid = null, int? skip = null, int? limit = null);
 
         /// <inheritdoc cref="IPlagiarismDetectService.ListSubmissionsAsync(string, int?, int?, double?)" />
         public abstract Task<List<Submission<TKey>>> ListSubmissionsAsync(TKey setid, int? exclusive_category, int? inclusive_category, double? min_percent);
@@ -110,9 +110,9 @@ namespace Plag.Backend.Services
             return result.Select(r => r.ToModel()).ToList();
         }
 
-        async Task<IReadOnlyList<PlagiarismSet>> IPlagiarismDetectService.ListSetsAsync(int? skip, int? limit)
+        async Task<IReadOnlyList<PlagiarismSet>> IPlagiarismDetectService.ListSetsAsync(int? cid, int? uid, int? skip, int? limit)
         {
-            var result = await ListSetsAsync(skip, limit);
+            var result = await ListSetsAsync(cid, uid, skip, limit);
             return result.Select(r => r.ToModel()).ToList();
         }
 

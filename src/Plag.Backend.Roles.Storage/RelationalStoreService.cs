@@ -106,9 +106,11 @@ namespace Plag.Backend.Services
                     .ToList());
         }
 
-        public override Task<List<PlagiarismSet<Guid>>> ListSetsAsync(int? skip = null, int? limit = null)
+        public override Task<List<PlagiarismSet<Guid>>> ListSetsAsync(int? cid = null, int? uid = null, int? skip = null, int? limit = null)
         {
             return Sets.AsNoTracking()
+                .WhereIf(cid.HasValue, s => s.ContestId == cid)
+                .WhereIf(uid.HasValue, s => s.UserId == uid)
                 .OrderByDescending(s => s.Id)
                 .SkipIf(skip).TakeIf(limit)
                 .ToListAsync();
@@ -133,7 +135,7 @@ namespace Plag.Backend.Services
         {
             var id = SequentialGuidGenerator.Create(Context);
             var submissionId = submission.Id ??
-                (await Submissions.Where(s => s.SetId == setId).CountAsync() + 1);
+                ((await Submissions.Where(s => s.SetId == setId).Select(s => (int?)s.Id).MaxAsync() ?? 0) + 1);
 
             var e = Submissions.Add(new Submission<Guid>
             {

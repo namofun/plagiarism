@@ -17,11 +17,28 @@
 </div>
 
 <div class="form-group">
-    <label asp-for="Files">Files</label>
+    <label asp-for="Files"></label>
     <div class="custom-file">
         <input asp-for="Files" multiple accept=".zip" class="custom-file-input">
         <label class="custom-file-label" asp-for="Files">Choose <b>zip</b> files</label>
     </div>
+</div>
+
+<div class="form-group">
+    <label asp-for="Exclusive"></label>
+    <input asp-for="Exclusive" class="form-control" />
+    <small class="text-muted">
+        Submissions with same exclusive category will not be compared together (e.g. from same person).
+        Leave empty if you wants to assign the submission ID so that this submission will be compared with all other submissions.
+    </small>
+</div>
+
+<div class="form-group">
+    <label asp-for="Inclusive"></label>
+    <input asp-for="Inclusive" class="form-control" />
+    <small class="text-muted">
+        Submissions with different non-exclusive category will not be compared together (e.g. for same problem).
+    </small>
 </div>
 
 <div class="upload-progress"><div></div></div>

@@ -23,10 +23,16 @@ namespace SatelliteSite.PlagModule.Models
         [DtDisplay(3, "upload time", "{Time:yyyy/MM/dd hh:mm:ss}", Sortable = true)]
         public DateTimeOffset Time { get; set; }
 
-        [DtDisplay(4, "max percent", "{Percent:F2}%", Sortable = true)]
+        [DtDisplay(4, "exc.", Sortable = true)]
+        public int Exclusive { get; set; }
+
+        [DtDisplay(5, "inc.", Sortable = true)]
+        public int Inclusive { get; set; }
+
+        [DtDisplay(6, "max percent", "{Percent:F2}%", Sortable = true)]
         public double Percent { get; set; }
 
-        [DtIcon(5, "fas fa-file-code")]
+        [DtIcon(7, "fas fa-file-code")]
         [DtWrapUrl("/dashboard/plagiarism/{SetId}/submissions/{Id}/source-code")]
         public object ViewSubmission { set { } }
 
@@ -39,6 +45,8 @@ namespace SatelliteSite.PlagModule.Models
                 Name = s.Name,
                 Percent = s.MaxPercent,
                 Time = s.UploadTime,
+                Inclusive = s.InclusiveCategory,
+                Exclusive = s.ExclusiveCategory,
                 Status = !s.TokenProduced.HasValue
                     ? "waiting"
                     : s.TokenProduced.Value

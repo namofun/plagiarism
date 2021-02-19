@@ -34,7 +34,7 @@
 </div>
 
 <h3>Submissions</h3>
-<datatable data="ViewBag.ViewModel" auto-width="false" />
+<datatable data="ViewBag.ViewModel" auto-width="false" paging="50" />
 
 <p>
     <a asp-action="Upload" asp-route-pid="@Model.Id" data-toggle="ajaxWindow" data-target="upload" class="btn btn-primary"><i class="fas fa-file-code"></i> Upload</a>
