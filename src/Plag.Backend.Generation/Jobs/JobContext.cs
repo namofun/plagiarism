@@ -52,10 +52,9 @@ namespace Plag.Backend.Jobs
         /// <summary>
         /// Saves the report.
         /// </summary>
-        /// <param name="setId">The set ID.</param>
         /// <param name="task">The repor task.</param>
         /// <param name="fragment">The report fragment.</param>
-        Task SaveReportAsync(string setId, ReportTask task, ReportFragment fragment);
+        Task SaveReportAsync(ReportTask task, ReportFragment fragment);
 
         /// <summary>
         /// Finds the submission with its files.

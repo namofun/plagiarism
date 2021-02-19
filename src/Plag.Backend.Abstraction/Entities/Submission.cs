@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace Plag.Backend.Entities
 {
@@ -46,5 +47,20 @@ namespace Plag.Backend.Entities
                 UploadTime = UploadTime,
             };
         }
+
+        public static readonly Expression<Func<Submission<TKey>, Submission<TKey>>> Minify
+            = s => new Submission<TKey>
+            {
+                ExclusiveCategory = s.ExclusiveCategory,
+                ExternalId = s.ExternalId,
+                SetId = s.SetId,
+                Id = s.Id,
+                InclusiveCategory = s.InclusiveCategory,
+                Language = s.Language,
+                MaxPercent = s.MaxPercent,
+                Name = s.Name,
+                TokenProduced = s.TokenProduced,
+                UploadTime = s.UploadTime,
+            };
     }
 }

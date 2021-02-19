@@ -17,5 +17,10 @@
             SubmissionA = a;
             SubmissionB = b;
         }
+
+        public static ReportTask Of<TKey>(TKey id, TKey setid, int a, int b)
+        {
+            return new ReportTask(id.ToString(), setid.ToString(), a, b);
+        }
     }
 }

@@ -50,7 +50,7 @@ namespace Plag.Backend.Services
         /// Lists existing languages.
         /// </summary>
         /// <returns>The existing languages.</returns>
-        Task<IReadOnlyList<LanguageInfo>> ListLanguageAsync();
+        Task<List<LanguageInfo>> ListLanguageAsync();
 
         /// <summary>
         /// Gets the submission files.

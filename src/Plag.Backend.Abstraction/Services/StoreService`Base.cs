@@ -22,7 +22,7 @@ namespace Plag.Backend.Services
         public abstract object GetVersion();
 
         /// <inheritdoc />
-        public abstract Task<IReadOnlyList<LanguageInfo>> ListLanguageAsync();
+        public abstract Task<List<LanguageInfo>> ListLanguageAsync();
 
         /// <inheritdoc />
         public abstract Task<LanguageInfo> FindLanguageAsync(string langName);
@@ -61,7 +61,7 @@ namespace Plag.Backend.Services
         public abstract Task<List<Submission<TKey>>> ListSubmissionsAsync(TKey setid, int? exclusive_category, int? inclusive_category, double? min_percent);
 
         /// <inheritdoc cref="IPlagiarismDetectService.SubmitAsync(SubmissionCreation)" />
-        public abstract Task<Submission<TKey>> SubmitAsync(SubmissionCreation submission);
+        public abstract Task<Submission<TKey>> SubmitAsync(TKey setId, SubmissionCreation submission);
 
         /// <inheritdoc cref="IPlagiarismDetectService.GetFilesAsync(string, int)" />
         public abstract Task<IReadOnlyList<SubmissionFile>> GetFilesAsync(TKey setId, int submitId);
@@ -98,7 +98,12 @@ namespace Plag.Backend.Services
 
         async Task<Submission> IPlagiarismDetectService.SubmitAsync(SubmissionCreation submission)
         {
-            var entity = await SubmitAsync(submission);
+            if (!TryGetKey(submission.SetId, out var setid))
+            {
+                throw new InvalidOperationException("Set not found.");
+            }
+
+            var entity = await SubmitAsync(setid, submission);
             return entity.ToModel();
         }
 

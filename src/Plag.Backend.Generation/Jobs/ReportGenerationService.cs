@@ -74,7 +74,7 @@ namespace Plag.Backend.Jobs
 
             var result = Report.Generate(ss0t, ss1t);
             var frag = MatchReportCreate(ss0.ExternalId != result.SubmissionA.Id, result);
-            await context.SaveReportAsync(ss0.SetId, rep, frag);
+            await context.SaveReportAsync(rep, frag);
             return true;
         }
 

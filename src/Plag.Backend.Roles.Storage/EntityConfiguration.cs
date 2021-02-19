@@ -1,7 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Plag.Backend.Entities;
 using System;
 
@@ -9,95 +7,54 @@ namespace Plag.Backend
 {
     public class PlagEntityConfiguration<TContext> :
         EntityTypeConfigurationSupplier<TContext>,
-        IEntityTypeConfiguration<Submission>,
-        IEntityTypeConfiguration<Compilation>,
-        IEntityTypeConfiguration<SubmissionFile>,
-        IEntityTypeConfiguration<PlagiarismSet>,
-        IEntityTypeConfiguration<Report>
+        IEntityTypeConfiguration<Submission<Guid>>,
+        IEntityTypeConfiguration<SubmissionFile<Guid>>,
+        IEntityTypeConfiguration<PlagiarismSet<Guid>>,
+        IEntityTypeConfiguration<Report<Guid>>
         where TContext : DbContext
     {
-        private readonly ValueConverter<string, Guid> _converter;
-
-        public PlagEntityConfiguration()
-        {
-            _converter = new ValueConverter<string, Guid>(
-                s => new Guid(s),
-                g => g.ToString(),
-                new ConverterMappingHints(valueGeneratorFactory: (_, __) => new SequentialGuidValueGenerator()));
-        }
-
-        public void Configure(EntityTypeBuilder<Submission> entity)
+        public void Configure(EntityTypeBuilder<Submission<Guid>> entity)
         {
             entity.ToTable("PlagiarismSubmissions");
 
-            entity.HasKey(e => e.Id);
+            entity.HasKey(e => new { e.SetId, e.Id });
 
-            entity.Property(e => e.Id)
-                .HasConversion(_converter);
+            entity.HasAlternateKey(e => e.ExternalId);
 
-            entity.Property(e => e.SetId)
-                .HasConversion(_converter);
-
-            entity.HasOne<PlagiarismSet>()
-                .WithMany(s => s.Submissions)
+            entity.HasOne<PlagiarismSet<Guid>>()
+                .WithMany()
                 .HasForeignKey(e => e.SetId);
         }
 
-        public void Configure(EntityTypeBuilder<Compilation> entity)
-        {
-            entity.ToTable("PlagiarismCompilations");
-
-            entity.HasKey(e => e.Id);
-
-            entity.Property(e => e.Id)
-                .HasConversion(_converter);
-
-            entity.HasOne<Submission>()
-                .WithOne()
-                .HasForeignKey<Compilation>(e => e.Id)
-                .OnDelete(DeleteBehavior.Cascade);
-        }
-
-        public void Configure(EntityTypeBuilder<SubmissionFile> entity)
+        public void Configure(EntityTypeBuilder<SubmissionFile<Guid>> entity)
         {
             entity.ToTable("PlagiarismFiles");
 
-            entity.HasKey(e => new { e.SubmissionId, e.FileId });
+            entity.HasKey(e => new { e.SetId, e.SubmissionId, e.FileId });
 
-            entity.Property(e => e.SubmissionId)
-                .HasConversion(_converter);
-
-            entity.HasOne<Submission>()
-                .WithMany(e => e.Files)
-                .HasForeignKey(e => e.SubmissionId)
+            entity.HasOne<Submission<Guid>>()
+                .WithMany()
+                .HasForeignKey(e => new { e.SetId, e.SubmissionId })
                 .OnDelete(DeleteBehavior.Cascade);
         }
 
-        public void Configure(EntityTypeBuilder<PlagiarismSet> entity)
+        public void Configure(EntityTypeBuilder<PlagiarismSet<Guid>> entity)
         {
             entity.ToTable("PlagiarismSets");
 
             entity.HasKey(e => e.Id);
-
-            entity.Property(e => e.Id)
-                .HasConversion(_converter);
         }
 
-        public void Configure(EntityTypeBuilder<Report> entity)
+        public void Configure(EntityTypeBuilder<Report<Guid>> entity)
         {
             entity.ToTable("PlagiarismReports");
 
-            entity.HasKey(e => e.Id);
+            entity.HasKey(e => new { e.SetId, e.SubmissionA, e.SubmissionB });
 
-            entity.Property(e => e.Id)
-                .HasConversion(_converter)
+            entity.HasAlternateKey(e => e.ExternalId);
+
+            entity.Property(e => e.ExternalId)
                 .HasDefaultValueSql("NEWSEQUENTIALID()");
-
-            entity.Property(e => e.SubmissionA)
-                .HasConversion(_converter);
-
-            entity.Property(e => e.SubmissionB)
-                .HasConversion(_converter);
 
             entity.Property(e => e.BiggestMatch).HasDefaultValue(0);
             entity.Property(e => e.Percent).HasDefaultValue(0.0);
@@ -105,17 +62,19 @@ namespace Plag.Backend
             entity.Property(e => e.PercentB).HasDefaultValue(0.0);
             entity.Property(e => e.TokensMatched).HasDefaultValue(0);
 
-            entity.HasIndex(e => e.SubmissionA);
-            entity.HasIndex(e => e.SubmissionB);
-
-            entity.HasOne<Submission>()
+            entity.HasOne<PlagiarismSet<Guid>>()
                 .WithMany()
-                .HasForeignKey(e => e.SubmissionA)
+                .HasForeignKey(e => e.SetId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne<Submission<Guid>>()
+                .WithMany()
+                .HasForeignKey(e => new { e.SetId, e.SubmissionA })
                 .OnDelete(DeleteBehavior.Restrict);
 
-            entity.HasOne<Submission>()
+            entity.HasOne<Submission<Guid>>()
                 .WithMany()
-                .HasForeignKey(e => e.SubmissionB)
+                .HasForeignKey(e => new { e.SetId, e.SubmissionB })
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

@@ -10,9 +10,6 @@ namespace Plag.Backend.Models
         [JsonPropertyName("submitid")]
         public int SubmissionIdAnother { get; set; }
 
-        [JsonPropertyName("submit_name")]
-        public string SubmissionAnother { get; set; }
-
         [JsonPropertyName("pending")]
         public bool Pending { get; set; }
 
@@ -30,5 +27,11 @@ namespace Plag.Backend.Models
 
         [JsonPropertyName("percent_another")]
         public double PercentIt { get; set; }
+
+        public Comparison() { }
+
+        public Comparison(string id) { Id = id; }
+
+        public Comparison(System.Guid id) { Id = id.ToString(); }
     }
 }

@@ -8,6 +8,9 @@ namespace Plag.Backend.Models
         [JsonPropertyName("setid")]
         public string SetId { get; set; }
 
+        [JsonPropertyName("given_id")]
+        public int? Id { get; set; }
+
         [JsonPropertyName("exclusive_category")]
         public int? ExclusiveCategory { get; set; }
 

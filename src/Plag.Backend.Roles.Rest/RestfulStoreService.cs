@@ -131,11 +131,6 @@ namespace Plag.Backend.Services
             throw new NotImplementedException();
         }
 
-        Task<IReadOnlyList<LanguageInfo>> IPlagiarismDetectService.ListLanguageAsync()
-        {
-            throw new NotImplementedException();
-        }
-
         public Task<IReadOnlyList<SubmissionFile>> GetFilesAsync(string setId, int submitId)
         {
             throw new NotImplementedException();

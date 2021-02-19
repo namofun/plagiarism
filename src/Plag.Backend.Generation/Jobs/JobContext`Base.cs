@@ -17,8 +17,8 @@ namespace Plag.Backend.Services
         /// <inheritdoc cref="IJobContext.DequeueSubmissionAsync" />
         public abstract Task<Submission> DequeueSubmissionAsync();
 
-        /// <inheritdoc cref="IJobContext.SaveReportAsync(string, ReportTask, ReportFragment)" />
-        public abstract Task SaveReportAsync(TKey setid, ReportTask task, ReportFragment fragment);
+        /// <inheritdoc cref="IJobContext.SaveReportAsync(ReportTask, ReportFragment)" />
+        public abstract Task SaveReportAsync(TKey setid, int a, int b, TKey extid, ReportFragment fragment);
 
         /// <inheritdoc cref="IJobContext.ScheduleAsync(string, int, int, int, string)" />
         public abstract Task ScheduleAsync(TKey setId, int submitId, int exclusive, int inclusive, string langId);
@@ -34,14 +34,19 @@ namespace Plag.Backend.Services
             return CompileAsync(setid, submitId, error, result);
         }
 
-        Task IJobContext.SaveReportAsync(string setId, ReportTask task, ReportFragment fragment)
+        Task IJobContext.SaveReportAsync(ReportTask task, ReportFragment fragment)
         {
-            if (!TryGetKey(setId, out var setid))
+            if (!TryGetKey(task.SetId, out var setid))
             {
                 throw new Exception("The ID of plagiarism set is not correct.");
             }
 
-            return SaveReportAsync(setid, task, fragment);
+            if (!TryGetKey(task.Id, out var extid))
+            {
+                throw new Exception("The ID is not correct.");
+            }
+
+            return SaveReportAsync(setid, task.SubmissionA, task.SubmissionB, extid, fragment);
         }
 
         Task IJobContext.ScheduleAsync(string setId, int submitId, int exclusive, int inclusive, string langId)
