@@ -19,7 +19,7 @@ namespace Plag.Backend.Services
         public abstract bool TryGetKey(string id, out TKey key);
 
         /// <inheritdoc />
-        public abstract object GetVersion();
+        public abstract ServiceVersion GetVersion();
 
         /// <inheritdoc />
         public abstract Task<List<LanguageInfo>> ListLanguageAsync();

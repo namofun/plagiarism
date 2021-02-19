@@ -113,6 +113,6 @@ namespace Plag.Backend.Services
         /// Gets the version object.
         /// </summary>
         /// <returns>The version object.</returns>
-        object GetVersion();
+        ServiceVersion GetVersion();
     }
 }

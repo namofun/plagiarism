@@ -322,11 +322,14 @@ namespace Plag.Backend.Services
             return Task.CompletedTask;
         }
 
-        public override object GetVersion()
+        public override ServiceVersion GetVersion()
         {
-            var fronend_version = typeof(Frontend.ILanguage).Assembly.GetName().Version.ToString();
-            var backend_version = typeof(Backend.IBackendRoleStrategy).Assembly.GetName().Version.ToString();
-            return new { fronend_version, backend_version, role = "relational_storage" };
+            return new ServiceVersion
+            {
+                FrontendVersion = typeof(Frontend.ILanguage).Assembly.GetName().Version.ToString(),
+                BackendVersion = typeof(Backend.IBackendRoleStrategy).Assembly.GetName().Version.ToString(),
+                Role = "relational_storage"
+            };
         }
     }
 }
