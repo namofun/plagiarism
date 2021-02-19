@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 
 namespace Plag.Backend.Jobs
 {
-    public abstract class ContextNotifyService<T> : BackgroundService
+    public abstract class ContextNotifyService<T> : BackgroundService, IResettableService
+        where T : ContextNotifyService<T>
     {
         private IServiceProvider ServiceProvider { get; }
 

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,7 +11,8 @@ namespace Plag.Backend.Services
         Task WaitAsync(CancellationToken cancellationToken);
     }
 
-    internal class SemaphoreSlimResettableSignal : IResettableSignal
+    public class SemaphoreSlimResettableSignal<T> : IResettableSignal<T>
+        where T : IResettableService
     {
         public SemaphoreSlim Semaphore { get; }
 
@@ -40,53 +40,12 @@ namespace Plag.Backend.Services
         }
     }
 
-    public interface IResettableSignalSource
-    {
-        IResettableSignal Get<T>();
-    }
-
-    internal class ResettableSignalSource<TSignal> : IResettableSignalSource
-        where TSignal : IResettableSignal, new()
-    {
-        private readonly ConcurrentDictionary<Type, IResettableSignal> _created;
-
-        public IResettableSignal Get<T>()
-        {
-            return _created.GetOrAdd(typeof(T), _ => new TSignal());
-        }
-
-        public ResettableSignalSource()
-        {
-            _created = new ConcurrentDictionary<Type, IResettableSignal>();
-        }
-    }
-
     public interface IResettableSignal<TCategory> : IResettableSignal
+        where TCategory : IResettableService
     {
     }
 
-    internal class TypedResettableSignal<TCategory> : IResettableSignal<TCategory>
+    public interface IResettableService
     {
-        private readonly IResettableSignal _signal;
-
-        public TypedResettableSignal(IResettableSignalSource source)
-        {
-            _signal = source.Get<TCategory>();
-        }
-
-        public void Dispose()
-        {
-            _signal.Dispose();
-        }
-
-        public void Notify()
-        {
-            _signal.Notify();
-        }
-
-        public Task WaitAsync(CancellationToken cancellationToken)
-        {
-            return _signal.WaitAsync(cancellationToken);
-        }
     }
 }

@@ -4,9 +4,6 @@ namespace Plag.Backend.Models
 {
     public class SubmissionFile
     {
-        [JsonPropertyName("submitid")]
-        public string SubmissionId { get; set; }
-
         [JsonPropertyName("fileid")]
         public int FileId { get; set; }
 

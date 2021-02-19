@@ -68,6 +68,6 @@ namespace Plag.Backend.Jobs
         /// </summary>
         /// <param name="submitId">The submission ID.</param>
         /// <returns>The submission files.</returns>
-        Task<List<SubmissionFile>> GetFilesAsync(string submitId);
+        Task<IReadOnlyList<SubmissionFile>> GetFilesAsync(string submitId);
     }
 }

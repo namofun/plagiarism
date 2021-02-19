@@ -28,7 +28,7 @@ namespace Plag.Backend.Models
         public DateTimeOffset UploadTime { get; set; }
 
         [JsonPropertyName("files")]
-        public ICollection<SubmissionFile> Files { get; set; }
+        public IReadOnlyCollection<SubmissionFile> Files { get; set; }
 
         [JsonPropertyName("language")]
         public string Language { get; set; }

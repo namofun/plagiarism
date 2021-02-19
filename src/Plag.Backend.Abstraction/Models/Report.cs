@@ -7,6 +7,9 @@ namespace Plag.Backend.Models
         [JsonPropertyName("report_id")]
         public string Id { get; set; }
 
+        [JsonPropertyName("setid")]
+        public string SetId { get; set; }
+
         [JsonPropertyName("submitid_a")]
         public string SubmissionA { get; set; }
 

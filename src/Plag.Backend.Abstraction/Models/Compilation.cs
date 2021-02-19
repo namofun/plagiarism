@@ -4,9 +4,6 @@ namespace Plag.Backend.Models
 {
     public class Compilation
     {
-        [JsonPropertyName("submitid")]
-        public string Id { get; set; }
-
         [JsonPropertyName("error")]
         public string Error { get; set; }
 
