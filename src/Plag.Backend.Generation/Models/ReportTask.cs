@@ -6,29 +6,26 @@ namespace Plag.Backend.Models
     {
         public string Id { get; set; }
 
-        public string SubmissionA { get; set; }
+        public string SetId { get; set; }
 
-        public string SubmissionB { get; set; }
+        public int SubmissionA { get; set; }
 
-        public ReportTask(string id, string a, string b)
+        public int SubmissionB { get; set; }
+
+        public ReportTask(string reportid, string setid, int a, int b)
         {
-            Id = id;
+            Id = reportid;
+            SetId = setid;
             SubmissionA = a;
             SubmissionB = b;
         }
 
-        public ReportTask(Guid id, Guid a, Guid b)
+        public ReportTask(Guid reportid, Guid setid, int a, int b)
         {
-            Id = id.ToString();
-            SubmissionA = a.ToString();
-            SubmissionB = b.ToString();
-        }
-
-        public ReportTask(int id, int a, int b)
-        {
-            Id = id.ToString();
-            SubmissionA = a.ToString();
-            SubmissionB = b.ToString();
+            Id = reportid.ToString();
+            SetId = setid.ToString();
+            SubmissionA = a;
+            SubmissionB = b;
         }
     }
 }

@@ -23,36 +23,36 @@ namespace Plag.Backend.Jobs
             Report = serviceProvider.GetRequiredService<IReportService>();
         }
 
-        private async Task<(Submission, Frontend.Submission)> Load(string id, IJobContext store)
+        private async Task<(Submission, Frontend.Submission)> Load((string, int) key, IJobContext store)
         {
-            var s = await store.FindSubmissionAsync(id);
+            var (setid, submitid) = key;
+            var s = await store.FindSubmissionAsync(setid, submitid, false);
             if (s == null || s.TokenProduced != true)
             {
                 throw new InvalidOperationException("Data synchronization error.");
             }
 
-            var c = await store.GetCompilationAsync(id);
+            var c = await store.GetCompilationAsync(setid, submitid);
             var lang = Compile.FindLanguage(s.Language);
             Frontend.Submission fe;
 
             if (c?.Tokens == null)
             {
-                Logger.LogWarning($"Token for s{s.Id} missing, generating at once.");
-                var fs = await store.GetFilesAsync(s.Id);
-                fe = new Frontend.Submission(lang, new Frontend.SubmissionFileProxy(fs), s.Id);
+                Logger.LogWarning($"Token for {s.SetId}\\s{s.Id} missing, generating at once.");
+                var fs = await store.GetFilesAsync(setid, submitid);
+                fe = new Frontend.Submission(lang, new Frontend.SubmissionFileProxy(fs), s.ExternalId);
             }
             else
             {
                 var tokens = Convert.TokenDeserialize(c.Tokens, lang);
-                fe = new Frontend.Submission(lang, null, s.Id, tokens);
+                fe = new Frontend.Submission(lang, null, s.ExternalId, tokens);
             }
 
             return (s, fe);
         }
 
-        private ReportFragment MatchReportCreate(ReportTask task, Frontend.Matching matching)
+        private ReportFragment MatchReportCreate(bool swapAB, Frontend.Matching matching)
         {
-            bool swapAB = task.SubmissionA != matching.SubmissionA.Id;
             return new ReportFragment
             {
                 TokensMatched = matching.TokensMatched,
@@ -64,23 +64,23 @@ namespace Plag.Backend.Jobs
             };
         }
 
-        private async Task<bool> ResolveAsync(IJobContext context, LruStore<string, (Submission, Frontend.Submission)> lru)
+        private async Task<bool> ResolveAsync(IJobContext context, LruStore<(string, int), (Submission, Frontend.Submission)> lru)
         {
             var rep = await context.DequeueReportAsync();
             if (rep == null) return false;
 
-            var (ss0, ss0t) = await lru.GetOrLoadAsync(rep.SubmissionA, context, Load);
-            var (ss1, ss1t) = await lru.GetOrLoadAsync(rep.SubmissionB, context, Load);
+            var (ss0, ss0t) = await lru.GetOrLoadAsync((rep.SetId, rep.SubmissionA), context, Load);
+            var (ss1, ss1t) = await lru.GetOrLoadAsync((rep.SetId, rep.SubmissionB), context, Load);
 
             var result = Report.Generate(ss0t, ss1t);
-            var frag = MatchReportCreate(rep, result);
+            var frag = MatchReportCreate(ss0.ExternalId != result.SubmissionA.Id, result);
             await context.SaveReportAsync(ss0.SetId, rep, frag);
             return true;
         }
 
         protected override async Task ProcessAsync(IJobContext context, CancellationToken stoppingToken)
         {
-            var lru = new LruStore<string, (Submission, Frontend.Submission)>();
+            var lru = new LruStore<(string, int), (Submission, Frontend.Submission)>();
             while (!stoppingToken.IsCancellationRequested)
             {
                 if (!await ResolveAsync(context, lru)) break;
