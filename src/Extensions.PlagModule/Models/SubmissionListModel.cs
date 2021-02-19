@@ -27,7 +27,8 @@ namespace SatelliteSite.PlagModule.Models
         [DtIgnore]
         public string SetId { get; }
 
-        [DtIgnore]
+        [DtIcon(9, "fas fa-external-link-alt")]
+        [DtWrapUrl("/plagiarism-reports/{Id}")]
         public string Id { get; }
 
         [DtIcon(8, "fa fa-file-code")]

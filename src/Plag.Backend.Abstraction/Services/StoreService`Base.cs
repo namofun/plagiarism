@@ -30,20 +30,14 @@ namespace Plag.Backend.Services
         /// <inheritdoc />
         public abstract Task RescueAsync();
 
-        /// <inheritdoc cref="IPlagiarismDetectService.CreateSetAsync(string)" />
-        public abstract Task<PlagiarismSet<TKey>> CreateSetAsync(string name);
+        /// <inheritdoc cref="IPlagiarismDetectService.CreateSetAsync(SetCreation)" />
+        public abstract Task<PlagiarismSet<TKey>> CreateSetAsync(SetCreation metadata);
 
         /// <inheritdoc cref="IPlagiarismDetectService.FindReportAsync(string)" />
         public abstract Task<Report<TKey>> FindReportAsync(TKey id);
 
-        /// <inheritdoc cref="IPlagiarismDetectService.FindReportAsync(string, int, int)" />
-        public abstract Task<Report<TKey>> FindReportAsync(TKey setid, int submitid_a, int submitid_b);
-
         /// <inheritdoc cref="IPlagiarismDetectService.FindSetAsync(string)" />
         public abstract Task<PlagiarismSet<TKey>> FindSetAsync(TKey id);
-
-        /// <inheritdoc cref="IPlagiarismDetectService.FindSubmissionAsync(string, bool)" />
-        public abstract Task<Submission<TKey>> FindSubmissionAsync(TKey externalid);
 
         /// <inheritdoc cref="IPlagiarismDetectService.FindSubmissionAsync(string, int, bool)" />
         public abstract Task<Submission<TKey>> FindSubmissionAsync(TKey setid, int submitid);
@@ -69,9 +63,9 @@ namespace Plag.Backend.Services
 
         #region Explicit Implementations
 
-        async Task<PlagiarismSet> IPlagiarismDetectService.CreateSetAsync(string name)
+        async Task<PlagiarismSet> IPlagiarismDetectService.CreateSetAsync(SetCreation metadata)
         {
-            var entity = await CreateSetAsync(name);
+            var entity = await CreateSetAsync(metadata);
             return entity.ToModel();
         }
 
@@ -89,13 +83,6 @@ namespace Plag.Backend.Services
             return entity?.ToModel();
         }
 
-        async Task<Report> IPlagiarismDetectService.FindReportAsync(string _setid, int submitid_a, int submitid_b)
-        {
-            if (!TryGetKey(_setid, out var setid)) return null;
-            var entity = await FindReportAsync(setid, submitid_a, submitid_b);
-            return entity?.ToModel();
-        }
-
         async Task<Submission> IPlagiarismDetectService.SubmitAsync(SubmissionCreation submission)
         {
             if (!TryGetKey(submission.SetId, out var setid))
@@ -105,15 +92,6 @@ namespace Plag.Backend.Services
 
             var entity = await SubmitAsync(setid, submission);
             return entity.ToModel();
-        }
-
-        public async Task<Submission> FindSubmissionAsync(string externalId, bool includeFiles)
-        {
-            if (!TryGetKey(externalId, out var externalid)) return null;
-            var entity = await FindSubmissionAsync(externalid);
-            if (entity == null || !includeFiles) return entity?.ToModel();
-            var files = await GetFilesAsync(entity.SetId, entity.Id);
-            return entity.ToModel(files);
         }
 
         public async Task<Submission> FindSubmissionAsync(string setId, int submitid, bool includeFiles)

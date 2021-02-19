@@ -27,14 +27,14 @@ namespace SatelliteSite.PlagModule.Apis
         /// <summary>
         /// Create a set for the plagiarism system
         /// </summary>
-        /// <param name="name">The name of plagiarism set</param>
+        /// <param name="model">The metadata of plagiarism set</param>
         /// <response code="201">Returns the created plagiarism set</response>
         [HttpPost]
         [ProducesResponseType(typeof(PlagiarismSet), 201)]
         public async Task<ActionResult<PlagiarismSet>> CreateOne(
-            [FromForm, Required] string name)
+            [FromBody, Required] SetCreation model)
         {
-            var result = await Store.CreateSetAsync(name);
+            var result = await Store.CreateSetAsync(model);
             return CreatedAtAction(nameof(GetOne), new { id = result.Id }, result);
         }
 

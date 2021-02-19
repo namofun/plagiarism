@@ -80,8 +80,9 @@ namespace SatelliteSite.PlagModule.Dashboards
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(SetCreateModel model)
         {
+            int? userId = int.TryParse(User.GetUserId(), out var uuid) ? uuid : default(int?);
             if (!ModelState.IsValid) return View(model);
-            var set = await Store.CreateSetAsync(model.Name);
+            var set = await Store.CreateSetAsync(new SetCreation { Name = model.Name, UserId = userId });
             return RedirectToAction(nameof(Detail), new { sid = set.Id });
         }
 

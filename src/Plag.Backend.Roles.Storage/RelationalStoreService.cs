@@ -46,11 +46,13 @@ namespace Plag.Backend.Services
             return Guid.TryParse(id, out key);
         }
 
-        public override async Task<PlagiarismSet<Guid>> CreateSetAsync(string name)
+        public override async Task<PlagiarismSet<Guid>> CreateSetAsync(SetCreation metadata)
         {
             var item = Sets.Add(new PlagiarismSet<Guid>
             {
-                Name = name,
+                Name = metadata.Name,
+                ContestId = metadata.ContestId,
+                UserId = metadata.UserId,
                 CreateTime = DateTimeOffset.Now,
                 Id = SequentialGuidGenerator.Create(Context),
             });
@@ -66,13 +68,6 @@ namespace Plag.Backend.Services
                 .SingleOrDefaultAsync();
         }
 
-        public override Task<Report<Guid>> FindReportAsync(Guid setid, int submitid_a, int submitid_b)
-        {
-            return Reports.AsNoTracking()
-                .Where(r => r.SetId == setid && r.SubmissionA == submitid_a && r.SubmissionB == submitid_b)
-                .SingleOrDefaultAsync();
-        }
-
         public override Task<PlagiarismSet<Guid>> FindSetAsync(Guid id)
         {
             return Sets.AsNoTracking()
@@ -84,14 +79,6 @@ namespace Plag.Backend.Services
         {
             return Submissions.AsNoTracking()
                 .Where(c => c.SetId == setid && c.Id == submitid)
-                .Select(Submission<Guid>.Minify)
-                .SingleOrDefaultAsync();
-        }
-
-        public override Task<Submission<Guid>> FindSubmissionAsync(Guid externalid)
-        {
-            return Submissions.AsNoTracking()
-                .Where(c => c.ExternalId == externalid)
                 .Select(Submission<Guid>.Minify)
                 .SingleOrDefaultAsync();
         }
@@ -262,7 +249,8 @@ namespace Plag.Backend.Services
 
             var affected = await Reports.UpsertAsync(
                 sources: twoQuery,
-                insertExpression: s => new Report<Guid> { Finished = null, SetId = s.S, SubmissionA = s.A, SubmissionB = s.B });
+                insertExpression: s => new Report<Guid> { Finished = null, SetId = s.S, SubmissionA = s.A, SubmissionB = s.B, ExternalId = Guid.NewGuid() },
+                updateExpression: (_, __) => new Report<Guid> { Finished = null });
 
             await Sets
                 .Where(c => c.Id == setId)

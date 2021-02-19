@@ -12,9 +12,9 @@ namespace Plag.Backend.Services
         /// <summary>
         /// Creates a plagiarism set.
         /// </summary>
-        /// <param name="name">The name of plagiarism set.</param>
+        /// <param name="metadata">The metadata of plagiarism set.</param>
         /// <returns>The created entity.</returns>
-        Task<PlagiarismSet> CreateSetAsync(string name);
+        Task<PlagiarismSet> CreateSetAsync(SetCreation metadata);
 
         /// <summary>
         /// Finds a plagiarism set.
@@ -29,15 +29,6 @@ namespace Plag.Backend.Services
         /// <param name="id">The id of plagiarism report.</param>
         /// <returns>The found entity.</returns>
         Task<Report> FindReportAsync(string id);
-
-        /// <summary>
-        /// Finds the plagiarism report.
-        /// </summary>
-        /// <param name="setid">The id of plagiarism set.</param>
-        /// <param name="submitid_a">The id of submission A.</param>
-        /// <param name="submitid_b">The id of submission B.</param>
-        /// <returns>The found entity.</returns>
-        Task<Report> FindReportAsync(string setid, int submitid_a, int submitid_b);
 
         /// <summary>
         /// Checks whether a language exists.
@@ -66,14 +57,6 @@ namespace Plag.Backend.Services
         /// <param name="submission">The solution file to detect.</param>
         /// <returns>The created entity.</returns>
         Task<Submission> SubmitAsync(SubmissionCreation submission);
-
-        /// <summary>
-        /// Finds the submission with its files.
-        /// </summary>
-        /// <param name="externalid">The id of submission.</param>
-        /// <param name="includeFiles">Whether to include files.</param>
-        /// <returns>The found entity.</returns>
-        Task<Submission> FindSubmissionAsync(string externalid, bool includeFiles = true);
 
         /// <summary>
         /// Finds the submission with its files.

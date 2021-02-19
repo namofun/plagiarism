@@ -6,6 +6,10 @@ namespace Plag.Backend.Entities
     {
         public TKey Id { get; set; }
 
+        public int? UserId { get; set; }
+
+        public int? ContestId { get; set; }
+
         public DateTimeOffset CreateTime { get; set; }
 
         public string Name { get; set; }
@@ -23,6 +27,8 @@ namespace Plag.Backend.Entities
                 Name = Name,
                 ReportCount = ReportCount,
                 ReportPending = ReportPending,
+                ContestId = ContestId,
+                UserId = UserId,
             };
         }
     }

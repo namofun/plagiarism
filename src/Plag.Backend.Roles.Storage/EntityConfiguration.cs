@@ -43,6 +43,10 @@ namespace Plag.Backend
             entity.ToTable("PlagiarismSets");
 
             entity.HasKey(e => e.Id);
+
+            entity.HasIndex(e => e.UserId);
+
+            entity.HasIndex(e => e.ContestId);
         }
 
         public void Configure(EntityTypeBuilder<Report<Guid>> entity)
@@ -52,9 +56,6 @@ namespace Plag.Backend
             entity.HasKey(e => new { e.SetId, e.SubmissionA, e.SubmissionB });
 
             entity.HasAlternateKey(e => e.ExternalId);
-
-            entity.Property(e => e.ExternalId)
-                .HasDefaultValueSql("NEWSEQUENTIALID()");
 
             entity.Property(e => e.BiggestMatch).HasDefaultValue(0);
             entity.Property(e => e.Percent).HasDefaultValue(0.0);

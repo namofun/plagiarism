@@ -150,5 +150,10 @@ namespace Plag.Backend.Services
         {
             throw new NotImplementedException();
         }
+
+        public Task<PlagiarismSet> CreateSetAsync(SetCreation metadata)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
