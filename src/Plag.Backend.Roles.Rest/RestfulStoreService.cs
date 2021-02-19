@@ -105,5 +105,30 @@ namespace Plag.Backend.Services
             var backend_version = typeof(IBackendRoleStrategy).Assembly.GetName().Version.ToString();
             return new { backend_version, role = "restful" };
         }
+
+        public Task<Report> FindReportAsync(string setid, int submitid_a, int submitid_b)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Submission> FindSubmissionAsync(string setid, int submitid, bool includeFiles = true)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Compilation> GetCompilationAsync(string setid, int submitid)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<Comparison>> GetComparisonsBySubmissionAsync(string setid, int submitid)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<Submission>> ListSubmissionsAsync(string setid, int? exclusive_category, int? inclusive_category, double? min_percent)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

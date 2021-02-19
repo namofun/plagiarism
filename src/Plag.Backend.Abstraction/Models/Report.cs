@@ -4,17 +4,17 @@ namespace Plag.Backend.Models
 {
     public class Report
     {
-        [JsonPropertyName("report_id")]
-        public string Id { get; set; }
-
         [JsonPropertyName("setid")]
         public string SetId { get; set; }
 
         [JsonPropertyName("submitid_a")]
-        public string SubmissionA { get; set; }
+        public int SubmissionA { get; set; }
 
         [JsonPropertyName("submitid_b")]
-        public string SubmissionB { get; set; }
+        public int SubmissionB { get; set; }
+
+        [JsonPropertyName("externalid")]
+        public string Id { get; set; }
 
         [JsonPropertyName("tokens_matched")]
         public int TokensMatched { get; set; }

@@ -8,7 +8,7 @@ namespace Plag.Backend.Models
         public string Id { get; set; }
 
         [JsonPropertyName("submitid")]
-        public string SubmissionIdAnother { get; set; }
+        public int SubmissionIdAnother { get; set; }
 
         [JsonPropertyName("submit_name")]
         public string SubmissionAnother { get; set; }

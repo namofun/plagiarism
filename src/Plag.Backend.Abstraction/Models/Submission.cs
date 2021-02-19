@@ -6,14 +6,20 @@ namespace Plag.Backend.Models
 {
     public class Submission
     {
-        [JsonPropertyName("submitid")]
-        public string Id { get; set; }
-
         [JsonPropertyName("setid")]
         public string SetId { get; set; }
 
-        [JsonPropertyName("category")]
-        public int? Category { get; set; }
+        [JsonPropertyName("submitid")]
+        public int Id { get; set; }
+
+        [JsonPropertyName("externalid")]
+        public string ExternalId { get; set; }
+
+        [JsonPropertyName("exclusive_category")]
+        public int ExclusiveCategory { get; set; }
+
+        [JsonPropertyName("inclusive_category")]
+        public int InclusiveCategory { get; set; }
 
         [JsonPropertyName("name")]
         public string Name { get; set; }

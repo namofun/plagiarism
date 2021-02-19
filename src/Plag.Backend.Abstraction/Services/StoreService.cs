@@ -31,6 +31,15 @@ namespace Plag.Backend.Services
         Task<Report> FindReportAsync(string id);
 
         /// <summary>
+        /// Finds the plagiarism report.
+        /// </summary>
+        /// <param name="setid">The id of plagiarism set.</param>
+        /// <param name="submitid_a">The id of submission A.</param>
+        /// <param name="submitid_b">The id of submission B.</param>
+        /// <returns>The found entity.</returns>
+        Task<Report> FindReportAsync(string setid, int submitid_a, int submitid_b);
+
+        /// <summary>
         /// Checks whether a language exists.
         /// </summary>
         /// <param name="langName">The name of language.</param>
@@ -52,17 +61,29 @@ namespace Plag.Backend.Services
         /// <summary>
         /// Finds the submission with its files.
         /// </summary>
-        /// <param name="id">The id of submission.</param>
+        /// <param name="externalid">The id of submission.</param>
         /// <param name="includeFiles">Whether to include files.</param>
         /// <returns>The found entity.</returns>
-        Task<Submission> FindSubmissionAsync(string id, bool includeFiles = true);
+        Task<Submission> FindSubmissionAsync(string externalid, bool includeFiles = true);
+
+        /// <summary>
+        /// Finds the submission with its files.
+        /// </summary>
+        /// <param name="setid">The id of plagiarism set.</param>
+        /// <param name="submitid">The id of submission.</param>
+        /// <param name="includeFiles">Whether to include files.</param>
+        /// <returns>The found entity.</returns>
+        Task<Submission> FindSubmissionAsync(string setid, int submitid, bool includeFiles = true);
 
         /// <summary>
         /// Lists the submissions in one plagiarism set.
         /// </summary>
-        /// <param name="setId">The plagiarism set ID.</param>
+        /// <param name="setid">The plagiarism set ID.</param>
+        /// <param name="exclusive_category">The exclusive category ID, null for not filtered.</param>
+        /// <param name="inclusive_category">The non-exclusive category ID, null for not filtered.</param>
+        /// <param name="min_percent">The minimal percent to show, null for not filtered.</param>
         /// <returns>The submissions.</returns>
-        Task<List<Submission>> ListSubmissionsAsync(string setId);
+        Task<List<Submission>> ListSubmissionsAsync(string setid, int? exclusive_category, int? inclusive_category, double? min_percent);
 
         /// <summary>
         /// Lists the plagiarism sets.
@@ -75,16 +96,18 @@ namespace Plag.Backend.Services
         /// <summary>
         /// Gets the compilation for such submission.
         /// </summary>
-        /// <param name="submitId">The submission ID.</param>
+        /// <param name="setid">The id of plagiarism set.</param>
+        /// <param name="submitid">The id of submission.</param>
         /// <returns>The compilation result.</returns>
-        Task<Compilation> GetCompilationAsync(string submitId);
+        Task<Compilation> GetCompilationAsync(string setid, int submitid);
 
         /// <summary>
         /// Gets the comparison between the submission and other submissions.
         /// </summary>
-        /// <param name="submitId">The submission ID.</param>
+        /// <param name="setid">The id of plagiarism set.</param>
+        /// <param name="submitid">The id of submission.</param>
         /// <returns>The comparison result.</returns>
-        Task<List<Comparison>> GetComparisonsBySubmissionAsync(string submitId);
+        Task<List<Comparison>> GetComparisonsBySubmissionAsync(string setid, int submitid);
 
         /// <summary>
         /// Sends a signal and try to rescue the background service.
