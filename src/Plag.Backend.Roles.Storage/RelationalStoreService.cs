@@ -101,7 +101,7 @@ namespace Plag.Backend.Services
         public override Task<List<LanguageInfo>> ListLanguageAsync()
         {
             return Task.FromResult(
-                AntlrCompileService.SupportedLanguages.Values
+                Compile.GetLanguages()
                     .Select(a => new LanguageInfo(a.Name, a.ShortName, a.Suffixes))
                     .ToList());
         }

@@ -10,9 +10,9 @@ namespace Plag.Frontend.Python
     {
         public IReadOnlyCollection<string> Suffixes { get; } = new[] { ".PY" };
         
-        public string Name => "Python3";
+        public string Name => "Python 3";
 
-        public string ShortName => "py3";
+        public string ShortName => "py";
 
         public int MinimalTokenMatch => 12;
 

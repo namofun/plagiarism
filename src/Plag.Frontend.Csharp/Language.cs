@@ -10,9 +10,9 @@ namespace Plag.Frontend.Csharp
     {
         public IReadOnlyCollection<string> Suffixes { get; } = new[] { ".CS" };
 
-        public string Name => "C#8";
+        public string Name => "C# 8.0";
 
-        public string ShortName => "csharp8";
+        public string ShortName => "csharp";
 
         public int MinimalTokenMatch => 12;
 

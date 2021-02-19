@@ -10,9 +10,9 @@ namespace Plag.Frontend.Cpp
     {
         public IReadOnlyCollection<string> Suffixes { get; } = new[] { ".CPP", ".H", ".C", ".HPP", ".CC" };
 
-        public string Name => "C++14";
+        public string Name => "C++ 14";
 
-        public string ShortName => "cpp14";
+        public string ShortName => "cpp";
 
         public int MinimalTokenMatch => 12;
 

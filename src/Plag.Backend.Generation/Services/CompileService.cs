@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using Plag.Frontend;
+using System.Collections.Generic;
 
 namespace Plag.Backend.Services
 {
@@ -14,6 +15,12 @@ namespace Plag.Backend.Services
         /// <param name="name">The name of compiler.</param>
         /// <returns>The language. If not found, return <c>null</c>.</returns>
         ILanguage? FindLanguage(string name);
+
+        /// <summary>
+        /// Get all languages.
+        /// </summary>
+        /// <returns>The list of languages.</returns>
+        IEnumerable<ILanguage> GetLanguages();
 
         /// <summary>
         /// Try to compile one submission to tokens for comparing.

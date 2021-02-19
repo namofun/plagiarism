@@ -11,9 +11,9 @@ namespace Plag.Frontend.Java
     {
         public IReadOnlyCollection<string> Suffixes { get; } = new[] { ".JAVA" };
         
-        public string Name => "Java9";
+        public string Name => "Java 9";
 
-        public string ShortName => "java9";
+        public string ShortName => "java";
 
         public int MinimalTokenMatch => 9;
 
