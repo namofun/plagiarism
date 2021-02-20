@@ -91,12 +91,12 @@ namespace SatelliteSite.PlagModule.Dashboards
 
 
         [HttpGet("{sid}")]
-        public async Task<IActionResult> Detail(string sid)
+        public async Task<IActionResult> Detail(string sid, string language = null, int? exclusive_category = null, int? inclusive_category = null, double? min_percent = null)
         {
             var set = await Store.FindSetAsync(sid);
             if (set == null) return NotFound();
 
-            var ss = await Store.ListSubmissionsAsync(sid);
+            var ss = await Store.ListSubmissionsAsync(sid, language, exclusive_category, inclusive_category, min_percent);
             ViewBag.ViewModel = ss.Select(ReportListModel.Conv);
             return View(set);
         }

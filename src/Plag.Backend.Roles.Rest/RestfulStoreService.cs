@@ -1,5 +1,6 @@
 ﻿using Plag.Backend.Models;
 using System.Collections.Generic;
+using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 
 namespace Plag.Backend.Services
@@ -12,31 +13,32 @@ namespace Plag.Backend.Services
             => Client = client;
 
         public Task<LanguageInfo> FindLanguageAsync(string id)
-            => Client.GetAsync<LanguageInfo>($"/languages/{id}");
+            => Client.GetAsync<LanguageInfo>($"/languages/{UrlEncoder.Default.Encode(id)}");
 
         public Task<Report> FindReportAsync(string id)
-            => Client.GetAsync<Report>($"/reports/{id}");
+            => Client.GetAsync<Report>($"/reports/{UrlEncoder.Default.Encode(id)}");
 
-        public Task<PlagiarismSet> FindSetAsync(string id)
-            => Client.GetAsync<PlagiarismSet>($"/sets/{id}");
+        public Task<PlagiarismSet> FindSetAsync(string sid)
+            => Client.GetAsync<PlagiarismSet>($"/sets/{UrlEncoder.Default.Encode(sid)}");
 
         public Task<Compilation> GetCompilationAsync(string sid, int id)
-            => Client.GetAsync<Compilation>($"/sets/{sid}/submissions/{id}/compilation");
+            => Client.GetAsync<Compilation>($"/sets/{UrlEncoder.Default.Encode(sid)}/submissions/{id}/compilation");
 
         public Task<Submission> FindSubmissionAsync(string sid, int id, bool includeFiles = true)
-            => Client.GetAsync<Submission>($"/sets/{sid}/submissions/{id}?includeFiles={includeFiles}");
+            => Client.GetAsync<Submission>($"/sets/{UrlEncoder.Default.Encode(sid)}/submissions/{id}?includeFiles={includeFiles}");
 
         public async Task<IReadOnlyList<Comparison>> GetComparisonsBySubmissionAsync(string sid, int id)
-            => await Client.GetAsync<List<Comparison>>($"/sets/{sid}/submissions/{id}/comparisons");
+            => await Client.GetAsync<List<Comparison>>($"/sets/{UrlEncoder.Default.Encode(sid)}/submissions/{id}/comparisons");
 
         public async Task<IReadOnlyList<SubmissionFile>> GetFilesAsync(string sid, int id)
-            => await Client.GetAsync<List<SubmissionFile>>($"/sets/{sid}/submissions/{id}/files");
+            => await Client.GetAsync<List<SubmissionFile>>($"/sets/{UrlEncoder.Default.Encode(sid)}/submissions/{id}/files");
 
         public Task<List<LanguageInfo>> ListLanguageAsync()
             => Client.GetAsync<List<LanguageInfo>>("/languages");
 
-        public async Task<IReadOnlyList<Submission>> ListSubmissionsAsync(string sid, int? exclusive_category, int? inclusive_category, double? min_percent)
-            => await Client.GetAsync<List<Submission>>($"/sets/{sid}/submissions?_=_"
+        public async Task<IReadOnlyList<Submission>> ListSubmissionsAsync(string sid, string language, int? exclusive_category, int? inclusive_category, double? min_percent)
+            => await Client.GetAsync<List<Submission>>($"/sets/{UrlEncoder.Default.Encode(sid)}/submissions?_=_"
+                + (!string.IsNullOrWhiteSpace(language) ? $"&{nameof(language)}={UrlEncoder.Default.Encode(language)}" : string.Empty)
                 + (exclusive_category.HasValue ? $"&{nameof(exclusive_category)}={exclusive_category}" : string.Empty)
                 + (inclusive_category.HasValue ? $"&{nameof(inclusive_category)}={inclusive_category}" : string.Empty)
                 + (min_percent.HasValue ? $"&{nameof(min_percent)}={min_percent}" : string.Empty));
@@ -52,7 +54,7 @@ namespace Plag.Backend.Services
             => Client.PostAsync<PlagiarismSet>("/sets", Client.JsonContent(metadata));
 
         public Task<Submission> SubmitAsync(SubmissionCreation submission)
-            => Client.PostAsync<Submission>($"/sets/{submission.SetId}/submissions", Client.JsonContent(submission));
+            => Client.PostAsync<Submission>($"/sets/{UrlEncoder.Default.Encode(submission.SetId)}/submissions", Client.JsonContent(submission));
 
         public Task RescueAsync()
             => Client.PostAsync<ServiceVersion>("/rescue", RestfulClient.EmptyContent);

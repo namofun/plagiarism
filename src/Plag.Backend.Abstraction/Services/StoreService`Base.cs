@@ -51,8 +51,8 @@ namespace Plag.Backend.Services
         /// <inheritdoc cref="IPlagiarismDetectService.ListSetsAsync(int?, int?, int?, int?)" />
         public abstract Task<List<PlagiarismSet<TKey>>> ListSetsAsync(int? cid = null, int? uid = null, int? skip = null, int? limit = null);
 
-        /// <inheritdoc cref="IPlagiarismDetectService.ListSubmissionsAsync(string, int?, int?, double?)" />
-        public abstract Task<List<Submission<TKey>>> ListSubmissionsAsync(TKey setid, int? exclusive_category, int? inclusive_category, double? min_percent);
+        /// <inheritdoc cref="IPlagiarismDetectService.ListSubmissionsAsync(string, string, int?, int?, double?)" />
+        public abstract Task<List<Submission<TKey>>> ListSubmissionsAsync(TKey setid, string language, int? exclusive_category, int? inclusive_category, double? min_percent);
 
         /// <inheritdoc cref="IPlagiarismDetectService.SubmitAsync(SubmissionCreation)" />
         public abstract Task<Submission<TKey>> SubmitAsync(TKey setId, SubmissionCreation submission);
@@ -103,10 +103,10 @@ namespace Plag.Backend.Services
             return entity.ToModel(files);
         }
 
-        async Task<IReadOnlyList<Submission>> IPlagiarismDetectService.ListSubmissionsAsync(string _setId, int? exclusive_category, int? inclusive_category, double? min_percent)
+        async Task<IReadOnlyList<Submission>> IPlagiarismDetectService.ListSubmissionsAsync(string _setId, string language, int? exclusive_category, int? inclusive_category, double? min_percent)
         {
             if (!TryGetKey(_setId, out var setid)) return null;
-            var result = await ListSubmissionsAsync(setid, exclusive_category, inclusive_category, min_percent);
+            var result = await ListSubmissionsAsync(setid, language, exclusive_category, inclusive_category, min_percent);
             return result.Select(r => r.ToModel()).ToList();
         }
 

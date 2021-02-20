@@ -118,12 +118,15 @@ namespace Plag.Backend.Services
 
         public override Task<List<Submission<Guid>>> ListSubmissionsAsync(
             Guid setid,
+            string language,
             int? exclusive_category,
             int? inclusive_category,
             double? min_percent)
         {
+            language = language?.Trim();
             return Submissions.AsNoTracking()
                 .Where(s => s.SetId == setid)
+                .WhereIf(!string.IsNullOrEmpty(language), s => s.Language == language)
                 .WhereIf(exclusive_category.HasValue, s => s.ExclusiveCategory == exclusive_category)
                 .WhereIf(inclusive_category.HasValue, s => s.InclusiveCategory == inclusive_category)
                 .WhereIf(min_percent.HasValue, s => s.MaxPercent >= min_percent)

@@ -63,6 +63,7 @@ namespace SatelliteSite.PlagModule.Apis
         /// Get all the submissions for the plagiarism system
         /// </summary>
         /// <param name="sid">The plagiarism set ID</param>
+        /// <param name="language">The language ID</param>
         /// <param name="exclusive_category">The exclusive category ID</param>
         /// <param name="inclusive_category">The non-exclusive category ID</param>
         /// <param name="min_percent">The minimal percent to show</param>
@@ -70,11 +71,12 @@ namespace SatelliteSite.PlagModule.Apis
         [HttpGet]
         public async Task<ActionResult<Submission[]>> GetAll(
             [FromRoute, Required] string sid,
+            [FromQuery] string language = null,
             [FromQuery] int? exclusive_category = null,
             [FromQuery] int? inclusive_category = null,
             [FromQuery] double? min_percent = null)
         {
-            var result = await Store.ListSubmissionsAsync(sid, exclusive_category, inclusive_category, min_percent);
+            var result = await Store.ListSubmissionsAsync(sid, language, exclusive_category, inclusive_category, min_percent);
             return result.ToArray();
         }
 

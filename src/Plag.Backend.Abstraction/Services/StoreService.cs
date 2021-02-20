@@ -71,11 +71,12 @@ namespace Plag.Backend.Services
         /// Lists the submissions in one plagiarism set.
         /// </summary>
         /// <param name="setid">The plagiarism set ID.</param>
+        /// <param name="language">The language type, null for not filtered.</param>
         /// <param name="exclusive_category">The exclusive category ID, null for not filtered.</param>
         /// <param name="inclusive_category">The non-exclusive category ID, null for not filtered.</param>
         /// <param name="min_percent">The minimal percent to show, null for not filtered.</param>
         /// <returns>The submissions.</returns>
-        Task<IReadOnlyList<Submission>> ListSubmissionsAsync(string setid, int? exclusive_category = null, int? inclusive_category = null, double? min_percent = null);
+        Task<IReadOnlyList<Submission>> ListSubmissionsAsync(string setid, string language = null, int? exclusive_category = null, int? inclusive_category = null, double? min_percent = null);
 
         /// <summary>
         /// Lists the plagiarism sets.

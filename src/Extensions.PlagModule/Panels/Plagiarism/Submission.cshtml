@@ -10,28 +10,8 @@
     <div class="col-md-6 col-lg-4">
         <table class="table table-sm table-striped">
             <tr>
-                <th>Set</th>
-                <td>@Model.SetId</td>
-            </tr>
-            <tr>
                 <th>ID</th>
                 <td>@Model.Id</td>
-            </tr>
-            <tr>
-                <th>External ID</th>
-                <td>@Model.ExternalId</td>
-            </tr>
-            <tr>
-                <th>Exclusive Category</th>
-                <td>@Model.ExclusiveCategory</td>
-            </tr>
-            <tr>
-                <th>Non-exclusive Category</th>
-                <td>@Model.InclusiveCategory</td>
-            </tr>
-            <tr>
-                <th>Language</th>
-                <td>@Model.Language</td>
             </tr>
             <tr>
                 <th>Description</th>
@@ -39,7 +19,19 @@
             </tr>
             <tr>
                 <th>Upload Time</th>
-                <td>@Model.UploadTime</td>
+                <td>@Html.CstTime(Model.UploadTime)</td>
+            </tr>
+            <tr>
+                <th>Exclusive</th>
+                <td><a asp-action="Detail" asp-route-exclusive_category="@Model.ExclusiveCategory">@Model.ExclusiveCategory</a></td>
+            </tr>
+            <tr>
+                <th>Non-exclusive</th>
+                <td><a asp-action="Detail" asp-route-inclusive_category="@Model.InclusiveCategory">@Model.InclusiveCategory</a></td>
+            </tr>
+            <tr>
+                <th>Language</th>
+                <td><a asp-action="Detail" asp-route-language="@Model.Language">@Model.Language</a></td>
             </tr>
         </table>
     </div>
