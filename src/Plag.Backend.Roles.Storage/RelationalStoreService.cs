@@ -139,6 +139,15 @@ namespace Plag.Backend.Services
             var set = await FindSetAsync(setId);
             if (set == null) throw new ArgumentOutOfRangeException(nameof(setId), "Set not found.");
 
+            if (submission.Id.HasValue)
+            {
+                var idd = submission.Id.Value;
+                if (await Submissions.Where(s => s.SetId == setId && s.Id == idd).AnyAsync())
+                {
+                    throw new ArgumentOutOfRangeException(nameof(setId), "Duplicate submission ID.");
+                }
+            }
+
             var id = SequentialGuidGenerator.Create(Context);
             var submissionId = submission.Id ??
                 ((await Submissions.Where(s => s.SetId == setId).Select(s => (int?)s.Id).MaxAsync() ?? 0) + 1);
