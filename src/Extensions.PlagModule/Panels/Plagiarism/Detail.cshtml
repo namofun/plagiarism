@@ -1,7 +1,6 @@
 ﻿@model PlagiarismSet
 @{
     ViewData["Title"] = "Plagiarism Set: " + Model.Name;
-    (int ok, int no, int fail) = ((int, int, int))ViewBag.Statistics;
 }
 
 <h2 class="mt-2">@ViewData["Title"]</h2>
@@ -23,7 +22,7 @@
             </tr>
             <tr>
                 <th>Submissions</th>
-                <td>@(ok + no + fail) total, @ok ready, @fail failed</td>
+                <td>@Model.SubmissionCount total, @Model.SubmissionSucceeded ready, @Model.SubmissionFailed failed</td>
             </tr>
             <tr>
                 <th>Reports</th>

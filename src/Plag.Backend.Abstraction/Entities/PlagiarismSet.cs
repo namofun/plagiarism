@@ -18,6 +18,12 @@ namespace Plag.Backend.Entities
 
         public int ReportPending { get; set; }
 
+        public int SubmissionCount { get; set; }
+
+        public int SubmissionFailed { get; set; }
+
+        public int SubmissionSucceeded { get; set; }
+
         public Models.PlagiarismSet ToModel()
         {
             return new Models.PlagiarismSet
@@ -29,6 +35,9 @@ namespace Plag.Backend.Entities
                 ReportPending = ReportPending,
                 ContestId = ContestId,
                 UserId = UserId,
+                SubmissionCount = SubmissionCount,
+                SubmissionFailed = SubmissionFailed,
+                SubmissionSucceeded = SubmissionSucceeded,
             };
         }
     }

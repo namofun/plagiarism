@@ -46,6 +46,8 @@ namespace SatelliteSite.PlagModule.Dashboards
                 Name = s.Name,
                 TotalReports = s.ReportCount,
                 PendingReports = s.ReportPending,
+                FinishedSubmissions = s.SubmissionFailed + s.SubmissionSucceeded,
+                TotalSubmissions = s.SubmissionCount,
             }));
         }
 
@@ -91,19 +93,12 @@ namespace SatelliteSite.PlagModule.Dashboards
         [HttpGet("{sid}")]
         public async Task<IActionResult> Detail(string sid)
         {
-            var report = await Store.FindSetAsync(sid);
-            if (report == null) return NotFound();
+            var set = await Store.FindSetAsync(sid);
+            if (set == null) return NotFound();
 
             var ss = await Store.ListSubmissionsAsync(sid);
-            int ok = 0, no = 0, fail = 0;
-            foreach (var s in ss)
-            {
-                (!s.TokenProduced.HasValue ? ref no : ref (s.TokenProduced.Value ? ref ok : ref fail))++;
-            }
-
-            ViewBag.Statistics = (ok, no, fail);
             ViewBag.ViewModel = ss.Select(ReportListModel.Conv);
-            return View(report);
+            return View(set);
         }
 
 

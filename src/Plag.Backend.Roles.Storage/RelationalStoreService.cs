@@ -164,6 +164,14 @@ namespace Plag.Backend.Services
                 }));
 
             await Context.SaveChangesAsync();
+
+            await Sets
+                .Where(s => s.Id == setId)
+                .BatchUpdateAsync(s => new PlagiarismSet<Guid>
+                {
+                    SubmissionCount = s.SubmissionCount + 1,
+                });
+
             Signal1.Notify();
             return e.Entity;
         }
@@ -214,17 +222,25 @@ namespace Plag.Backend.Services
             return await reportA.Concat(reportB).ToListAsync();
         }
 
-        public override Task CompileAsync(Guid setid, int submitId, string error, byte[] result)
+        public override async Task CompileAsync(Guid setid, int submitId, string error, byte[] result)
         {
             bool tokenProduced = result != null;
-
-            return Submissions
+            await Submissions
                 .Where(s => s.SetId == setid && s.Id == submitId)
                 .BatchUpdateAsync(s => new Submission<Guid>
                 {
                     Error = error,
                     TokenProduced = tokenProduced,
                     Tokens = result,
+                });
+
+            var (a, b) = tokenProduced ? (1, 0) : (0, 1);
+            await Sets
+                .Where(s => s.Id == setid)
+                .BatchUpdateAsync(s => new PlagiarismSet<Guid>
+                {
+                    SubmissionSucceeded = s.SubmissionSucceeded + a,
+                    SubmissionFailed = s.SubmissionFailed + b,
                 });
         }
 
@@ -315,11 +331,39 @@ namespace Plag.Backend.Services
                 .BatchUpdateAsync(c => new Submission<Guid> { MaxPercent = fragment.Percent });
         }
 
-        public override Task RescueAsync()
+        public override async Task RescueAsync()
         {
+            var reportAggregate = Reports
+                .GroupBy(r => r.SetId)
+                .Select(g => new { Id = g.Key, Total = g.Count(), Pending = g.Sum(a => a.Finished != true ? 1 : 0) });
+
+            await Sets.BatchUpdateJoinAsync(
+                inner: reportAggregate,
+                outerKeySelector: s => s.Id,
+                innerKeySelector: s => s.Id,
+                updateSelector: (_, r) => new PlagiarismSet<Guid>
+                {
+                    ReportCount = r.Total,
+                    ReportPending = r.Pending,
+                });
+
+            var submissionAggregate = Submissions
+                .GroupBy(r => r.SetId)
+                .Select(g => new { Id = g.Key, Total = g.Count(), Succ = g.Sum(a => a.TokenProduced == true ? 1 : 0), Fail = g.Sum(a => a.TokenProduced == false ? 1 : 0) });
+
+            await Sets.BatchUpdateJoinAsync(
+                inner: submissionAggregate,
+                outerKeySelector: s => s.Id,
+                innerKeySelector: s => s.Id,
+                updateSelector: (_, r) => new PlagiarismSet<Guid>
+                {
+                    SubmissionCount = r.Total,
+                    SubmissionSucceeded = r.Succ,
+                    SubmissionFailed = r.Fail,
+                });
+
             Signal1.Notify();
             Signal2.Notify();
-            return Task.CompletedTask;
         }
 
         public override ServiceVersion GetVersion()

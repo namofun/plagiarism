@@ -5,12 +5,54 @@
 }
 
 <h2 class="mt-2">Submission s@(Model.Id): <a asp-action="SourceCode">@Model.Name</a></h2>
+
+<div class="row">
+    <div class="col-md-6 col-lg-4">
+        <table class="table table-sm table-striped">
+            <tr>
+                <th>Set</th>
+                <td>@Model.SetId</td>
+            </tr>
+            <tr>
+                <th>ID</th>
+                <td>@Model.Id</td>
+            </tr>
+            <tr>
+                <th>External ID</th>
+                <td>@Model.ExternalId</td>
+            </tr>
+            <tr>
+                <th>Exclusive Category</th>
+                <td>@Model.ExclusiveCategory</td>
+            </tr>
+            <tr>
+                <th>Non-exclusive Category</th>
+                <td>@Model.InclusiveCategory</td>
+            </tr>
+            <tr>
+                <th>Language</th>
+                <td>@Model.Language</td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>@Model.Name</td>
+            </tr>
+            <tr>
+                <th>Upload Time</th>
+                <td>@Model.UploadTime</td>
+            </tr>
+        </table>
+    </div>
+</div>
+
 @if (error == null)
 {
-<datatable data="ViewBag.Reports" />
+    <h3>Comparisons</h3>
+    <datatable data="ViewBag.Reports" paging="30" />
 }
 else
 {
-<div class="alert alert-danger">Compilation failed. Frontend should be updated, or this submission cannot compile simply.</div>
-<pre class="output_text">@error</pre>
+    <h3>Compilation Details</h3>
+    <div class="alert alert-danger">Compilation failed. Frontend should be updated, or this submission cannot compile simply.</div>
+    <pre class="output_text">@error</pre>
 }

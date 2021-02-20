@@ -25,5 +25,14 @@ namespace Plag.Backend.Models
 
         [JsonPropertyName("report_pending")]
         public int ReportPending { get; set; }
+
+        [JsonPropertyName("submission_count")]
+        public int SubmissionCount { get; set; }
+
+        [JsonPropertyName("submission_failed")]
+        public int SubmissionFailed { get; set; }
+
+        [JsonPropertyName("submission_succeeded")]
+        public int SubmissionSucceeded { get; set; }
     }
 }
