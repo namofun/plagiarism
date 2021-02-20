@@ -27,6 +27,7 @@ namespace Plag.Backend.Services
         public bool TryCompile(ILanguage lang, ISubmissionFile file, string id, out Submission submission)
         {
             submission = new Submission(lang, file, id);
+            submission.IL.EnsureNonEmpty();
             return !submission.IL.Errors;
         }
     }

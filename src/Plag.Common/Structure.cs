@@ -39,6 +39,20 @@ namespace Plag.Frontend
 
         public int Count => tokens.Count;
 
+        public void EnsureNonEmpty()
+        {
+            if (tokens.Count == Files)
+            {
+                ManualError("Submission is empty.");
+            }
+        }
+
+        public void ManualError(string message)
+        {
+            ErrorsCount++;
+            ErrorInfo.AppendLine(message);
+        }
+
         public void SyntaxError(TextWriter output, IRecognizer recognizer, IToken offendingSymbol, int line, int charPositionInLine, string msg, RecognitionException e)
         {
             ErrorsCount++;
@@ -77,6 +91,7 @@ namespace Plag.Frontend
         public void AddTokens(IEnumerable<Token> newcomers)
         {
             tokens.AddRange(newcomers);
+            Files += tokens.Count(t => t.Type == (int)TokenConstants.FILE_END);
         }
 
         public override string ToString()
