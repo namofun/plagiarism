@@ -59,6 +59,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plag.Backend.Roles.Rest", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SatelliteSite.Host", "src\Host\SatelliteSite.Host.csproj", "{D33530E8-95EE-4041-9080-5D5017D8E8BA}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plag.Backend.EFCore.Tests", "test\Plag.Backend.EFCore.Tests\Plag.Backend.EFCore.Tests.csproj", "{E7F3BA09-7304-4B64-A60E-CA38B5D0A598}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -133,6 +135,10 @@ Global
 		{D33530E8-95EE-4041-9080-5D5017D8E8BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D33530E8-95EE-4041-9080-5D5017D8E8BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D33530E8-95EE-4041-9080-5D5017D8E8BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E7F3BA09-7304-4B64-A60E-CA38B5D0A598}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7F3BA09-7304-4B64-A60E-CA38B5D0A598}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7F3BA09-7304-4B64-A60E-CA38B5D0A598}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7F3BA09-7304-4B64-A60E-CA38B5D0A598}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -155,6 +161,7 @@ Global
 		{2FA16CE4-2147-4A52-B851-DE96673CB0C9} = {C6B49B4C-FEB2-477D-986D-F2216E34BA9C}
 		{09ED3EBF-60FC-404D-BCA7-90CCB903F9DD} = {C6B49B4C-FEB2-477D-986D-F2216E34BA9C}
 		{D33530E8-95EE-4041-9080-5D5017D8E8BA} = {C6B49B4C-FEB2-477D-986D-F2216E34BA9C}
+		{E7F3BA09-7304-4B64-A60E-CA38B5D0A598} = {47AFCF7A-6593-4310-9130-9B4B9C76E3C6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2AA9BAB4-9C10-43E7-8722-DEBB04D9924A}
