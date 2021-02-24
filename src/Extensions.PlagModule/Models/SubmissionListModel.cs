@@ -13,6 +13,7 @@ namespace SatelliteSite.PlagModule.Models
             SubmissionAnother = comparison.SubmissionNameAnother;
             Pending = !(comparison.Finished ?? false);
             SetId = setid;
+            ExclusiveCategory = comparison.ExclusiveCategory;
 
             if (!Pending)
             {
@@ -35,7 +36,10 @@ namespace SatelliteSite.PlagModule.Models
         [DtWrapUrl("/dashboard/plagiarism/{SetId}/submissions/{SubmissionIdAnother}/source-code")]
         public int SubmissionIdAnother { get; }
 
-        [DtDisplay(1, "SID", "{SubmissionAnother} (s{SubmissionIdAnother})", Searchable = true, Sortable = true)]
+        [DtDisplay(0, "excl.", Searchable = true, Sortable = true)]
+        public int ExclusiveCategory { get; }
+
+        [DtDisplay(1, "SID", "s{SubmissionIdAnother}: {SubmissionAnother}", Searchable = true, Sortable = true)]
         public string SubmissionAnother { get; }
 
         [DtCellCss(Class = "text-variant")]

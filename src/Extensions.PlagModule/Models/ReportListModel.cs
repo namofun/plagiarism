@@ -14,6 +14,8 @@ namespace SatelliteSite.PlagModule.Models
         public int Id { get; set; }
 
         [DtDisplay(1, "name", Searchable = true, Sortable = true)]
+        [DtForceWidth(15)]
+        [DtTooltip("{Name}")]
         public string Name { get; set; }
 
         [DtDisplay(2, "status", Sortable = true)]

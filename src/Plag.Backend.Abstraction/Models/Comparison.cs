@@ -13,6 +13,9 @@ namespace Plag.Backend.Models
         [JsonPropertyName("submit")]
         public string SubmissionNameAnother { get; set; }
 
+        [JsonPropertyName("exclusive")]
+        public int ExclusiveCategory { get; set; }
+
         [JsonPropertyName("finished")]
         public bool? Finished { get; set; }
 

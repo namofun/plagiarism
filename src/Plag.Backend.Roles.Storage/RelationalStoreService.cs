@@ -240,6 +240,7 @@ namespace Plag.Backend.Services
                     PercentIt = r.PercentA,
                     PercentSelf = r.PercentB,
                     ExternalId = r.ExternalId,
+                    ExclusiveCategory = s.ExclusiveCategory,
                 };
 
             var reportB =
@@ -257,6 +258,7 @@ namespace Plag.Backend.Services
                     PercentIt = r.PercentB,
                     PercentSelf = r.PercentA,
                     ExternalId = r.ExternalId,
+                    ExclusiveCategory = s.ExclusiveCategory,
                 };
 
             return await reportA.Concat(reportB).ToListAsync();
