@@ -48,11 +48,11 @@ namespace Plag.Backend.Services
         /// <inheritdoc cref="IPlagiarismDetectService.GetCompilationAsync(string, int)" />
         public abstract Task<Compilation> GetCompilationAsync(TKey setid, int submitid);
 
-        /// <inheritdoc cref="IPlagiarismDetectService.ListSetsAsync(int?, int?, int?, int?)" />
-        public abstract Task<List<PlagiarismSet<TKey>>> ListSetsAsync(int? cid = null, int? uid = null, int? skip = null, int? limit = null);
+        /// <inheritdoc cref="IPlagiarismDetectService.ListSetsAsync(int?, int?, int?, int?, bool)" />
+        public abstract Task<List<PlagiarismSet<TKey>>> ListSetsAsync(int? cid = null, int? uid = null, int? skip = null, int? limit = null, bool asc = false);
 
-        /// <inheritdoc cref="IPlagiarismDetectService.ListSubmissionsAsync(string, string, int?, int?, double?)" />
-        public abstract Task<List<Submission<TKey>>> ListSubmissionsAsync(TKey setid, string language, int? exclusive_category, int? inclusive_category, double? min_percent);
+        /// <inheritdoc cref="IPlagiarismDetectService.ListSubmissionsAsync(string, string, int?, int?, double?, int?, int?, bool)" />
+        public abstract Task<List<Submission<TKey>>> ListSubmissionsAsync(TKey setid, string language, int? exclusive_category, int? inclusive_category, double? min_percent, int? skip = null, int? limit = null, bool asc = true);
 
         /// <inheritdoc cref="IPlagiarismDetectService.SubmitAsync(SubmissionCreation)" />
         public abstract Task<Submission<TKey>> SubmitAsync(TKey setId, SubmissionCreation submission);
@@ -104,16 +104,16 @@ namespace Plag.Backend.Services
             return entity.ToModel(files);
         }
 
-        async Task<IReadOnlyList<Submission>> IPlagiarismDetectService.ListSubmissionsAsync(string _setId, string language, int? exclusive_category, int? inclusive_category, double? min_percent)
+        async Task<IReadOnlyList<Submission>> IPlagiarismDetectService.ListSubmissionsAsync(string _setId, string language, int? exclusive_category, int? inclusive_category, double? min_percent, int? skip, int? limit, bool asc)
         {
             if (!TryGetKey(_setId, out var setid)) return null;
-            var result = await ListSubmissionsAsync(setid, language, exclusive_category, inclusive_category, min_percent);
+            var result = await ListSubmissionsAsync(setid, language, exclusive_category, inclusive_category, min_percent, skip, limit, asc);
             return result.Select(r => r.ToModel()).ToList();
         }
 
-        async Task<IReadOnlyList<PlagiarismSet>> IPlagiarismDetectService.ListSetsAsync(int? cid, int? uid, int? skip, int? limit)
+        async Task<IReadOnlyList<PlagiarismSet>> IPlagiarismDetectService.ListSetsAsync(int? cid, int? uid, int? skip, int? limit, bool asc)
         {
-            var result = await ListSetsAsync(cid, uid, skip, limit);
+            var result = await ListSetsAsync(cid, uid, skip, limit, asc);
             return result.Select(r => r.ToModel()).ToList();
         }
 

@@ -109,13 +109,19 @@ namespace Plag.Backend.Services
                     .ToList());
         }
 
-        public override Task<List<PlagiarismSet<Guid>>> ListSetsAsync(int? cid = null, int? uid = null, int? skip = null, int? limit = null)
+        public override Task<List<PlagiarismSet<Guid>>> ListSetsAsync(
+            int? cid = null,
+            int? uid = null,
+            int? skip = null,
+            int? limit = null,
+            bool asc = false)
         {
             return Sets.AsNoTracking()
                 .WhereIf(cid.HasValue, s => s.ContestId == cid)
                 .WhereIf(uid.HasValue, s => s.UserId == uid)
                 .OrderByDescending(s => s.Id)
                 .SkipIf(skip).TakeIf(limit)
+                .OrderBy(s => s.Id, asc)
                 .ToListAsync();
         }
 
@@ -124,7 +130,10 @@ namespace Plag.Backend.Services
             string language,
             int? exclusive_category,
             int? inclusive_category,
-            double? min_percent)
+            double? min_percent,
+            int? skip = null,
+            int? limit = null,
+            bool asc = false)
         {
             language = language?.Trim();
             return Submissions.AsNoTracking()
@@ -134,6 +143,8 @@ namespace Plag.Backend.Services
                 .WhereIf(inclusive_category.HasValue, s => s.InclusiveCategory == inclusive_category)
                 .WhereIf(min_percent.HasValue, s => s.MaxPercent >= min_percent)
                 .Select(Submission<Guid>.Minify)
+                .SkipIf(skip).TakeIf(limit)
+                .OrderBy(s => s.Id, asc)
                 .ToListAsync();
         }
 
@@ -402,6 +413,29 @@ namespace Plag.Backend.Services
                 BackendVersion = typeof(Backend.IBackendRoleStrategy).Assembly.GetName().Version.ToString(),
                 Role = "relational_storage"
             };
+        }
+    }
+
+    internal static class OrderByQueryableExtensions
+    {
+        public static IOrderedQueryable<TSource> OrderBy<TSource, TKey>(
+            this IQueryable<TSource> source,
+            System.Linq.Expressions.Expression<Func<TSource, TKey>> orderby,
+            bool ascending)
+        {
+            return ascending
+                ? source.OrderBy(orderby)
+                : source.OrderByDescending(orderby);
+        }
+
+        public static IOrderedQueryable<TSource> ThenBy<TSource, TKey>(
+            this IOrderedQueryable<TSource> source,
+            System.Linq.Expressions.Expression<Func<TSource, TKey>> orderby,
+            bool ascending)
+        {
+            return ascending
+                ? source.ThenBy(orderby)
+                : source.ThenByDescending(orderby);
         }
     }
 }

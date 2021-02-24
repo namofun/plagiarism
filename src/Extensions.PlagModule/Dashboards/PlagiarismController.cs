@@ -17,6 +17,7 @@ namespace SatelliteSite.PlagModule.Dashboards
     [Area("Dashboard")]
     [Authorize("HasDashboard")]
     [Route("[area]/[controller]")]
+    [CustomedExceptionFilter(false)]
     public class PlagiarismController : ViewControllerBase
     {
         public IPlagiarismDetectService Store { get; }

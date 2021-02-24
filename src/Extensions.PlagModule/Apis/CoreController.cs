@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Plag.Backend.Models;
 using Plag.Backend.Services;
 using System.Threading.Tasks;
 
@@ -22,15 +23,16 @@ namespace SatelliteSite.PlagModule.Apis
             Store = store;
         }
 
+
         /// <summary>
         /// Send a rescue signal to the core service
         /// </summary>
         /// <response code="200">Returns the service version</response>
         [HttpPost]
-        public async Task<IActionResult> Rescue()
+        public async Task<ActionResult<ServiceVersion>> Rescue()
         {
             await Store.RescueAsync();
-            return Ok(Store.GetVersion());
+            return Store.GetVersion();
         }
     }
 }

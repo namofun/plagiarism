@@ -67,6 +67,9 @@ namespace SatelliteSite.PlagModule.Apis
         /// <param name="exclusive_category">The exclusive category ID</param>
         /// <param name="inclusive_category">The non-exclusive category ID</param>
         /// <param name="min_percent">The minimal percent to show</param>
+        /// <param name="skip">The count to skip</param>
+        /// <param name="limit">The count to take</param>
+        /// <param name="order">The order to enumerate the sets, "asc" or "desc"</param>
         /// <response code="200">Returns all the submissions for the plagiarism system</response>
         [HttpGet]
         public async Task<ActionResult<Submission[]>> GetAll(
@@ -74,9 +77,16 @@ namespace SatelliteSite.PlagModule.Apis
             [FromQuery] string language = null,
             [FromQuery] int? exclusive_category = null,
             [FromQuery] int? inclusive_category = null,
-            [FromQuery] double? min_percent = null)
+            [FromQuery] double? min_percent = null,
+            [FromQuery] int? skip = null,
+            [FromQuery] int? limit = null,
+            [FromQuery] string order = "asc")
         {
-            var result = await Store.ListSubmissionsAsync(sid, language, exclusive_category, inclusive_category, min_percent);
+            if (order != "asc" && order != "desc") return BadRequest();
+            if (skip.HasValue && skip.Value < 0) return BadRequest();
+            if (limit.HasValue && limit.Value < 0) return BadRequest();
+
+            var result = await Store.ListSubmissionsAsync(sid, language, exclusive_category, inclusive_category, min_percent, skip, limit, order == "asc");
             return result.ToArray();
         }
 

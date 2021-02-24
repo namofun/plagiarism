@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 namespace SatelliteSite.PlagModule.Controllers
 {
     [Area("Plagiarism")]
+    [CustomedExceptionFilter(false)]
     public class ReportController : ViewControllerBase
     {
         public IPlagiarismDetectService Store { get; }

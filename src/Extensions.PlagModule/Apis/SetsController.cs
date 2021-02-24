@@ -59,15 +59,21 @@ namespace SatelliteSite.PlagModule.Apis
         /// <param name="related">The related of entity</param>
         /// <param name="skip">The count to skip</param>
         /// <param name="limit">The count to take</param>
+        /// <param name="order">The order to enumerate the sets, "asc" or "desc"</param>
         /// <response code="200">Returns all the sets for the plagiarism system</response>
         [HttpGet]
         public async Task<ActionResult<PlagiarismSet[]>> GetAll(
             [FromQuery] int? creator = null,
             [FromQuery] int? related = null,
             [FromQuery] int? skip = null,
-            [FromQuery] int? limit = null)
+            [FromQuery] int? limit = null,
+            [FromQuery] string order = "desc")
         {
-            var items = await Store.ListSetsAsync(related, creator, skip, limit);
+            if (order != "asc" && order != "desc") return BadRequest();
+            if (skip.HasValue && skip.Value < 0) return BadRequest();
+            if (limit.HasValue && limit.Value < 0) return BadRequest();
+
+            var items = await Store.ListSetsAsync(related, creator, skip, limit, order == "asc");
             return items.ToArray();
         }
     }
