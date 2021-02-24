@@ -23,7 +23,7 @@ namespace SatelliteSite.PlagModule
                 name: "jplag",
                 title: "JPlag Online",
                 description: "Plagiarism detection API",
-                version: "v2.12.1");
+                version: "v2.12.2");
         }
 
         public override void RegisterServices(IServiceCollection services)
