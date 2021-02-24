@@ -110,7 +110,7 @@ namespace SatelliteSite.PlagModule.Apis
             [FromRoute, Required] int id)
         {
             var result = await Store.GetFilesAsync(sid, id);
-            return result.ToArray();
+            return result?.ToArray();
         }
 
 

@@ -58,7 +58,8 @@ namespace Plag.Backend.Services
         public abstract Task<Submission<TKey>> SubmitAsync(TKey setId, SubmissionCreation submission);
 
         /// <inheritdoc cref="IPlagiarismDetectService.GetFilesAsync(string, int)" />
-        public abstract Task<IReadOnlyList<SubmissionFile>> GetFilesAsync(TKey setId, int submitId);
+        /// <param name="extId">The external submission ID.</param>
+        public abstract Task<IReadOnlyList<SubmissionFile>> GetFilesAsync(TKey extId);
 
 
         #region Explicit Implementations
@@ -99,7 +100,7 @@ namespace Plag.Backend.Services
             if (!TryGetKey(setId, out var setid)) return null;
             var entity = await FindSubmissionAsync(setid, submitid);
             if (entity == null || !includeFiles) return entity?.ToModel();
-            var files = await GetFilesAsync(entity.SetId, entity.Id);
+            var files = await GetFilesAsync(entity.ExternalId);
             return entity.ToModel(files);
         }
 
@@ -122,16 +123,20 @@ namespace Plag.Backend.Services
             return await GetCompilationAsync(setid, submitid);
         }
 
-        Task<IReadOnlyList<Comparison>> IPlagiarismDetectService.GetComparisonsBySubmissionAsync(string setId, int submitid)
+        async Task<IReadOnlyList<Comparison>> IPlagiarismDetectService.GetComparisonsBySubmissionAsync(string setId, int submitid)
         {
-            if (!TryGetKey(setId, out var setid)) return Task.FromResult<IReadOnlyList<Comparison>>(Array.Empty<Comparison>());
-            return GetComparisonsBySubmissionAsync(setid, submitid);
+            if (!TryGetKey(setId, out var setid)) return null;
+            var submit = await FindSubmissionAsync(setid, submitid);
+            if (submit == null) return null;
+            return await GetComparisonsBySubmissionAsync(setid, submitid);
         }
 
-        public Task<IReadOnlyList<SubmissionFile>> GetFilesAsync(string setId, int submitId)
+        public virtual async Task<IReadOnlyList<SubmissionFile>> GetFilesAsync(string setId, int submitId)
         {
-            if (!TryGetKey(setId, out var setid)) return Task.FromResult<IReadOnlyList<SubmissionFile>>(Array.Empty<SubmissionFile>());
-            return GetFilesAsync(setid, submitId);
+            if (!TryGetKey(setId, out var setid)) return null;
+            var submit = await FindSubmissionAsync(setid, submitId);
+            if (submit == null) return null;
+            return await GetFilesAsync(submit.ExternalId);
         }
 
         #endregion

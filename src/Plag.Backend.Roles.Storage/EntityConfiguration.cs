@@ -30,11 +30,12 @@ namespace Plag.Backend
         {
             entity.ToTable("PlagiarismFiles");
 
-            entity.HasKey(e => new { e.SetId, e.SubmissionId, e.FileId });
+            entity.HasKey(e => new { e.SubmissionId, e.FileId });
 
             entity.HasOne<Submission<Guid>>()
                 .WithMany()
-                .HasForeignKey(e => new { e.SetId, e.SubmissionId })
+                .HasForeignKey(e => e.SubmissionId)
+                .HasPrincipalKey(e => e.ExternalId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
 

@@ -7,9 +7,6 @@ namespace Plag.Backend.Entities
     public class SubmissionFile<TKey> : SubmissionFile where TKey : IEquatable<TKey>
     {
         [JsonIgnore]
-        public TKey SetId { get; set; }
-
-        [JsonIgnore]
-        public int SubmissionId { get; set; }
+        public TKey SubmissionId { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Plag.Backend.Entities;
 using Plag.Backend.Jobs;
 using Plag.Backend.Models;
@@ -23,6 +24,8 @@ namespace Plag.Backend.Services
         public DbSet<Report<Guid>> Reports => Context.Set<Report<Guid>>();
 
         public DbSet<Submission<Guid>> Submissions => Context.Set<Submission<Guid>>();
+
+        public DbSet<SubmissionFile<Guid>> Files => Context.Set<SubmissionFile<Guid>>();
 
         public IResettableSignal<SubmissionTokenizeService> Signal1 { get; }
 
@@ -134,6 +137,45 @@ namespace Plag.Backend.Services
                 .ToListAsync();
         }
 
+        public virtual async Task<int> GetUpcomingIdAsync(Guid setId, bool upwards)
+        {
+            var baseQuery = Submissions
+                .Where(s => s.SetId == setId)
+                .Select(s => (int?)s.Id);
+
+            return upwards
+                ? 1 + (await baseQuery.MaxAsync() ?? 0)
+                : -1 + (await baseQuery.MinAsync() ?? 0);
+        }
+
+        private EntityEntry<Submission<Guid>> AddCore(Guid setId, int id, SubmissionCreation submission)
+        {
+            var extId = SequentialGuidGenerator.Create(Context);
+
+            var entry = Submissions.Add(new Submission<Guid>
+            {
+                SetId = setId,
+                Id = id,
+                ExternalId = extId,
+                ExclusiveCategory = submission.ExclusiveCategory ?? id,
+                InclusiveCategory = submission.InclusiveCategory,
+                Language = submission.Language,
+                Name = submission.Name,
+                UploadTime = DateTimeOffset.Now,
+            });
+
+            Files.AddRange(submission.Files.Select((i, j) => new SubmissionFile<Guid>
+            {
+                FileId = j + 1,
+                Content = i.Content,
+                FileName = i.FileName,
+                FilePath = i.FilePath,
+                SubmissionId = extId,
+            }));
+
+            return entry;
+        }
+
         public override async Task<Submission<Guid>> SubmitAsync(Guid setId, SubmissionCreation submission)
         {
             var set = await FindSetAsync(setId);
@@ -148,33 +190,8 @@ namespace Plag.Backend.Services
                 }
             }
 
-            var id = SequentialGuidGenerator.Create(Context);
-            var submissionId = submission.Id ??
-                ((await Submissions.Where(s => s.SetId == setId).Select(s => (int?)s.Id).MaxAsync() ?? 0) + 1);
-
-            var e = Submissions.Add(new Submission<Guid>
-            {
-                SetId = setId,
-                Id = submissionId,
-                ExternalId = id,
-                ExclusiveCategory = submission.ExclusiveCategory ?? submissionId,
-                InclusiveCategory = submission.InclusiveCategory,
-                Language = submission.Language,
-                Name = submission.Name,
-                UploadTime = DateTimeOffset.Now,
-            });
-
-            Context.Set<SubmissionFile<Guid>>()
-                .AddRange(submission.Files.Select((i, j) => new SubmissionFile<Guid>
-                {
-                    FileId = j + 1,
-                    Content = i.Content,
-                    FileName = i.FileName,
-                    FilePath = i.FilePath,
-                    SubmissionId = submissionId,
-                    SetId = setId,
-                }));
-
+            var submissionId = submission.Id ?? await GetUpcomingIdAsync(setId, !set.ContestId.HasValue);
+            var e = AddCore(setId, submissionId, submission);
             await Context.SaveChangesAsync();
 
             await Sets
@@ -265,7 +282,7 @@ namespace Plag.Backend.Services
 
             if (s == null) return null;
             var model = s.ToModel();
-            model.Files = await GetFilesAsync(s.SetId, s.Id);
+            model.Files = await GetFilesAsync(s.ExternalId);
             return model;
         }
 
@@ -310,11 +327,10 @@ namespace Plag.Backend.Services
             return ReportTask.Of(r.ExternalId, r.SetId, r.SubmissionA, r.SubmissionB);
         }
 
-        public override async Task<IReadOnlyList<SubmissionFile>> GetFilesAsync(Guid setId, int submitId)
+        public override async Task<IReadOnlyList<SubmissionFile>> GetFilesAsync(Guid extId)
         {
-            return await Context.Set<SubmissionFile<Guid>>()
-                .AsNoTracking()
-                .Where(s => s.SetId == setId && s.SubmissionId == submitId)
+            return await Files.AsNoTracking()
+                .Where(s => s.SubmissionId == extId)
                 .OrderBy(s => s.FileId)
                 .ToListAsync();
         }
