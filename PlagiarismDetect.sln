@@ -59,7 +59,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plag.Backend.Roles.Rest", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SatelliteSite.Host", "src\Host\SatelliteSite.Host.csproj", "{D33530E8-95EE-4041-9080-5D5017D8E8BA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plag.Backend.EFCore.Tests", "test\Plag.Backend.EFCore.Tests\Plag.Backend.EFCore.Tests.csproj", "{E7F3BA09-7304-4B64-A60E-CA38B5D0A598}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plag.Backend.Relational.Tests", "test\Plag.Backend.EFCore.Tests\Plag.Backend.Relational.Tests.csproj", "{E7F3BA09-7304-4B64-A60E-CA38B5D0A598}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
