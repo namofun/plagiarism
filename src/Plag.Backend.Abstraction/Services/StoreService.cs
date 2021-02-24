@@ -101,8 +101,8 @@ namespace Plag.Backend.Services
         /// </summary>
         /// <param name="setid">The id of plagiarism set.</param>
         /// <param name="submitid">The id of submission.</param>
-        /// <returns>The comparison result.</returns>
-        Task<IReadOnlyList<Comparison>> GetComparisonsBySubmissionAsync(string setid, int submitid);
+        /// <returns>The submission with comparison results.</returns>
+        Task<Vertex> GetComparisonsBySubmissionAsync(string setid, int submitid);
 
         /// <summary>
         /// Sends a signal and try to rescue the background service.

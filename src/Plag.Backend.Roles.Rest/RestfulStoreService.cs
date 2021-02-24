@@ -27,8 +27,8 @@ namespace Plag.Backend.Services
         public Task<Submission> FindSubmissionAsync(string sid, int id, bool includeFiles = true)
             => Client.GetAsync<Submission>($"/sets/{UrlEncoder.Default.Encode(sid)}/submissions/{id}?includeFiles={includeFiles}");
 
-        public async Task<IReadOnlyList<Comparison>> GetComparisonsBySubmissionAsync(string sid, int id)
-            => await Client.GetAsync<List<Comparison>>($"/sets/{UrlEncoder.Default.Encode(sid)}/submissions/{id}/comparisons");
+        public async Task<Vertex> GetComparisonsBySubmissionAsync(string sid, int id)
+            => await Client.GetAsync<Vertex>($"/sets/{UrlEncoder.Default.Encode(sid)}/submissions/{id}/comparisons");
 
         public async Task<IReadOnlyList<SubmissionFile>> GetFilesAsync(string sid, int id)
             => await Client.GetAsync<List<SubmissionFile>>($"/sets/{UrlEncoder.Default.Encode(sid)}/submissions/{id}/files");

@@ -39,4 +39,10 @@ namespace Plag.Backend.Models
         [JsonPropertyName("language")]
         public string Language { get; set; }
     }
+
+    public class Vertex : Submission
+    {
+        [JsonPropertyName("comparisons")]
+        public IReadOnlyCollection<Comparison> Comparisons { get; set; }
+    }
 }

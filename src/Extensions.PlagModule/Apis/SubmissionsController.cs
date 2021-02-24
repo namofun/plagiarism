@@ -136,12 +136,11 @@ namespace SatelliteSite.PlagModule.Apis
         /// <param name="id">The ID of the entity to get</param>
         /// <response code="200">Returns the comparison results of given submission for the plagiarism system</response>
         [HttpGet("{id}/comparisons")]
-        public async Task<ActionResult<Comparison[]>> GetComparisons(
+        public async Task<ActionResult<Vertex>> GetComparisons(
             [FromRoute, Required] string sid,
             [FromRoute, Required] int id)
         {
-            var result = await Store.GetComparisonsBySubmissionAsync(sid, id);
-            return result.ToArray();
+            return await Store.GetComparisonsBySubmissionAsync(sid, id);
         }
     }
 }

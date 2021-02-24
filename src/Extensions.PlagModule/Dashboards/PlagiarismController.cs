@@ -178,11 +178,9 @@ namespace SatelliteSite.PlagModule.Dashboards
         [HttpGet("{sid}/submissions/{id}")]
         public async Task<IActionResult> Submission(string sid, int id)
         {
-            var ss = await Store.FindSubmissionAsync(sid, id, false);
+            var ss = await Store.GetComparisonsBySubmissionAsync(sid, id);
             if (ss == null) return NotFound();
-
-            var rep = await Store.GetComparisonsBySubmissionAsync(sid, id);
-            ViewBag.Reports = rep.Select(c => new SubmissionListModel(sid, c));
+            ViewBag.Reports = ss.Comparisons.Select(c => new SubmissionListModel(sid, c));
 
             if (ss.TokenProduced == false)
             {

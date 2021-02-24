@@ -123,12 +123,15 @@ namespace Plag.Backend.Services
             return await GetCompilationAsync(setid, submitid);
         }
 
-        async Task<IReadOnlyList<Comparison>> IPlagiarismDetectService.GetComparisonsBySubmissionAsync(string setId, int submitid)
+        async Task<Vertex> IPlagiarismDetectService.GetComparisonsBySubmissionAsync(string setId, int submitid)
         {
             if (!TryGetKey(setId, out var setid)) return null;
             var submit = await FindSubmissionAsync(setid, submitid);
             if (submit == null) return null;
-            return await GetComparisonsBySubmissionAsync(setid, submitid);
+
+            var returns = submit.To<Vertex>();
+            returns.Comparisons = await GetComparisonsBySubmissionAsync(setid, submitid);
+            return returns;
         }
 
         public virtual async Task<IReadOnlyList<SubmissionFile>> GetFilesAsync(string setId, int submitId)

@@ -32,12 +32,18 @@ namespace Plag.Backend.Entities
 
         public Models.Submission ToModel(IReadOnlyCollection<Models.SubmissionFile> files = null)
         {
-            return new Models.Submission
+            var result = To<Models.Submission>();
+            result.Files = files;
+            return result;
+        }
+
+        public T To<T>() where T : Models.Submission, new()
+        {
+            return new T
             {
                 MaxPercent = MaxPercent,
                 ExclusiveCategory = ExclusiveCategory,
                 ExternalId = ExternalId.ToString(),
-                Files = files,
                 Id = Id,
                 InclusiveCategory = InclusiveCategory,
                 Language = Language,
