@@ -17,6 +17,7 @@ namespace SatelliteSite.PlagModule.Dashboards
     [Area("Dashboard")]
     [Authorize("HasDashboard")]
     [Route("[area]/[controller]")]
+    [AuditPoint((AuditlogType)22)] // PlagSet
     [CustomedExceptionFilter(false)]
     public class PlagiarismController : ViewControllerBase
     {
@@ -69,6 +70,7 @@ namespace SatelliteSite.PlagModule.Dashboards
         public async Task<IActionResult> Refresh(bool _ = false)
         {
             await Store.RescueAsync();
+            await HttpContext.AuditAsync("rescue", null);
             return RedirectToAction(nameof(List));
         }
 
@@ -87,6 +89,7 @@ namespace SatelliteSite.PlagModule.Dashboards
             int? userId = int.TryParse(User.GetUserId(), out var uuid) ? uuid : default(int?);
             if (!ModelState.IsValid) return View(model);
             var set = await Store.CreateSetAsync(new SetCreation { Name = model.Name, UserId = userId });
+            await HttpContext.AuditAsync("created", set.Id);
             return RedirectToAction(nameof(Detail), new { sid = set.Id });
         }
 
@@ -124,6 +127,7 @@ namespace SatelliteSite.PlagModule.Dashboards
             if (!ModelState.IsValid) return View(model);
 
             var err = new StringBuilder();
+            int succCount = 0;
 
             foreach (var item in model.Files)
             {
@@ -162,6 +166,7 @@ namespace SatelliteSite.PlagModule.Dashboards
 
                     sub.Files = files;
                     await Store.SubmitAsync(sub);
+                    succCount++;
                 }
                 catch (Exception ex)
                 {
@@ -171,6 +176,7 @@ namespace SatelliteSite.PlagModule.Dashboards
             }
 
             err.Append("Import finished.");
+            await HttpContext.AuditAsync("submitted", set.Id, succCount + " new");
             StatusMessage = err.ToString();
             return RedirectToAction(nameof(Detail), new { sid });
         }
