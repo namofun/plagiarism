@@ -78,16 +78,18 @@ namespace Plag.Backend.Services
         /// <param name="min_percent">The minimal percent to show, null for not filtered.</param>
         /// <param name="skip">The count to skip.</param>
         /// <param name="limit">The count to take.</param>
-        /// <param name="asc">Whether to order by the ID ascending.</param>
+        /// <param name="order">The order rule, "id" or "percent".</param>
+        /// <param name="asc">Whether to order by the rule ascending.</param>
         /// <returns>The submissions.</returns>
         Task<IReadOnlyList<Submission>?> ListSubmissionsAsync(
             string setid,
-            string language = null,
+            string? language = null,
             int? exclusive_category = null,
             int? inclusive_category = null,
             double? min_percent = null,
             int? skip = null,
             int? limit = null,
+            string? order = "id",
             bool asc = true);
 
         /// <summary>

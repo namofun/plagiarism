@@ -1,5 +1,7 @@
 ﻿using Plag.Backend.Models;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 
@@ -36,21 +38,24 @@ namespace Plag.Backend.Services
         public Task<List<LanguageInfo>> ListLanguageAsync()
             => Client.GetAsync<List<LanguageInfo>>("/languages");
 
-        public async Task<IReadOnlyList<Submission>> ListSubmissionsAsync(string sid, string language, int? exclusive_category, int? inclusive_category, double? min_percent, int? skip, int? limit, bool asc)
-            => await Client.GetAsync<List<Submission>>($"/sets/{UrlEncoder.Default.Encode(sid)}/submissions?_=_"
-                + (!string.IsNullOrWhiteSpace(language) ? $"&{nameof(language)}={UrlEncoder.Default.Encode(language)}" : string.Empty)
-                + (exclusive_category.HasValue ? $"&{nameof(exclusive_category)}={exclusive_category}" : string.Empty)
-                + (inclusive_category.HasValue ? $"&{nameof(inclusive_category)}={inclusive_category}" : string.Empty)
-                + (min_percent.HasValue ? $"&{nameof(min_percent)}={min_percent}" : string.Empty)
-                + (asc ? "&order=asc" : "&order=desc")
-                + (skip.HasValue ? $"&{nameof(skip)}={skip}" : string.Empty)
-                + (limit.HasValue ? $"&{nameof(limit)}={limit}" : string.Empty));
+        public async Task<IReadOnlyList<Submission>> ListSubmissionsAsync(string sid, string language, int? exclusive_category, int? inclusive_category, double? min_percent, int? skip, int? limit, string order, bool asc)
+            => new[] { "id", "percent" }.Contains(order = (order ?? "id").ToLowerInvariant())
+                ? await Client.GetAsync<List<Submission>>($"/sets/{UrlEncoder.Default.Encode(sid)}/submissions?_=_"
+                    + (!string.IsNullOrWhiteSpace(language) ? $"&{nameof(language)}={UrlEncoder.Default.Encode(language)}" : string.Empty)
+                    + (exclusive_category.HasValue ? $"&{nameof(exclusive_category)}={exclusive_category}" : string.Empty)
+                    + (inclusive_category.HasValue ? $"&{nameof(inclusive_category)}={inclusive_category}" : string.Empty)
+                    + (min_percent.HasValue ? $"&{nameof(min_percent)}={min_percent}" : string.Empty)
+                    + (!asc ? "&order=desc" : string.Empty)
+                    + (order != "id" ? "&by=" + order : string.Empty)
+                    + (skip.HasValue ? $"&{nameof(skip)}={skip}" : string.Empty)
+                    + (limit.HasValue ? $"&{nameof(limit)}={limit}" : string.Empty))
+                : throw new ArgumentOutOfRangeException();
 
         public async Task<IReadOnlyList<PlagiarismSet>> ListSetsAsync(int? related, int? creator, int? skip, int? limit, bool asc)
             => await Client.GetAsync<List<PlagiarismSet>>($"/sets?_=_"
                 + (related.HasValue ? $"&{nameof(related)}={related}" : string.Empty)
                 + (creator.HasValue ? $"&{nameof(creator)}={creator}" : string.Empty)
-                + (asc ? "&order=asc" : "&order=desc")
+                + (asc ? "&order=asc" : string.Empty)
                 + (skip.HasValue ? $"&{nameof(skip)}={skip}" : string.Empty)
                 + (limit.HasValue ? $"&{nameof(limit)}={limit}" : string.Empty));
 

@@ -121,30 +121,38 @@ namespace Plag.Backend.Services
                 .WhereIf(uid.HasValue, s => s.UserId == uid)
                 .OrderByDescending(s => s.Id)
                 .SkipIf(skip).TakeIf(limit)
-                .OrderBy(s => s.Id, asc)
+                .OrderBy(s => s.Id, asc, true)
                 .ToListAsync();
         }
 
         public override Task<List<Submission<Guid>>> ListSubmissionsAsync(
             Guid setid,
-            string language,
-            int? exclusive_category,
-            int? inclusive_category,
-            double? min_percent,
+            string language = null,
+            int? exclusive_category = null,
+            int? inclusive_category = null,
+            double? min_percent = null,
             int? skip = null,
             int? limit = null,
-            bool asc = false)
+            string order = "id",
+            bool asc = true)
         {
             language = language?.Trim();
+            order = (order ?? "id").ToLowerInvariant();
+            if (order != "id" && order != "percent")
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+
             return Submissions.AsNoTracking()
                 .Where(s => s.SetId == setid)
                 .WhereIf(!string.IsNullOrEmpty(language), s => s.Language == language)
                 .WhereIf(exclusive_category.HasValue, s => s.ExclusiveCategory == exclusive_category)
                 .WhereIf(inclusive_category.HasValue, s => s.InclusiveCategory == inclusive_category)
                 .WhereIf(min_percent.HasValue, s => s.MaxPercent >= min_percent)
-                .Select(Submission<Guid>.Minify)
+                .OrderBy(s => s.Id, asc, order == "id")
+                .OrderBy(s => s.MaxPercent, asc, order == "percent")
                 .SkipIf(skip).TakeIf(limit)
-                .OrderBy(s => s.Id, asc)
+                .Select(Submission<Guid>.Minify)
                 .ToListAsync();
         }
 
@@ -420,24 +428,17 @@ namespace Plag.Backend.Services
 
     internal static class OrderByQueryableExtensions
     {
-        public static IOrderedQueryable<TSource> OrderBy<TSource, TKey>(
+        public static IQueryable<TSource> OrderBy<TSource, TKey>(
             this IQueryable<TSource> source,
             System.Linq.Expressions.Expression<Func<TSource, TKey>> orderby,
-            bool ascending)
+            bool ascending,
+            bool used)
         {
-            return ascending
+            return !used
+                ? source
+                : ascending
                 ? source.OrderBy(orderby)
                 : source.OrderByDescending(orderby);
-        }
-
-        public static IOrderedQueryable<TSource> ThenBy<TSource, TKey>(
-            this IOrderedQueryable<TSource> source,
-            System.Linq.Expressions.Expression<Func<TSource, TKey>> orderby,
-            bool ascending)
-        {
-            return ascending
-                ? source.ThenBy(orderby)
-                : source.ThenByDescending(orderby);
         }
     }
 }
