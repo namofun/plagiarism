@@ -163,8 +163,8 @@ namespace Plag.Backend.Services
                 .Select(s => (int?)s.Id);
 
             return upwards
-                ? 1 + (await baseQuery.MaxAsync() ?? 0)
-                : -1 + (await baseQuery.MinAsync() ?? 0);
+                ? Math.Max(1, 1 + await baseQuery.MaxAsync() ?? 0) // maxid < 0 ? fix to 1
+                : Math.Min(-1, -1 + await baseQuery.MinAsync() ?? 0); // minid > 0 ? fix to -1
         }
 
         private EntityEntry<Submission<Guid>> AddCore(Guid setId, int id, SubmissionCreation submission)
