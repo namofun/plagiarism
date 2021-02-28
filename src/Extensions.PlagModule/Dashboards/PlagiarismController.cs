@@ -17,7 +17,7 @@ namespace SatelliteSite.PlagModule.Dashboards
     [Area("Dashboard")]
     [Authorize("HasDashboard")]
     [Route("[area]/[controller]")]
-    [AuditPoint((AuditlogType)22)] // PlagSet
+    [AuditPoint(AuditlogType.PlagSet)]
     [CustomedExceptionFilter(false)]
     public class PlagiarismController : ViewControllerBase
     {
