@@ -1,10 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
-using Plag.Backend.Entities;
 using Plag.Backend.Services;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 

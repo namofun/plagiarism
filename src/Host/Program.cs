@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Plag.Backend;
+using Pomelo.EntityFrameworkCore.MySql.Storage;
+using System;
+using System.Diagnostics;
 using System.Linq;
 
 namespace SatelliteSite
@@ -18,22 +21,55 @@ namespace SatelliteSite
             Current.Run();
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .MarkDomain<Program>()
-                .AddModuleIf<PlagModule.PlagModule<RestfulBackendRole>>(args.Contains("--restful"))
-                .AddModuleIf<PlagModule.PlagModule<StorageBackendRole<DefaultContext>>>(!args.Contains("--restful"))
-                .AddModule<TelemetryModule.TelemetryModule>()
-                .AddDatabase<DefaultContext>((c, b) => b.UseSqlServer(c.GetConnectionString("UserDbConnection"), b => b.UseBulk()))
-                .ConfigureSubstrateDefaultsCore();
-    }
-
-    internal static class HostExt
-    {
-        public static IHostBuilder AddModuleIf<TModule>(this IHostBuilder host, bool condition) where TModule : AbstractModule, new()
+        public static IHostBuilder CreateHostBuilder(string[] args)
         {
-            if (condition) host.AddModule<TModule>();
-            return host;
+            var host = Host.CreateDefaultBuilder(args);
+            host.MarkDomain<Program>();
+
+            if (args.Contains("--restful"))
+            {
+                host.AddModule<PlagModule.PlagModule<RestfulBackendRole>>();
+            }
+            else
+            {
+                host.AddModule<PlagModule.PlagModule<StorageBackendRole<DefaultContext>>>();
+
+                host.AddDatabase<DefaultContext>((context, builder) =>
+                {
+                    var connectionString = context.GetConnectionString("UserDbConnection");
+                    var connectionType = context.GetConnectionString("UserDbConnectionType");
+
+                    if (connectionString == null)
+                    {
+                        throw new ArgumentException("Please specify the database connection string by UserDbConnection.");
+                    }
+
+                    if (connectionType == "SqlServer")
+                    {
+                        builder.UseSqlServer(connectionString, b => b.UseBulk());
+                    }
+                    else if (connectionType == "Npgsql")
+                    {
+                        builder.UseNpgsql(connectionString, b => b.UseBulk());
+                    }
+                    else if (connectionType == "MySql")
+                    {
+                        var version = ServerVersion.AutoDetect(connectionString);
+                        builder.UseMySql(connectionString, b => b.ServerVersion(version).UseBulk());
+                    }
+                    else
+                    {
+                        throw new ArgumentException("No database specified or not support. Please choose from \"SqlServer\", \"Npgsql\", \"MySql\".");
+                    }
+                });
+            }
+
+            if (Debugger.IsAttached)
+            {
+                host.AddModule<TelemetryModule.TelemetryModule>();
+            }
+
+            return host.ConfigureSubstrateDefaultsCore();
         }
     }
 }
