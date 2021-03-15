@@ -18,14 +18,14 @@ namespace SatelliteSite
             Current.Run();
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args)
-            => Host.CreateDefaultBuilder(args)
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
                 .MarkDomain<Program>()
                 .AddModuleIf<PlagModule.PlagModule<RestfulBackendRole>>(args.Contains("--restful"))
                 .AddModuleIf<PlagModule.PlagModule<StorageBackendRole<DefaultContext>>>(!args.Contains("--restful"))
                 .AddModule<TelemetryModule.TelemetryModule>()
                 .AddDatabase<DefaultContext>((c, b) => b.UseSqlServer(c.GetConnectionString("UserDbConnection"), b => b.UseBulk()))
-                .ConfigureSubstrateDefaults<DefaultContext>();
+                .ConfigureSubstrateDefaultsCore();
     }
 
     internal static class HostExt
