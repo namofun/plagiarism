@@ -9,6 +9,13 @@
   <Import Project="..\..\build\NugetPackage.props" />
 
   <ItemGroup>
+    <None Include="..\..\build\CopyDocumentXml.props" Pack="true" PackagePath="build\" Link="build\CopyDocumentXml.props" />
+    <None Include="..\..\build\SatelliteSite.PlagModule.props" Pack="true" PackagePath="build\" Link="build\SatelliteSite.PlagModule.props" />
+    <None Include="..\..\build\SatelliteSite.PlagModule-buildMultiTargeting.props" Pack="true" PackagePath="buildMultiTargeting\SatelliteSite.PlagModule.props" Link="build\SatelliteSite.PlagModule-buildMultiTargeting.props" />
+    <None Include="..\..\build\SatelliteSite.PlagModule-buildTransitive.props" Pack="true" PackagePath="buildTransitive\SatelliteSite.PlagModule.props" Link="build\SatelliteSite.PlagModule-buildTransitive.props" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="SatelliteSite.Substrate" Version="$(SubstrateVersion)" />
   </ItemGroup>
 
