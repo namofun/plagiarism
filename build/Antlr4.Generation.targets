@@ -4,12 +4,12 @@
     <CleanDependsOn>$(CleanDependsOn);Antlr4CodeClean</CleanDependsOn>
     <CompileDependsOn>_Antlr4GeneratedFiles;$(CompileDependsOn)</CompileDependsOn>
   </PropertyGroup>
-  
+
   <Target Name="Antlr4CodeGeneration" BeforeTargets="PreBuildEvent"
           Inputs="@(Antlr4)" Outputs="@(Antlr4->'$(ProjectDir)/Grammars/%(Filename).interp')">
-    <Exec Command="java -jar $(SolutionDir)build/antlr-4.8.jar -Dlanguage=CSharp -message-format vs2005 -package $(AntlrGeneratedNamespace) -o Grammars %(Antlr4.Identity)" ConsoleToMsBuild="true" />
+    <Exec Command="java -jar $(MSBuildThisFileDirectory)antlr-4.8.jar -Dlanguage=CSharp -message-format vs2005 -package $(AntlrGeneratedNamespace) -o Grammars %(Antlr4.Identity)" ConsoleToMsBuild="true" />
   </Target>
-  
+
   <UsingTask TaskName="_Antlr4GeneratedFilesDetection" TaskFactory="RoslynCodeTaskFactory"
              AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
     <ParameterGroup>
@@ -30,12 +30,12 @@ Lines = Directory.Exists("Grammars") ? Directory.GetFiles("Grammars").Where(a =>
     <_Antlr4GeneratedFilesDetection Previous="@(Compile)">
       <Output TaskParameter="Lines" ItemName="Antlr4OutputCodeFilesList" />
     </_Antlr4GeneratedFilesDetection>
-    
+
     <ItemGroup>
       <Compile Include="@(Antlr4OutputCodeFilesList)" />
     </ItemGroup>
   </Target>
-  
+
   <ItemGroup>
     <Antlr4 Include="$(ProjectDir)/*.g4" />
   </ItemGroup>
