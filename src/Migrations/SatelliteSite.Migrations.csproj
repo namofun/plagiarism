@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>SatelliteSite</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Plag.Backend.Roles.Storage\Plag.Backend.Roles.Storage.csproj" />
+    <PackageReference Include="XiaoYang.EntityFrameworkCore.Bulk.SqlServer" Version="$(EFCoreBulkVersion)" />
+    <PackageReference Include="XiaoYang.EntityFrameworkCore.Bulk.PostgreSql" Version="$(EFCoreBulkVersion)" />
+    <PackageReference Include="XiaoYang.EntityFrameworkCore.Bulk.MySql" Version="$(EFCoreBulkVersion)" />
+  </ItemGroup>
+
+</Project>

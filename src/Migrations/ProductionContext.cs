@@ -2,9 +2,10 @@
 
 namespace SatelliteSite
 {
-    public class DefaultContext : DbContext
+    public class ProductionContext : DbContext
     {
-        public DefaultContext(DbContextOptions<DefaultContext> options)
+        public ProductionContext(
+            DbContextOptions<ProductionContext> options)
             : base(options)
         {
             ChangeTracker.AutoDetectChangesEnabled = false;

@@ -6,17 +6,14 @@ FROM mcr.microsoft.com/dotnet/sdk:3.1 AS build
 WORKDIR /src
 RUN apt-get update && apt-get install -y openjdk-11-jre
 COPY . .
-COPY [".git/logs/HEAD", ".git/logs/HEAD"]
-COPY [".git/HEAD", ".git/HEAD"]
-COPY [".git/packed-refs", ".git/packed-refs"]
 
 WORKDIR "/src/src/Host"
-RUN dotnet build "SatelliteSite.Host.csproj" -c Release -o /app/build
+RUN dotnet build -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "SatelliteSite.Host.csproj" -c Release -o /app/publish
+RUN dotnet publish -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "SatelliteSite.Host.dll"]
+ENTRYPOINT ["dotnet", "SatelliteSite.Host.dll", "--production"]

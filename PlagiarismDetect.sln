@@ -33,11 +33,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SatelliteSite.PlagModule", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{AB36A2E1-C967-43C9-91DD-CA423B2A0F2C}"
 	ProjectSection(SolutionItems) = preProject
+		.dockerignore = .dockerignore
 		.travis.yml = .travis.yml
 		build\antlr-4.8.jar = build\antlr-4.8.jar
 		build\Antlr4.Generation.targets = build\Antlr4.Generation.targets
 		deploy.sh = deploy.sh
 		Directory.Build.props = Directory.Build.props
+		Dockerfile = Dockerfile
 		LICENSE.backend = LICENSE.backend
 		LICENSE.frontend = LICENSE.frontend
 		LICENSE.module = LICENSE.module
@@ -60,6 +62,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SatelliteSite.Host", "src\Host\SatelliteSite.Host.csproj", "{D33530E8-95EE-4041-9080-5D5017D8E8BA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plag.Backend.Relational.Tests", "test\Plag.Backend.EFCore.Tests\Plag.Backend.Relational.Tests.csproj", "{E7F3BA09-7304-4B64-A60E-CA38B5D0A598}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SatelliteSite.Migrations", "src\Migrations\SatelliteSite.Migrations.csproj", "{D2010F2C-8C21-480D-A073-B603373B8F24}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -139,6 +143,10 @@ Global
 		{E7F3BA09-7304-4B64-A60E-CA38B5D0A598}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E7F3BA09-7304-4B64-A60E-CA38B5D0A598}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E7F3BA09-7304-4B64-A60E-CA38B5D0A598}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D2010F2C-8C21-480D-A073-B603373B8F24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2010F2C-8C21-480D-A073-B603373B8F24}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2010F2C-8C21-480D-A073-B603373B8F24}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2010F2C-8C21-480D-A073-B603373B8F24}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -162,6 +170,7 @@ Global
 		{09ED3EBF-60FC-404D-BCA7-90CCB903F9DD} = {C6B49B4C-FEB2-477D-986D-F2216E34BA9C}
 		{D33530E8-95EE-4041-9080-5D5017D8E8BA} = {C6B49B4C-FEB2-477D-986D-F2216E34BA9C}
 		{E7F3BA09-7304-4B64-A60E-CA38B5D0A598} = {47AFCF7A-6593-4310-9130-9B4B9C76E3C6}
+		{D2010F2C-8C21-480D-A073-B603373B8F24} = {C6B49B4C-FEB2-477D-986D-F2216E34BA9C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2AA9BAB4-9C10-43E7-8722-DEBB04D9924A}

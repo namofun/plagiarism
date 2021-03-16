@@ -1,11 +1,13 @@
 **/.classpath
 **/.dockerignore
 **/.env
-**/.git
+**/.git/objects
+**/.gitattributes
 **/.gitignore
 **/.project
 **/.settings
 **/.toolstarget
+**/.travis.yml
 **/.vs
 **/.vscode
 **/*.*proj.user
@@ -22,4 +24,7 @@
 **/secrets.dev.yaml
 **/values.dev.yaml
 LICENSE
+LICENSE.frontend
+LICENSE.backend
+LICENSE.module
 README.md
