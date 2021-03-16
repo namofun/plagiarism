@@ -22,7 +22,11 @@ namespace SatelliteSite
         {
             Current = CreateHostBuilder(args).Build();
 
-            if (args.Contains("--production"))
+            if (args.Contains("--restful"))
+            {
+                // no database are needed.
+            }
+            else if (args.Contains("--production"))
             {
                 Current.EnsureCreated<ProductionContext>();
                 Current.AutoMigrate<ProductionContext>();

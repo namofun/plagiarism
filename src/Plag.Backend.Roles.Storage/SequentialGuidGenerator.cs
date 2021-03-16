@@ -30,24 +30,20 @@ namespace Plag.Backend.Services
     /// <summary>
     /// This code is from <a href="https://github.com/jhtodd/SequentialGuid/blob/master/SequentialGuid/Classes/SequentialGuid.cs">jhtodd/SequentialGuid</a>.
     /// </summary>
-    public class SequentialGuidGenerator
+    public static class SequentialGuidGenerator
     {
         private static readonly RandomNumberGenerator RandomNumberGenerator = RandomNumberGenerator.Create();
 
         public static Guid Create(Microsoft.EntityFrameworkCore.DbContext dbContext)
         {
-            if (dbContext.Database.ProviderName.Contains("SqlServer"))
+            return Create(dbContext.Database.ProviderName switch
             {
-                return Create(SequentialGuidType.SequentialAtEnd);
-            }
-            else if (dbContext.Database.ProviderName.Contains("PostgreSQL"))
-            {
-                return Create(SequentialGuidType.SequentialAsString);
-            }
-            else
-            {
-                throw new ArgumentOutOfRangeException();
-            }
+                "Microsoft.EntityFrameworkCore.InMemory" => SequentialGuidType.SequentialAsString,
+                "Microsoft.EntityFrameworkCore.SqlServer" => SequentialGuidType.SequentialAtEnd,
+                "Npgsql.EntityFrameworkCore.PostgreSQL" => SequentialGuidType.SequentialAsString,
+                "Pomelo.EntityFrameworkCore.MySql" => SequentialGuidType.SequentialAsString,
+                _ => throw new ArgumentOutOfRangeException(),
+            });
         }
 
         public static Guid Create(SequentialGuidType guidType)
