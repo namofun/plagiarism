@@ -1,0 +1,25 @@
+version: '1.0'
+
+services:
+    pds:
+        image: xylab/pds
+        container_name: pds_app
+        links:
+            - mariadb
+        environment:
+            - ConnectionStrings__UserDbConnection=Server=pds_mariadb;Port=3306;Database=pds;User=pds;Password=!!your_password!!;Character Set=utf8;TreatTinyAsBoolean=true;
+            - ConnectionStrings__UserDbConnectionType=MySql
+            - TZ=Asia/Shanghai
+        ports:
+            - 49846:80
+
+    mariadb:
+        image: mariadb
+        container_name: pds_mariadb
+        environment:
+            MYSQL_DATABASE: 'pds'
+            MYSQL_USER: 'pds'
+            MYSQL_PASSWORD: '!!your_password!!'
+            MYSQL_RANDOM_ROOT_PASSWORD: 'yes'
+        volumes:
+            - /data/pds/database:/var/lib/mysql
