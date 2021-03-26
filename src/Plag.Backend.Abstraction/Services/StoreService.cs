@@ -125,6 +125,14 @@ namespace Plag.Backend.Services
         Task<Vertex?> GetComparisonsBySubmissionAsync(string setid, int submitid);
 
         /// <summary>
+        /// Justificates the stauts of the report as Ignored, Unspecified or Claimed.
+        /// </summary>
+        /// <param name="reportid">The id of report.</param>
+        /// <param name="status">The status of report. <c>True</c> if claimed, <c>false</c> if ignored, <c>null</c> if unspecified.</param>
+        /// <returns>The justificating task.</returns>
+        Task JustificateAsync(string reportid, bool? status);
+
+        /// <summary>
         /// Sends a signal and try to rescue the background service.
         /// </summary>
         /// <returns>The rescue signal task.</returns>

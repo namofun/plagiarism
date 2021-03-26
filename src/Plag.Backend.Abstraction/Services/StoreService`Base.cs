@@ -48,6 +48,9 @@ namespace Plag.Backend.Services
         /// <inheritdoc cref="IPlagiarismDetectService.GetCompilationAsync(string, int)" />
         public abstract Task<Compilation> GetCompilationAsync(TKey setid, int submitid);
 
+        /// <inheritdoc cref="IPlagiarismDetectService.JustificateAsync(string, bool?)" />
+        public abstract Task JustificateAsync(TKey reportid, bool? status);
+
         /// <inheritdoc cref="IPlagiarismDetectService.ListSetsAsync(int?, int?, int?, int?, bool)" />
         public abstract Task<List<PlagiarismSet<TKey>>> ListSetsAsync(int? cid = null, int? uid = null, int? skip = null, int? limit = null, bool asc = false);
 
@@ -132,6 +135,16 @@ namespace Plag.Backend.Services
             var returns = submit.To<Vertex>();
             returns.Comparisons = await GetComparisonsBySubmissionAsync(setid, submitid);
             return returns;
+        }
+
+        Task IPlagiarismDetectService.JustificateAsync(string reportid, bool? status)
+        {
+            if (!TryGetKey(reportid, out var reportId))
+            {
+                throw new Exception("The ID of report is not correct.");
+            }
+
+            return JustificateAsync(reportId, status);
         }
 
         public virtual async Task<IReadOnlyList<SubmissionFile>> GetFilesAsync(string setId, int submitId)

@@ -33,5 +33,8 @@ namespace Plag.Backend.Models
 
         [JsonPropertyName("percent_another")]
         public double PercentIt { get; set; }
+
+        [JsonPropertyName("justification")]
+        public bool? Justification { get; set; }
     }
 }

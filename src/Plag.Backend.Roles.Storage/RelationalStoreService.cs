@@ -249,6 +249,7 @@ namespace Plag.Backend.Services
                     PercentSelf = r.PercentB,
                     ExternalId = r.ExternalId,
                     ExclusiveCategory = s.ExclusiveCategory,
+                    Justification = r.Justification,
                 };
 
             var reportB =
@@ -267,6 +268,7 @@ namespace Plag.Backend.Services
                     PercentSelf = r.PercentA,
                     ExternalId = r.ExternalId,
                     ExclusiveCategory = s.ExclusiveCategory,
+                    Justification = r.Justification,
                 };
 
             return await reportA.Concat(reportB).ToListAsync();
@@ -320,8 +322,8 @@ namespace Plag.Backend.Services
 
             var affected = await Reports.UpsertAsync(
                 sources: twoQuery,
-                insertExpression: s => new Report<Guid> { Finished = null, SetId = s.S, SubmissionA = s.A, SubmissionB = s.B, ExternalId = Guid.NewGuid() },
-                updateExpression: (_, __) => new Report<Guid> { Finished = null });
+                insertExpression: s => new Report<Guid> { Finished = null, Justification = null, SetId = s.S, SubmissionA = s.A, SubmissionB = s.B, ExternalId = Guid.NewGuid() },
+                updateExpression: (_, __) => new Report<Guid> { Finished = null, Justification = null });
 
             await Sets
                 .Where(c => c.Id == setId)
@@ -423,6 +425,31 @@ namespace Plag.Backend.Services
                 BackendVersion = typeof(Backend.IBackendRoleStrategy).Assembly.GetName().Version.ToString(),
                 Role = "relational_storage"
             };
+        }
+
+        public override async Task JustificateAsync(Guid reportid, bool? status)
+        {
+            var aff = await Reports
+                .Where(r => r.ExternalId == reportid)
+                .BatchUpdateAsync(r => new Report<Guid> { Justification = status });
+
+            if (aff == 0)
+                throw new KeyNotFoundException("The report doesn't exists.");
+
+            var subs = await Reports
+                .Where(r => r.ExternalId == reportid)
+                .Select(a => new { a.SetId, a.SubmissionA, a.SubmissionB })
+                .SingleAsync();
+
+            await Submissions
+                .Where(s => s.SetId == subs.SetId && (s.Id == subs.SubmissionA || s.Id == subs.SubmissionB))
+                .BatchUpdateAsync(s => new Submission<Guid>
+                {
+                    MaxPercent = Reports
+                        .Where(r => r.SetId == s.SetId && (r.SubmissionA == s.Id || r.SubmissionB == s.Id))
+                        .Select(r => (double?)r.Percent)
+                        .Max() ?? 0
+                });
         }
     }
 

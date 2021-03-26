@@ -76,5 +76,10 @@ namespace Plag.Backend.Services
                 Role = "restful"
             };
         }
+
+        public Task JustificateAsync(string reportid, bool? status)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

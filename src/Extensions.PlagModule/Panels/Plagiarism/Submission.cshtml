@@ -1,4 +1,4 @@
-﻿@model Submission
+﻿@model Vertex
 @{
     ViewData["Title"] = $"Submission s{Model.Id}: {Model.Name}";
     string error = ViewBag.Error;
@@ -39,8 +39,81 @@
 
 @if (error == null)
 {
+    <style>
+        .text-delete { text-decoration: line-through!important; }
+    </style>
+
     <h3>Comparisons</h3>
-    <datatable data="ViewBag.Reports" paging="30" />
+    <div class="table-wrapper mt-2">
+        <table class="data-table pagination-sm table table-hover table-striped table-sm" role="grid">
+            <thead>
+                <tr>
+                    <th scope="col" class="sortable searchable">excl.</th>
+                    <th scope="col" class="sortable searchable">SID</th>
+                    <th scope="col" class="sortable searchable">status</th>
+                    <th scope="col" class="sortable searchable">tot.</th>
+                    <th scope="col" class="sortable searchable">big.</th>
+                    <th scope="col" class="sortable searchable">percent</th>
+                    <th scope="col" class="sortable searchable">this.</th>
+                    <th scope="col" class="sortable searchable">that.</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var cmp in Model.Comparisons)
+                {
+                <tr asp-action="Compare" asp-route-rid="@cmp.Id" class="@(cmp.Justification == true ? "table-danger" : "")">
+                    <td use-a data-order="@cmp.ExclusiveCategory">@cmp.ExclusiveCategory</td>
+                    <td use-a data-order="@cmp.SubmissionIdAnother">s@(cmp.SubmissionIdAnother): @cmp.SubmissionNameAnother</td>
+                    <td use-a class="text-variant">@(cmp.Finished == true ? cmp.Justification == false ? "ignored" : cmp.Justification == true ? "marked" : "finished" : "pending")</td>
+                    <td class="@(cmp.Justification == false ? "text-delete" : "")" use-a>@cmp.TokensMatched</td>
+                    <td class="@(cmp.Justification == false ? "text-delete" : "")" use-a>@cmp.BiggestMatch</td>
+                    <td class="@(cmp.Justification == false ? "text-delete" : "")" use-a data-order="@(cmp.Justification == false ? 0 : cmp.Percent)">@($"{cmp.Percent:F2}%")</td>
+                    <td class="@(cmp.Justification == false ? "text-delete" : "")" use-a data-order="@(cmp.Justification == false ? 0 : cmp.PercentSelf)">@($"{cmp.PercentSelf:F2}%")</td>
+                    <td class="@(cmp.Justification == false ? "text-delete" : "")" use-a data-order="@(cmp.Justification == false ? 0 : cmp.PercentIt)">@($"{cmp.PercentIt:F2}%")</td>
+                    <td><a asp-action="SourceCode" asp-route-id="@cmp.SubmissionIdAnother"><i class="fas fa-file-code"></i></a></td>
+                    <td><a asp-area="Plagiarism" asp-controller="Report" asp-action="Compare" asp-route-rid="@cmp.Id" target="_blank"><i class="fas fa-external-link-alt"></i></a></td>
+                </tr>
+                }
+                @if (Model.Comparisons.Count == 0)
+                {
+                <tr>
+                    <td colspan="10">No submissions data available</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <script type="text/javascript">
+        $().ready(function () {
+            $('.data-table').DataTable({
+                "paging": true,
+                "pageLength": 50,
+                "searching": true,
+                "ordering": true,
+                "info": false,
+                "order": [[5, 'desc']],
+                "autoWidth": true,
+                "lengthChange": true,
+                "serverSide": false,
+                "language": {
+                    "searchPlaceholder": "filter table",
+                    "search": "_INPUT_",
+                    "oPaginate": {
+                        "sPrevious": "&laquo;",
+                        "sNext": "&raquo;",
+                    },
+                },
+                'aoColumnDefs': [
+                    { aTargets: ['sortable'], bSortable: true },
+                    { aTargets: ['searchable'], bSearchable: true },
+                    { aTargets: ['_all'], bSortable: false, bSearchable: false }
+                ],
+            });
+        });
+    </script>
 }
 else
 {

@@ -187,7 +187,6 @@ namespace SatelliteSite.PlagModule.Dashboards
         {
             var ss = await Store.GetComparisonsBySubmissionAsync(sid, id);
             if (ss == null) return NotFound();
-            ViewBag.Reports = ss.Comparisons.Select(c => new SubmissionListModel(sid, c));
 
             if (ss.TokenProduced == false)
             {
