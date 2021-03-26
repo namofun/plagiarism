@@ -36,5 +36,8 @@ namespace Plag.Backend.Models
 
         [JsonPropertyName("matches")]
         public byte[] Matches { get; set; }
+
+        [JsonPropertyName("justification")]
+        public bool? Justification { get; set; }
     }
 }

@@ -26,6 +26,8 @@ namespace Plag.Backend.Entities
 
         public byte[] Matches { get; set; }
 
+        public bool? Justification { get; set; }
+
         public Models.Report ToModel()
         {
             return new Models.Report
@@ -41,6 +43,7 @@ namespace Plag.Backend.Entities
                 SubmissionA = SubmissionA,
                 SubmissionB = SubmissionB,
                 TokensMatched = TokensMatched,
+                Justification = Justification,
             };
         }
     }
