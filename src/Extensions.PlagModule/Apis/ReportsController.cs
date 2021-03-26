@@ -36,5 +36,21 @@ namespace SatelliteSite.PlagModule.Apis
         {
             return await Store.FindReportAsync(id);
         }
+
+
+        /// <summary>
+        /// Get the given report for the plagiarism system
+        /// </summary>
+        /// <param name="id">The ID of the entity to patch</param>
+        /// <param name="justification">The status of report. True if claimed, false if ignored, null if unspecified</param>
+        /// <response code="200">Returns nothing</response>
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> JustificateOne(
+            [FromRoute, Required] string id,
+            [FromForm] bool? justification = null)
+        {
+            await Store.JustificateAsync(id, justification);
+            return Ok(Store.GetVersion());
+        }
     }
 }

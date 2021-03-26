@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 
 namespace SatelliteSite.PlagModule
@@ -26,6 +27,11 @@ namespace SatelliteSite.PlagModule
 
                 case HttpRequestException _:
                     context.Result = new StatusCodeResult(StatusCodes.Status503ServiceUnavailable);
+                    context.ExceptionHandled = true;
+                    break;
+
+                case KeyNotFoundException _:
+                    context.Result = new NotFoundResult();
                     context.ExceptionHandled = true;
                     break;
             }

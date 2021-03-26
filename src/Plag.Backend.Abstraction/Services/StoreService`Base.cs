@@ -141,7 +141,7 @@ namespace Plag.Backend.Services
         {
             if (!TryGetKey(reportid, out var reportId))
             {
-                throw new Exception("The ID of report is not correct.");
+                throw new KeyNotFoundException("The report doesn't exists.");
             }
 
             return JustificateAsync(reportId, status);

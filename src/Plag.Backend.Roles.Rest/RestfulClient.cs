@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -27,7 +28,7 @@ namespace Plag.Backend.Services
 
             if (resp.StatusCode == HttpStatusCode.NotFound)
             {
-                return null;
+                throw new KeyNotFoundException();
             }
             else if (resp.StatusCode == HttpStatusCode.OK || resp.StatusCode == HttpStatusCode.Created)
             {
@@ -54,6 +55,11 @@ namespace Plag.Backend.Services
         public Task<T> PostAsync<T>(string url, HttpContent body) where T : class
         {
             return SendAsync<T>(new HttpRequestMessage(HttpMethod.Post, "/api/plagiarism" + url) { Content = body });
+        }
+
+        public Task<T> PatchAsync<T>(string url, HttpContent body) where T : class
+        {
+            return SendAsync<T>(new HttpRequestMessage(new HttpMethod("PATCH"), "/api/plagiarism" + url) { Content = body });
         }
 
         public HttpContent JsonContent<T>(T value)
