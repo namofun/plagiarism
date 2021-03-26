@@ -225,5 +225,18 @@ namespace SatelliteSite.PlagModule.Dashboards
             
             return View(new ReportModel(report, retA, retB));
         }
+
+
+        [HttpPost("{sid}/reports/{rid}/[action]")]
+        public async Task<IActionResult> Justificate(string sid, string rid, int status)
+        {
+            if (status < 0 || status > 2) return BadRequest();
+            var report = await Store.FindReportAsync(rid);
+            if (report == null || sid != report.SetId) return NotFound();
+
+            await Store.JustificateAsync(report.Id, status switch { 0 => default(bool?), 1 => false, _ => true });
+            StatusMessage = $"Plagiarism Report between s{report.SubmissionB} and s{report.SubmissionA} has been justificated.";
+            return RedirectToAction(nameof(Compare), new { sid, rid });
+        }
     }
 }

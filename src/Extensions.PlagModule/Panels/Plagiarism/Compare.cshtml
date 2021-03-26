@@ -18,15 +18,35 @@
             </tr>
             <tr>
                 <th>A</th>
-                <td>@($"{Model.Report.PercentA:F2}%") - @Model.A.Sid</td>
+                <td>@($"{Model.Report.PercentA:F2}%") - <a asp-action="Submission" asp-route-id="@Model.Report.SubmissionA">@Model.A.Sid</a></td>
             </tr>
             <tr>
                 <th>B</th>
-                <td>@($"{Model.Report.PercentB:F2}%") - @Model.B.Sid</td>
+                <td>@($"{Model.Report.PercentB:F2}%") - <a asp-action="Submission" asp-route-id="@Model.Report.SubmissionB">@Model.B.Sid</a></td>
             </tr>
             <tr>
                 <th>Match</th>
                 <td>@Model.Report.TokensMatched total, @Model.Report.BiggestMatch consecutive longest</td>
+            </tr>
+            <tr>
+                <th>Justification</th>
+                <td>
+                    @(!Model.Report.Justification.HasValue ? "Unspecified" : Model.Report.Justification.Value ? "Claimed" : "Ignored")
+                </td>
+            </tr>
+            <tr>
+                <th>
+                    Mark as
+                </th>
+                <td>
+                    <form method="post" class="d-inline-block">
+                        <button title="I'm not sure whether this two solution is copied" class="btn btn-link d-inline p-0 b-0" asp-action="Justificate" asp-route-status="0">Unspecified</button>
+                        /
+                        <button title="I'm sure this two solution is not copied" class="btn btn-link d-inline p-0 b-0" asp-action="Justificate" asp-route-status="1">Ignored</button>
+                        /
+                        <button title="I'm sure this two solution is copied" class="btn btn-link d-inline p-0 b-0" asp-action="Justificate" asp-route-status="2">Claimed</button>
+                    </form>
+                </td>
             </tr>
         </table>
     </div>

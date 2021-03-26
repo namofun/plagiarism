@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 
@@ -87,7 +88,9 @@ namespace Plag.Backend.Services
         public Task JustificateAsync(string reportid, bool? status)
             => Client.PatchAsync<ServiceVersion>(
                 $"/reports/{UrlEncoder.Default.Encode(reportid)}",
-                Client.JsonContent(new { justification = status }));
+                status.HasValue
+                    ? new FormUrlEncodedContent(new[] { new KeyValuePair<string, string>("justification", status.Value.ToString()) })
+                    : RestfulClient.EmptyContent);
 
         public ServiceVersion GetVersion()
         {
