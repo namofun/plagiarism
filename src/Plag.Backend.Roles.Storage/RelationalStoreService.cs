@@ -446,7 +446,9 @@ namespace Plag.Backend.Services
                 .BatchUpdateAsync(s => new Submission<Guid>
                 {
                     MaxPercent = Reports
-                        .Where(r => r.SetId == s.SetId && (r.SubmissionA == s.Id || r.SubmissionB == s.Id))
+                        .Where(r => r.SetId == s.SetId)
+                        .Where(r => r.SubmissionA == s.Id || r.SubmissionB == s.Id)
+                        .Where(r => r.Justification != false)
                         .Select(r => (double?)r.Percent)
                         .Max() ?? 0
                 });
