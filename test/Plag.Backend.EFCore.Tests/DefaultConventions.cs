@@ -15,11 +15,11 @@ namespace Plag.Backend.Tests
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            new PlagEntityConfiguration<Database>().Configure(modelBuilder);
+            new PlagEntityConfiguration<Database>().Configure(modelBuilder, this);
         }
     }
 
-    public class ServiceProviderFixture : IServiceProvider, IDisposable
+    public sealed class ServiceProviderFixture : IServiceProvider, IDisposable
     {
         public ServiceProvider ServiceProvider { get; }
 
