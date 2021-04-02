@@ -444,8 +444,12 @@ simpleDeclaration
    | attributeSpecifierSeq declSpecifierSeq? initDeclaratorList ';'
    ;
 
+stringLiterals
+   : StringLiteral+
+   ;
+
 staticAssertDeclaration
-   : StaticAssert '(' constantExpression ',' StringLiteral ')' ';'
+   : StaticAssert '(' constantExpression ',' stringLiterals ')' ';'
    ;
 
 emptyDeclaration
@@ -649,7 +653,7 @@ usingDirective
    ;
 
 asmDefinition
-   : Asm '(' StringLiteral ')' ';'
+   : Asm '(' stringLiterals ')' ';'
    ;
 
 linkageSpecification
@@ -1729,7 +1733,7 @@ literal
    : IntegerLiteral
    | CharacterLiteral
    | FloatingLiteral
-   | StringLiteral
+   | stringLiterals
    | booleanLiteral
    | pointerLiteral
    | userDefinedLiteral

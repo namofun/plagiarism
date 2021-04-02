@@ -39,6 +39,15 @@ void f() {
 
         [DataRow("std::priority_queue<pair<int,int>, vector<pair<int,int>>, greater<pair<int,int>>> pq;")]
 
+        [DataRow(@"#include <cstdio>
+
+int main() {
+    printf(""aaa""
+""bb"");
+    return 0;
+}
+")]
+
         [TestMethod]
         public void Parse(string content)
         {
