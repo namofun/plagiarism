@@ -124,7 +124,12 @@ namespace SatelliteSite.PlagModule.Dashboards
             if (set == null) ModelState.AddModelError("checkset", "Plagiarism set not found.");
             var lang = await Store.FindLanguageAsync(model.Language);
             if (lang == null) ModelState.AddModelError("lang", "Language not found.");
-            if (!ModelState.IsValid) return View(model);
+
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Languages = await Store.ListLanguageAsync();
+                return View(model);
+            }
 
             var err = new StringBuilder();
             int succCount = 0;

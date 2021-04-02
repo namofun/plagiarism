@@ -11,7 +11,7 @@
 
 <div class="form-group">
     <label asp-for="Language"></label>
-    <select asp-for="Language" class="form-control" asp-items="langs.Select(l => new SelectListItem(l.Name, l.ShortName))">
+    <select asp-for="Language" required class="form-control" asp-items="langs.Select(l => new SelectListItem(l.Name, l.ShortName))">
         <option>-- Please Select --</option>
     </select>
 </div>
