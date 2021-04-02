@@ -19,6 +19,12 @@ jobs:
     vmImage: ubuntu-latest
 
   steps:
+  - task: Bash@3
+    inputs:
+      targetType: 'inline'
+      script: 'echo "ref: $(Build.SourceBranch)" > $(Build.SourcesDirectory)/.git/ADO_OVERRIDE_HEAD'
+    displayName: 'Set Source Branch'
+
   - task: DotNetCoreCLI@2
     inputs:
       command: 'build'

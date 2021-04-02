@@ -34,11 +34,13 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{AB36A2E1-C967-43C9-91DD-CA423B2A0F2C}"
 	ProjectSection(SolutionItems) = preProject
 		.dockerignore = .dockerignore
-		.travis.yml = .travis.yml
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
 		build\antlr-4.8.jar = build\antlr-4.8.jar
 		build\Antlr4.Generation.targets = build\Antlr4.Generation.targets
-		deploy.sh = deploy.sh
+		azure-pipelines.yml = azure-pipelines.yml
 		Directory.Build.props = Directory.Build.props
+		docker-compose.yml.sample = docker-compose.yml.sample
 		Dockerfile = Dockerfile
 		LICENSE.backend = LICENSE.backend
 		LICENSE.frontend = LICENSE.frontend
