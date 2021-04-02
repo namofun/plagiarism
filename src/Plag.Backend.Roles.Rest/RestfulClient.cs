@@ -57,6 +57,11 @@ namespace Plag.Backend.Services
             return SendAsync<T>(new HttpRequestMessage(HttpMethod.Post, "/api/plagiarism" + url) { Content = body });
         }
 
+        public Task<T> DeleteAsync<T>(string url) where T : class
+        {
+            return SendAsync<T>(new HttpRequestMessage(HttpMethod.Delete, "/api/plagiarism" + url));
+        }
+
         public Task<T> PatchAsync<T>(string url, HttpContent body) where T : class
         {
             return SendAsync<T>(new HttpRequestMessage(new HttpMethod("PATCH"), "/api/plagiarism" + url) { Content = body });

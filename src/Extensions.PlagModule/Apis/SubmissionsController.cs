@@ -144,6 +144,22 @@ namespace SatelliteSite.PlagModule.Apis
 
 
         /// <summary>
+        /// Reset the compilation result of given submission for the plagiarism system
+        /// </summary>
+        /// <param name="sid">The plagiarism set ID</param>
+        /// <param name="id">The ID of the entity to reset</param>
+        /// <response code="200">Returns the service version</response>
+        [HttpDelete("{id}/compilation")]
+        public async Task<ActionResult<ServiceVersion>> ResetCompilation(
+            [FromRoute, Required] string sid,
+            [FromRoute, Required] int id)
+        {
+            await Store.ResetCompilationAsync(sid, id);
+            return Store.GetVersion();
+        }
+
+
+        /// <summary>
         /// Get the comparison results of given submission for the plagiarism system
         /// </summary>
         /// <param name="sid">The plagiarism set ID</param>

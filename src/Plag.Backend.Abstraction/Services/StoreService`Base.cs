@@ -48,6 +48,9 @@ namespace Plag.Backend.Services
         /// <inheritdoc cref="IPlagiarismDetectService.GetCompilationAsync(string, int)" />
         public abstract Task<Compilation> GetCompilationAsync(TKey setid, int submitid);
 
+        /// <inheritdoc cref="IPlagiarismDetectService.ResetCompilationAsync(string, int)" />
+        public abstract Task ResetCompilationAsync(TKey setid, int submitid);
+
         /// <inheritdoc cref="IPlagiarismDetectService.JustificateAsync(string, bool?)" />
         public abstract Task JustificateAsync(TKey reportid, bool? status);
 
@@ -153,6 +156,12 @@ namespace Plag.Backend.Services
             var submit = await FindSubmissionAsync(setid, submitId);
             if (submit == null) return null;
             return await GetFilesAsync(submit.ExternalId);
+        }
+
+        public Task ResetCompilationAsync(string setId, int submitid)
+        {
+            if (!TryGetKey(setId, out var setid)) throw new KeyNotFoundException();
+            return ResetCompilationAsync(setid, submitid);
         }
 
         #endregion

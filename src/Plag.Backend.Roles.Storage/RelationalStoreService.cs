@@ -94,6 +94,37 @@ namespace Plag.Backend.Services
                 .SingleOrDefaultAsync();
         }
 
+        public override async Task ResetCompilationAsync(Guid setid, int submitid)
+        {
+            var cur = await Submissions
+                .Where(c => c.SetId == setid && c.Id == submitid)
+                .Select(a => new { a.TokenProduced })
+                .FirstOrDefaultAsync();
+
+            if (cur == null) throw new KeyNotFoundException();
+            if (cur.TokenProduced == null) return;
+            var (a, b) = cur.TokenProduced.Value ? (1, 0) : (0, 1);
+
+            await Submissions
+                .Where(c => c.SetId == setid && c.Id == submitid)
+                .BatchUpdateAsync(c => new Submission<Guid>
+                {
+                    TokenProduced = null,
+                    Error = null,
+                    Tokens = null
+                });
+
+            await Sets
+                .Where(s => s.Id == setid)
+                .BatchUpdateAsync(s => new PlagiarismSet<Guid>
+                {
+                    SubmissionSucceeded = s.SubmissionSucceeded - a,
+                    SubmissionFailed = s.SubmissionFailed - b,
+                });
+
+            Signal1.Notify();
+        }
+
         public override Task<LanguageInfo> FindLanguageAsync(string langName)
         {
             var lang = Compile.FindLanguage(langName);

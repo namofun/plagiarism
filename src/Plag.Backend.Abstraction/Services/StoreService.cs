@@ -117,6 +117,14 @@ namespace Plag.Backend.Services
         Task<Compilation?> GetCompilationAsync(string setid, int submitid);
 
         /// <summary>
+        /// Resets the compilation status for such submission.
+        /// </summary>
+        /// <param name="setid">The id of plagiarism set.</param>
+        /// <param name="submitid">The id of submission.</param>
+        /// <returns>The task for resetting.</returns>
+        Task ResetCompilationAsync(string setid, int submitid);
+
+        /// <summary>
         /// Gets the comparison between the submission and other submissions.
         /// </summary>
         /// <param name="setid">The id of plagiarism set.</param>

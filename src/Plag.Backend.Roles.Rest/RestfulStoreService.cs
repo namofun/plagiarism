@@ -31,6 +31,10 @@ namespace Plag.Backend.Services
             => Client.GetAsync<Compilation>(
                 $"/sets/{UrlEncoder.Default.Encode(sid)}/submissions/{id}/compilation");
 
+        public Task ResetCompilationAsync(string sid, int id)
+            => Client.DeleteAsync<ServiceVersion>(
+                $"/sets/{UrlEncoder.Default.Encode(sid)}/submissions/{id}/compilation");
+
         public Task<Submission> FindSubmissionAsync(string sid, int id, bool includeFiles = true)
             => Client.GetAsync<Submission>(
                 $"/sets/{UrlEncoder.Default.Encode(sid)}/submissions/{id}?includeFiles={includeFiles}");
