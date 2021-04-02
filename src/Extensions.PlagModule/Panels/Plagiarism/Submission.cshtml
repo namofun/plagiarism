@@ -63,24 +63,18 @@
             <tbody>
                 @foreach (var cmp in Model.Comparisons)
                 {
-                <tr asp-action="Compare" asp-route-rid="@cmp.Id" class="@(cmp.Justification == true ? "table-danger" : "")">
-                    <td use-a data-order="@cmp.ExclusiveCategory">@cmp.ExclusiveCategory</td>
-                    <td use-a data-order="@cmp.SubmissionIdAnother">s@(cmp.SubmissionIdAnother): @cmp.SubmissionNameAnother</td>
-                    <td use-a class="text-variant">@(cmp.Finished == true ? cmp.Justification == false ? "ignored" : cmp.Justification == true ? "marked" : "finished" : "pending")</td>
-                    <td class="@(cmp.Justification == false ? "text-delete" : "")" use-a>@cmp.TokensMatched</td>
-                    <td class="@(cmp.Justification == false ? "text-delete" : "")" use-a>@cmp.BiggestMatch</td>
-                    <td class="@(cmp.Justification == false ? "text-delete" : "")" use-a data-order="@(cmp.Justification == false ? 0 : cmp.Percent)">@($"{cmp.Percent:F2}%")</td>
-                    <td class="@(cmp.Justification == false ? "text-delete" : "")" use-a data-order="@(cmp.Justification == false ? 0 : cmp.PercentSelf)">@($"{cmp.PercentSelf:F2}%")</td>
-                    <td class="@(cmp.Justification == false ? "text-delete" : "")" use-a data-order="@(cmp.Justification == false ? 0 : cmp.PercentIt)">@($"{cmp.PercentIt:F2}%")</td>
-                    <td><a asp-action="SourceCode" asp-route-id="@cmp.SubmissionIdAnother"><i class="fas fa-file-code"></i></a></td>
-                    <td><a asp-area="Plagiarism" asp-controller="Report" asp-action="Compare" asp-route-rid="@cmp.Id" target="_blank"><i class="fas fa-external-link-alt"></i></a></td>
-                </tr>
-                }
-                @if (Model.Comparisons.Count == 0)
-                {
-                <tr>
-                    <td colspan="10">No submissions data available</td>
-                </tr>
+                    <tr asp-action="Compare" asp-route-rid="@cmp.Id" class="@(cmp.Justification == true ? "table-danger" : "")">
+                        <td use-a data-order="@cmp.ExclusiveCategory">@cmp.ExclusiveCategory</td>
+                        <td use-a data-order="@cmp.SubmissionIdAnother">s@(cmp.SubmissionIdAnother): @cmp.SubmissionNameAnother</td>
+                        <td use-a class="text-variant">@(cmp.Finished == true ? cmp.Justification == false ? "ignored" : cmp.Justification == true ? "marked" : "finished" : "pending")</td>
+                        <td class="@(cmp.Justification == false ? "text-delete" : "")" use-a>@cmp.TokensMatched</td>
+                        <td class="@(cmp.Justification == false ? "text-delete" : "")" use-a>@cmp.BiggestMatch</td>
+                        <td class="@(cmp.Justification == false ? "text-delete" : "")" use-a data-order="@(cmp.Justification == false ? 0 : cmp.Percent)">@($"{cmp.Percent:F2}%")</td>
+                        <td class="@(cmp.Justification == false ? "text-delete" : "")" use-a data-order="@(cmp.Justification == false ? 0 : cmp.PercentSelf)">@($"{cmp.PercentSelf:F2}%")</td>
+                        <td class="@(cmp.Justification == false ? "text-delete" : "")" use-a data-order="@(cmp.Justification == false ? 0 : cmp.PercentIt)">@($"{cmp.PercentIt:F2}%")</td>
+                        <td><a asp-action="SourceCode" asp-route-id="@cmp.SubmissionIdAnother"><i class="fas fa-file-code"></i></a></td>
+                        <td><a asp-area="Plagiarism" asp-controller="Report" asp-action="Compare" asp-route-rid="@cmp.Id" target="_blank"><i class="fas fa-external-link-alt"></i></a></td>
+                    </tr>
                 }
             </tbody>
         </table>
@@ -118,6 +112,29 @@
 else
 {
     <h3>Compilation Details</h3>
-    <div class="alert alert-danger">Compilation failed. Frontend should be updated, or this submission cannot compile simply.</div>
+    <div class="alert alert-danger">
+        Compilation failed. Frontend should be updated, or this submission cannot compile simply.
+        If this submission relays on macros from C++, please expand it manually then upload it as external ones.
+        <a href="#" class="alert-link" data-toggle="modal" data-target="#recompileModal">Retry &raquo;</a>
+    </div>
     <pre class="output_text">@error</pre>
+    <form id="recompileModal" method="post" asp-action="Recompile" asp-route-sid="@Model.SetId" asp-route-id="@Model.Id" class="modal fade" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Recompile the submission</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure to recompile this submission? Results may not change.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                    <button type="submit" class="btn btn-danger">Yes</button>
+                </div>
+            </div>
+        </div>
+    </form>
 }

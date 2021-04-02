@@ -207,6 +207,17 @@ namespace SatelliteSite.PlagModule.Dashboards
         }
 
 
+        [HttpPost("{sid}/submissions/{id}/[action]")]
+        public async Task<IActionResult> Recompile(string sid, int id)
+        {
+            var ss = await Store.FindSubmissionAsync(sid, id, false);
+            if (ss == null) return NotFound();
+            if (ss.TokenProduced != false) return NotFound();
+            await Store.ResetCompilationAsync(sid, id);
+            return RedirectToAction(nameof(Submission), new { sid, id });
+        }
+
+
         [HttpGet("{sid}/submissions/{id}/[action]")]
         public async Task<IActionResult> SourceCode(string sid, int id)
         {
