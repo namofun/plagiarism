@@ -1,6 +1,6 @@
 # Plagiarism Detection Module
 
-![](https://img.shields.io/travis/com/namofun/plagiarism/master) ![](https://img.shields.io/github/license/namofun/plagiarism) ![](https://img.shields.io/github/languages/code-size/namofun/plagiarism)
+![](https://dev.azure.com/tlylz/namomo/_apis/build/status/Plagiarism%20Detect%20System?branchName=master) ![](https://img.shields.io/github/license/namofun/plagiarism) ![](https://img.shields.io/github/languages/code-size/namofun/plagiarism)
 
 Core algorithms and ideas from [JPlag](https://github.com/jplag/jplag).
 
