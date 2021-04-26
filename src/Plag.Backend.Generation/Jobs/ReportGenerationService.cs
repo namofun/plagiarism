@@ -85,6 +85,8 @@ namespace Plag.Backend.Jobs
             {
                 if (!await ResolveAsync(context, lru)) break;
             }
+
+            lru.Clear();
         }
     }
 }

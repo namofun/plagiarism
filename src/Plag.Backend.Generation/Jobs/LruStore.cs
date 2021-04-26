@@ -17,6 +17,12 @@ namespace Plag.Backend.Jobs
             _capacity = capacity;
         }
 
+        public void Clear()
+        {
+            _quickAccess.Clear();
+            _list.Clear();
+        }
+
         public bool TryGet(TKey key, out TValue value)
         {
             if (!_quickAccess.TryGetValue(key, out var node))
