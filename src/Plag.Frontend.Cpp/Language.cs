@@ -38,6 +38,7 @@ namespace Plag.Frontend.Cpp
         static Language()
         {
             CPP14Parser.InitSharedContextCache();
+            CPP14Lexer.InitSharedContextCache();
         }
 
         public Structure Parse(ISubmissionFile files)
@@ -76,6 +77,7 @@ namespace Plag.Frontend.Cpp
         public void Cleanup()
         {
             CPP14Parser.ResetSharedContextCache();
+            CPP14Lexer.ResetSharedContextCache();
         }
     }
 }

@@ -15,11 +15,23 @@ namespace Plag.Backend.Jobs
 
         public IResettableSignal<ReportGenerationService> AnotherSignal { get; }
 
+        public System.Timers.Timer ResetTimer { get; }
+
         public SubmissionTokenizeService(IServiceProvider serviceProvider) : base(serviceProvider)
         {
             Convert = serviceProvider.GetRequiredService<IConvertService2>();
             Compile = serviceProvider.GetRequiredService<ICompileService>();
             AnotherSignal = serviceProvider.GetRequiredService<IResettableSignal<ReportGenerationService>>();
+
+            ResetTimer = new System.Timers.Timer(15 * 1000);
+            ResetTimer.Enabled = false;
+            ResetTimer.AutoReset = false;
+            ResetTimer.Elapsed += ResetTimer_Elapsed;
+        }
+
+        private void ResetTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            Compile.Cleanup();
         }
 
         private async Task<Submission> ResolveAsync(IJobContext store)
@@ -56,8 +68,15 @@ namespace Plag.Backend.Jobs
         {
             while (!stoppingToken.IsCancellationRequested)
             {
+                ResetTimer.Stop();
                 var s = await ResolveAsync(context);
-                if (s == null) break;
+
+                if (s == null)
+                {
+                    ResetTimer.Start();
+                    break;
+                }
+
                 if (s.TokenProduced != true) continue;
                 await context.ScheduleAsync(s.SetId, s.Id, s.ExclusiveCategory, s.InclusiveCategory, s.Language);
                 AnotherSignal.Notify();

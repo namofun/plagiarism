@@ -38,6 +38,7 @@ namespace Plag.Frontend.Java
 
         static Language()
         {
+            Java9Lexer.InitSharedContextCache();
             Java9Parser.InitSharedContextCache();
         }
 
@@ -76,6 +77,7 @@ namespace Plag.Frontend.Java
 
         public void Cleanup()
         {
+            Java9Lexer.ResetSharedContextCache();
             Java9Parser.ResetSharedContextCache();
         }
     }

@@ -1,17 +1,28 @@
-﻿using Antlr4.Runtime.Atn;
-
-namespace Antlr4.Grammar.Csharp
+﻿namespace Antlr4.Grammar.Csharp
 {
     partial class CSharpParser
     {
         public static void InitSharedContextCache()
         {
-            sharedContextCache = new ResettablePredictionContextCache();
         }
 
         public static void ResetSharedContextCache()
         {
-            ((ResettablePredictionContextCache)sharedContextCache).Reset();
+            sharedContextCache.Reset();
+            decisionToDFA.Reset();
+        }
+    }
+
+    partial class CSharpLexer
+    {
+        public static void InitSharedContextCache()
+        {
+        }
+
+        public static void ResetSharedContextCache()
+        {
+            sharedContextCache.Reset();
+            decisionToDFA.Reset();
         }
     }
 
@@ -19,12 +30,12 @@ namespace Antlr4.Grammar.Csharp
     {
         public static void InitSharedContextCache()
         {
-            sharedContextCache = new ResettablePredictionContextCache();
         }
 
         public static void ResetSharedContextCache()
         {
-            ((ResettablePredictionContextCache)sharedContextCache).Reset();
+            sharedContextCache.Reset();
+            decisionToDFA.Reset();
         }
     }
 }

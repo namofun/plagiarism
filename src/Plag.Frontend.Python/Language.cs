@@ -37,6 +37,7 @@ namespace Plag.Frontend.Python
 
         static Language()
         {
+            Python3Lexer.InitSharedContextCache();
             Python3Parser.InitSharedContextCache();
         }
 
@@ -75,6 +76,7 @@ namespace Plag.Frontend.Python
 
         public void Cleanup()
         {
+            Python3Lexer.ResetSharedContextCache();
             Python3Parser.ResetSharedContextCache();
         }
     }

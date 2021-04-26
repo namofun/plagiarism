@@ -37,6 +37,7 @@ namespace Plag.Frontend.Csharp
 
         static Language()
         {
+            CSharpLexer.InitSharedContextCache();
             CSharpParser.InitSharedContextCache();
             CSharpPreprocessorParser.InitSharedContextCache();
         }
@@ -76,6 +77,7 @@ namespace Plag.Frontend.Csharp
 
         public void Cleanup()
         {
+            CSharpLexer.ResetSharedContextCache();
             CSharpPreprocessorParser.ResetSharedContextCache();
             CSharpParser.ResetSharedContextCache();
         }
