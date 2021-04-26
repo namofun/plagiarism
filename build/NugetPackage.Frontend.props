@@ -7,8 +7,8 @@
     <Description>Plagiarism detection modules. $(DescriptionAttach)</Description>
     <Version>2.12.1</Version>
     <PackageVersion>2.12.5</PackageVersion>
-    <AssemblyVersion>2.12.1.0</AssemblyVersion>
-    <FileVersion>2.12.1.0</FileVersion>
+    <AssemblyVersion>2.12.1.5</AssemblyVersion>
+    <FileVersion>2.12.1.5</FileVersion>
     <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
     <NoWarn>$(NoWarn);1574</NoWarn>
   </PropertyGroup>

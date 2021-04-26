@@ -8,6 +8,10 @@ namespace Plag.Backend.Tests
 {
     public class NullCompileService : ICompileService
     {
+        public void Cleanup()
+        {
+        }
+
         public ILanguage FindLanguage(string name)
         {
             return null;

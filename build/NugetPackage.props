@@ -5,10 +5,10 @@
   <PropertyGroup>
     <Authors>yang-er</Authors>
     <Description>UI kit for ASP.NET Core with moduling support. $(DescriptionAttach)</Description>
-    <Version>1.0.0</Version>
     <PackageVersion>1.2.$(PreviewBuild)</PackageVersion>
-    <AssemblyVersion>$(AspNetCoreVersion).0</AssemblyVersion>
-    <FileVersion>$(AspNetCoreVersion).0</FileVersion>
+    <Version>$(PackageVersion)</Version>
+    <AssemblyVersion>$(PackageVersion).0</AssemblyVersion>
+    <FileVersion>$(PackageVersion).0</FileVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
