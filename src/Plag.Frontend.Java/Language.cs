@@ -36,6 +36,11 @@ namespace Plag.Frontend.Java
             ListenerFactory = factory;
         }
 
+        static Language()
+        {
+            Java9Parser.InitSharedContextCache();
+        }
+
         public Structure Parse(ISubmissionFile file)
         {
             var structure = new Structure();
@@ -67,6 +72,11 @@ namespace Plag.Frontend.Java
         public Plag.Frontend.Token CreateToken(int type, int line, int column, int length, int fileId)
         {
             return new Token((TokenConstants)type, line, column, column + length - 1, fileId);
+        }
+
+        public void Cleanup()
+        {
+            Java9Parser.ResetSharedContextCache();
         }
     }
 }

@@ -31,5 +31,10 @@ namespace Plag.Backend.Services
         /// <param name="submission">The submission produced.</param>
         /// <returns>Return whether the compilation failed.</returns>
         bool TryCompile(ILanguage language, ISubmissionFile file, string id, out Submission submission);
+
+        /// <summary>
+        /// Clean up the memory usage.
+        /// </summary>
+        void Cleanup();
     }
 }

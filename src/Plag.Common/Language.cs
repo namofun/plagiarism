@@ -25,5 +25,7 @@ namespace Plag.Frontend
 		int CountOfTokens { get; }
 
 		string TypeName(int type);
+
+		void Cleanup();
 	}
 }

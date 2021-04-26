@@ -14,6 +14,14 @@ namespace Plag.Backend.Services
                 ["py"] = new Frontend.Python.Language(),
             };
 
+        public void Cleanup()
+        {
+            foreach (var item in SupportedLanguages.Values)
+            {
+                item.Cleanup();
+            }
+        }
+
         public ILanguage FindLanguage(string name)
         {
             return SupportedLanguages.TryGetValue(name, out var lang) ? lang : null;

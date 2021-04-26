@@ -35,6 +35,11 @@ namespace Plag.Frontend.Python
             ListenerFactory = factory;
         }
 
+        static Language()
+        {
+            Python3Parser.InitSharedContextCache();
+        }
+
         public Structure Parse(ISubmissionFile file)
         {
             var structure = new Structure();
@@ -66,6 +71,11 @@ namespace Plag.Frontend.Python
         public Plag.Frontend.Token CreateToken(int type, int line, int column, int length, int fileId)
         {
             return new Token((TokenConstants)type, line, column, column + length - 1, fileId);
+        }
+
+        public void Cleanup()
+        {
+            Python3Parser.ResetSharedContextCache();
         }
     }
 }

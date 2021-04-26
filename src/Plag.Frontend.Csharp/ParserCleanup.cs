@@ -4,17 +4,27 @@ namespace Antlr4.Grammar.Csharp
 {
     partial class CSharpParser
     {
+        public static void InitSharedContextCache()
+        {
+            sharedContextCache = new ResettablePredictionContextCache();
+        }
+
         public static void ResetSharedContextCache()
         {
-            sharedContextCache = new PredictionContextCache();
+            ((ResettablePredictionContextCache)sharedContextCache).Reset();
         }
     }
 
     partial class CSharpPreprocessorParser
     {
+        public static void InitSharedContextCache()
+        {
+            sharedContextCache = new ResettablePredictionContextCache();
+        }
+
         public static void ResetSharedContextCache()
         {
-            sharedContextCache = new PredictionContextCache();
+            ((ResettablePredictionContextCache)sharedContextCache).Reset();
         }
     }
 }
