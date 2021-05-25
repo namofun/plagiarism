@@ -34,7 +34,8 @@ namespace Plag.Backend.Tests
         public ServiceProviderFixture()
         {
             var services = new ServiceCollection();
-            services.AddDbContext<Database>(b => b.UseInMemoryDatabase("PlagDevTests", b => b.UseBulk()));
+            services.AddDbContext<Database>(b => b.UseInMemoryDatabase("PlagDevTests", b => b.UseBulk()), optionsLifetime: ServiceLifetime.Singleton);
+            services.AddSingleton(typeof(SequentialGuidGenerator<>));
             services.AddSingleton<ICompileService, NullCompileService>();
             services.AddSingleton(typeof(IResettableSignal<>), typeof(NullResettableSignal<>));
             services.AddScoped<IPlagiarismDetectService, EntityFrameworkCoreStoreService<Database>>();
