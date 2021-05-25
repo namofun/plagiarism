@@ -1,14 +1,14 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Jobs.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Plag.Backend.Services;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Plag.Backend.Jobs
 {
-    public abstract class ContextNotifyService<T> : BackgroundService, IResettableService
+    public abstract class ContextNotifyService<T> : BackgroundService, INotifiableService
         where T : ContextNotifyService<T>
     {
         private IServiceProvider ServiceProvider { get; }

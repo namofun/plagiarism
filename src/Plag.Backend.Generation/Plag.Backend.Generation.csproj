@@ -11,6 +11,7 @@
   <Import Project="..\..\build\NugetPackage.Backend.props" />
 
   <ItemGroup>
+    <PackageReference Include="SatelliteSite.JobsCore" Version="$(SubstrateVersion)" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="$(AspNetCoreVersion)" />
   </ItemGroup>
 

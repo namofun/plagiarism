@@ -1,8 +1,8 @@
 ﻿<Project>
   <PropertyGroup>
     <GitRepositoryDirectory>$(MSBuildThisFileDirectory).git</GitRepositoryDirectory>
-    <SubstrateVersion>1.0.38</SubstrateVersion>
-    <AspNetCoreVersion>3.1.13</AspNetCoreVersion>
-    <EFCoreBulkVersion>3.1.25</EFCoreBulkVersion>
+    <SubstrateVersion>1.0.39</SubstrateVersion>
+    <AspNetCoreVersion>3.1.15</AspNetCoreVersion>
+    <EFCoreBulkVersion>3.1.26</EFCoreBulkVersion>
   </PropertyGroup>
 </Project>
