@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Jobs.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Plag.Backend.Models;
 using Plag.Backend.Services;
@@ -8,8 +9,10 @@ using System.Threading.Tasks;
 
 namespace Plag.Backend.Jobs
 {
-    public class ReportGenerationService : ContextNotifyService<ReportGenerationService>
+    public class ReportGenerationService : BackgroundNotifiableService<ReportGenerationService>
     {
+        public ILogger<ReportGenerationService> Logger { get; }
+
         public IConvertService2 Convert { get; }
 
         public ICompileService Compile { get; }
@@ -21,6 +24,7 @@ namespace Plag.Backend.Jobs
             Convert = serviceProvider.GetRequiredService<IConvertService2>();
             Compile = serviceProvider.GetRequiredService<ICompileService>();
             Report = serviceProvider.GetRequiredService<IReportService>();
+            Logger = serviceProvider.GetRequiredService<ILogger<ReportGenerationService>>();
         }
 
         private async Task<(Submission, Frontend.Submission)> Load((string, int) key, IJobContext store)
@@ -78,8 +82,9 @@ namespace Plag.Backend.Jobs
             return true;
         }
 
-        protected override async Task ProcessAsync(IJobContext context, CancellationToken stoppingToken)
+        protected override async Task ProcessAsync(IServiceScope scope, CancellationToken stoppingToken)
         {
+            var context = scope.ServiceProvider.GetRequiredService<IJobContext>();
             var lru = new LruStore<(string, int), (Submission, Frontend.Submission)>();
             while (!stoppingToken.IsCancellationRequested)
             {

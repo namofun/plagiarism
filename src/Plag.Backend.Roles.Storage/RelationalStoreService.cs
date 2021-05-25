@@ -32,15 +32,19 @@ namespace Plag.Backend.Services
 
         public IResettableSignal<ReportGenerationService> Signal2 { get; }
 
+        public SequentialGuidGenerator<TContext> SequentialGuidGenerator { get; }
+
         public EntityFrameworkCoreStoreService(
             TContext context,
             ICompileService compile,
+            SequentialGuidGenerator<TContext> sequentialGuidGenerator,
             IResettableSignal<SubmissionTokenizeService> signal1,
             IResettableSignal<ReportGenerationService> signal2)
         {
             Context = context;
             Compile = compile;
             context.ChangeTracker.AutoDetectChangesEnabled = false;
+            SequentialGuidGenerator = sequentialGuidGenerator;
             Signal1 = signal1;
             Signal2 = signal2;
         }
@@ -58,7 +62,7 @@ namespace Plag.Backend.Services
                 ContestId = metadata.ContestId,
                 UserId = metadata.UserId,
                 CreateTime = DateTimeOffset.Now,
-                Id = SequentialGuidGenerator.Create(Context),
+                Id = SequentialGuidGenerator.Create(),
             });
 
             await Context.SaveChangesAsync();
@@ -201,7 +205,7 @@ namespace Plag.Backend.Services
 
         private EntityEntry<Submission<Guid>> AddCore(Guid setId, int id, SubmissionCreation submission)
         {
-            var extId = SequentialGuidGenerator.Create(Context);
+            var extId = SequentialGuidGenerator.Create();
 
             var entry = Submissions.Add(new Submission<Guid>
             {

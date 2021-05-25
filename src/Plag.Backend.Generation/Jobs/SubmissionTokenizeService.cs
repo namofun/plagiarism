@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Plag.Backend.Jobs
 {
-    public class SubmissionTokenizeService : ContextNotifyService<SubmissionTokenizeService>
+    public class SubmissionTokenizeService : BackgroundNotifiableService<SubmissionTokenizeService>
     {
         public IConvertService2 Convert { get; }
 
@@ -65,8 +65,9 @@ namespace Plag.Backend.Jobs
             return ss;
         }
 
-        protected override async Task ProcessAsync(IJobContext context, CancellationToken stoppingToken)
+        protected override async Task ProcessAsync(IServiceScope scope, CancellationToken stoppingToken)
         {
+            var context = scope.ServiceProvider.GetRequiredService<IJobContext>();
             while (!stoppingToken.IsCancellationRequested)
             {
                 ResetTimer.Stop();
