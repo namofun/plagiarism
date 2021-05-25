@@ -1,3 +1,4 @@
+using Jobs.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Plag.Backend.Services;
