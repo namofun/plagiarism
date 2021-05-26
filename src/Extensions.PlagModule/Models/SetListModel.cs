@@ -1,39 +1,21 @@
-﻿using Microsoft.AspNetCore.Mvc.DataTables;
-using System;
+﻿using System;
 
 namespace SatelliteSite.PlagModule.Models
 {
-    [DtWrapUrl("/dashboard/plagiarism/{Id}")]
     public class SetListModel
     {
-        [DtDisplay(0, "ID", Sortable = true)]
         public string Id { get; set; }
 
-        [DtDisplay(1, "name", Sortable = true)]
         public string Name { get; set; }
 
-        [DtDisplay(2, "time", Sortable = true)]
         public DateTimeOffset CreateTime { get; set; }
 
-        [DtDisplay(3, "compile progress", "{Progress2:F2}% ({FinishedSubmissions}/{TotalSubmissions})", Sortable = true)]
-        public double Progress2 => TotalSubmissions == 0 ? 0 : 100.0 * FinishedSubmissions / TotalSubmissions;
-
-        [DtDisplay(4, "report progress", "{Progress:F2}% ({ResolvedReports}/{TotalReports})", Sortable = true)]
-        public double Progress => TotalReports == 0 ? 0 : 100.0 * (TotalReports - PendingReports) / TotalReports;
-
-        [DtIgnore]
         public int TotalReports { get; set; }
 
-        [DtIgnore]
         public int PendingReports { get; set; }
 
-        [DtIgnore]
-        public int ResolvedReports => TotalReports - PendingReports;
-
-        [DtIgnore]
         public int TotalSubmissions { get; set; }
 
-        [DtIgnore]
         public int FinishedSubmissions { get; set; }
     }
 }

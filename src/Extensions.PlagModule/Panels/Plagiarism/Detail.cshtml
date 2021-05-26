@@ -1,6 +1,7 @@
 ﻿@model PlagiarismSet
 @{
     ViewData["Title"] = "Plagiarism Set: " + Model.Name;
+    IEnumerable<ReportListModel> data = ViewBag.ViewModel;
 }
 
 <h2 class="mt-2">@ViewData["Title"]</h2>
@@ -32,8 +33,67 @@
     </div>
 </div>
 
-<h3>Submissions</h3>
-<datatable data="ViewBag.ViewModel" auto-width="false" paging="50" />
+<h3 class="mt-3">Submissions</h3>
+<div class="table-wrapper">
+    <table id="sublist" class="data-table table table-sm table-striped">
+        <thead>
+            <tr>
+                <th class="sortable searchable" scope="col">ID</th>
+                <th class="sortable searchable" scope="col">name</th>
+                <th class="sortable" scope="col">status</th>
+                <th class="sortable" scope="col">upload time</th>
+                <th class="sortable" scope="col">exc.</th>
+                <th class="sortable" scope="col">inc.</th>
+                <th class="sortable" scope="col">lang.</th>
+                <th class="sortable" scope="col">max percent</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var sub in data)
+            {
+            <tr role="row" asp-action="Submission" asp-route-id="@sub.Id">
+                <td use-a data-order="@sub.Id">@sub.Id</td>
+                <td use-a title="@sub.Name"><span class="forceWidth" style="max-width:15em">@sub.Name</span></td>
+                <td use-a class="text-variant">@sub.Status</td>
+                <td use-a>@Html.CstTime(sub.Time)</td>
+                <td use-a data-order="@sub.Exclusive">@sub.Exclusive</td>
+                <td use-a data-order="@sub.Inclusive">@sub.Inclusive</td>
+                <td use-a class="text-variant">@sub.Language</td>
+                <td use-a data-order="@sub.Percent">@($"{sub.Percent:F2}%")</td>
+                <td><a asp-action="SourceCode" asp-route-id="@sub.Id"><i class="fas fa-file-code"></i></a></td>
+            </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<script>
+    $().ready(function () {
+        $('#sublist').DataTable({
+            'searching': true,
+            'ordering': true,
+            'order': [],
+            'paging': true,
+            'pageLength': 50,
+            'lengthChange': true,
+            'info': false,
+            'autoWidth': false,
+            'language': {
+                'searchPlaceholder': 'filter table',
+                'search': '_INPUT_',
+                'oPaginate': {
+                    'sPrevious': '&laquo;',
+                    'sNext': '&raquo;'
+                }
+            },
+            'aoColumnDefs': [
+                { aTargets: ['sortable'], bSortable: true },
+                { aTargets: ['searchable'], bSearchable: true },
+                { aTargets: ['_all'], bSortable: false, bSearchable: false }
+            ],
+        });
+    });
+</script>
 
 <p>
     <a asp-action="Upload" data-toggle="ajaxWindow" data-target="upload" class="btn btn-primary"><i class="fas fa-file-code"></i> Upload</a>

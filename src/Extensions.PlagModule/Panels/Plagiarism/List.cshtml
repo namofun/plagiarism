@@ -7,7 +7,70 @@
 
 <pagination bs-current-page="ViewBag.Page" class="mb-2" />
 
-<datatable data="Model" />
+<style>
+    .txt-fw {
+        word-wrap: break-word;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        max-width: 10em;
+    }
+
+    .txt-fw a {
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+</style>
+
+<div class="table-wrapper">
+    <table id="pset-tbl" class="data-table table table-sm table-striped" style="width:auto">
+        <thead>
+            <tr>
+                <th class="sortable" scope="col">ID</th>
+                <th class="sortable" scope="col">name</th>
+                <th class="sortable" scope="col">time</th>
+                <th class="sortable" scope="col">compile progress</th>
+                <th class="sortable" scope="col">report progress</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var pset in Model)
+            {
+            <tr role="row" asp-action="Detail" asp-route-sid="@pset.Id">
+                <td use-a title="@pset.Id" class="txt-fw">@pset.Id</td>
+                <td use-a>@pset.Name</td>
+                <td use-a>@Html.CstTime(pset.CreateTime)</td>
+                <td use-a>@($"{(pset.TotalSubmissions == 0 ? 0 : 100.0 * pset.FinishedSubmissions / pset.TotalSubmissions)}% ({pset.FinishedSubmissions}/{pset.TotalSubmissions})")</td>
+                <td use-a>@($"{(pset.TotalReports == 0 ? 0 : 100.0 * (pset.TotalReports - pset.PendingReports) / pset.TotalReports)}% ({pset.TotalReports - pset.PendingReports}/{pset.TotalReports})")</td>
+            </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<script>
+    $().ready(function () {
+        $('#pset-tbl').DataTable({
+            'searching': false,
+            'ordering': true,
+            'order': [],
+            'paging': false,
+            'info': false,
+            'autoWidth': true,
+            'language': {
+                'searchPlaceholder': 'filter table',
+                'search': '_INPUT_',
+                'oPaginate': {
+                    'sPrevious': '&laquo;',
+                    'sNext': '&raquo;'
+                }
+            },
+            'aoColumnDefs': [
+                { aTargets: ['sortable'], bSortable: true },
+                { aTargets: ['searchable'], bSearchable: true },
+                { aTargets: ['_all'], bSortable: false, bSearchable: false }
+            ],
+        });
+    });
+</script>
 
 <p>
     <a class="btn btn-primary" asp-action="Create" data-toggle="ajaxWindow" data-target="create"><i class="fas fa-plus"></i> Create</a>
