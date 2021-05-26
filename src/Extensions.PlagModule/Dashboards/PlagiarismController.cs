@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 namespace SatelliteSite.PlagModule.Dashboards
 {
     [Area("Dashboard")]
-    [Authorize("HasDashboard")]
+    [Authorize(Roles = "Administrator,PlagUser")]
     [Route("[area]/[controller]")]
     [AuditPoint(AuditlogType.PlagSet)]
     [CustomedExceptionFilter(false)]

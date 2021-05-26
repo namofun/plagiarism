@@ -10,6 +10,7 @@ using Pomelo.EntityFrameworkCore.MySql.Storage;
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace SatelliteSite
@@ -120,6 +121,22 @@ namespace SatelliteSite
                     return next();
                 }
             }
+
+            host.ConfigureServices(b =>
+            {
+                b.ConfigureApplicationBuilder(options =>
+                {
+                    options.PointBeforeEndpoint.Add(app =>
+                    {
+                        app.Use((context, next) =>
+                        {
+                            var ci = (ClaimsIdentity)context.User.Identity;
+                            ci.AddClaim(new Claim(ci.RoleClaimType, "Administrator"));
+                            return next();
+                        });
+                    });
+                });
+            });
 
             return host.ConfigureSubstrateDefaultsCore();
         }
