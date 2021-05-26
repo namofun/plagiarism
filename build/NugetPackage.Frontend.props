@@ -6,9 +6,9 @@
     <Authors>KIT-IPDTichy;GuidoMalpohl;yang-er</Authors>
     <Description>Plagiarism detection modules. $(DescriptionAttach)</Description>
     <Version>2.12.1</Version>
-    <PackageVersion>2.12.5</PackageVersion>
-    <AssemblyVersion>2.12.1.5</AssemblyVersion>
-    <FileVersion>2.12.1.5</FileVersion>
+    <PackageVersion>2.12.6</PackageVersion>
+    <AssemblyVersion>2.12.1.6</AssemblyVersion>
+    <FileVersion>2.12.1.6</FileVersion>
     <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
     <NoWarn>$(NoWarn);1574</NoWarn>
   </PropertyGroup>
