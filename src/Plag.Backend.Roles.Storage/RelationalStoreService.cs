@@ -155,9 +155,8 @@ namespace Plag.Backend.Services
             return Sets.AsNoTracking()
                 .WhereIf(cid.HasValue, s => s.ContestId == cid)
                 .WhereIf(uid.HasValue, s => s.UserId == uid)
-                .OrderByDescending(s => s.Id)
-                .SkipIf(skip).TakeIf(limit)
                 .OrderBy(s => s.Id, asc, true)
+                .SkipIf(skip).TakeIf(limit)
                 .ToListAsync();
         }
 
