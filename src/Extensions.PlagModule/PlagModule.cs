@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Plag.Backend;
 using Plag.Backend.Services;
@@ -29,10 +31,19 @@ namespace SatelliteSite.PlagModule
                 version: "v2.12.2");
         }
 
-        public override void RegisterServices(IServiceCollection services)
+        public override void RegisterServices(IServiceCollection services, IConfiguration configuration)
         {
             new TRole().Apply(services);
             services.EnsureScoped<IPlagiarismDetectService>();
+
+            if (configuration.GetValue<bool>("SatelliteSite:ApiOnly"))
+            {
+                services.AddSingleton(
+                    new FeatureAvailabilityConvention(
+                        false,
+                        typeof(Controllers.ReportController),
+                        typeof(Dashboards.PlagiarismController)));
+            }
         }
 
         public override void RegisterMenu(IMenuContributor menus)
