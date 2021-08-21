@@ -138,6 +138,7 @@ namespace SatelliteSite
                 });
             });
 
+            host.AddModule<HostModule>();
             return host.ConfigureSubstrateDefaultsCore();
         }
     }
