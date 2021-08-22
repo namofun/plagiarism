@@ -11,6 +11,9 @@ trigger:
     include:
     - '*'
 
+variables:
+- group: azure-repos-sync
+
 jobs:
 - job: Build
   displayName: "Build, Test and Publish"
