@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { RouteComponentProps, withRouter } from 'react-router';
-import { NavLink, Route } from 'react-router-dom';
+import { withRouter } from 'react-router';
+import { RouteComponentProps, NavLink, Route } from 'react-router-dom';
 import { Action, Location } from 'history';
 
 import logo from './logo.svg';
