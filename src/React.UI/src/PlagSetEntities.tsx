@@ -1,25 +1,16 @@
 import * as React from "react";
 import { Tooltip } from "azure-devops-ui/TooltipEx";
 import { Ago } from "azure-devops-ui/Ago";
-import { Duration } from "azure-devops-ui/Duration";
 import { IStatusProps, Statuses, Status, StatusSize } from "azure-devops-ui/Status";
-import { ITableColumn, ColumnMore, SimpleTableCell, TwoLineTableCell, ColumnSorting, SortOrder, sortItems, Table } from "azure-devops-ui/Table";
+import { ITableColumn, ColumnMore, SimpleTableCell, TwoLineTableCell, ColumnSorting, SortOrder, sortItems, Table, TableColumnLayout } from "azure-devops-ui/Table";
 import { AgoFormat } from "azure-devops-ui/Utilities/Date";
 import { WithIcon } from "./Utilities";
-import { ObservableValue } from "azure-devops-ui/Core/Observable";
-import { ArrayItemProvider } from "azure-devops-ui/Utilities/Provider";
-import { Observer } from "azure-devops-ui/Observer";
-
-export interface PageContentState<T> {
-  filtering: boolean;
-  getData: boolean;
-  items: T[];
-}
+import { IReadonlyObservableValue, ObservableArray } from "azure-devops-ui/Core/Observable";
 
 /**
  * Plagiarism Set Entity
  */
-export interface PlagiarismSetModel {
+export interface PlagSetModel {
 
   /**
    * Plagiarism Set Id
@@ -72,34 +63,42 @@ export interface PlagiarismSetModel {
   submission_succeeded: number;
 }
 
-export class PlagiarismSetTable extends React.Component {
+export interface PlagSetListProps {
+  creator?: number;
+  related?: number;
+}
+
+interface PlagSetTableProps {
+  itemProvider: ObservableArray<PlagSetModel | IReadonlyObservableValue<PlagSetModel | undefined>>;
+}
+
+export class PlagSetTable extends React.Component<PlagSetTableProps> {
+
+  constructor(props: PlagSetTableProps) {
+    super(props);
+  }
+
   public render(): JSX.Element {
     return (
-      <Observer itemProvider={this.itemProvider}>
-        {(observableProps: {
-          itemProvider: ArrayItemProvider<PlagiarismSetModel>;
-        }) => (
-          <Table<PlagiarismSetModel>
-            ariaLabel="Advanced table"
-            behaviors={[this.sortingBehavior]}
-            className="table-example"
-            columns={this.columns}
-            containerClassName="h-scroll-auto"
-            itemProvider={observableProps.itemProvider}
-            showLines={true}
-            onSelect={(event, data) =>
-              console.log("Selected Row - " + data.index)
-            }
-            onActivate={(event, row) =>
-              console.log("Activated Row - " + row.index)
-            }
-          />
-        )}
-      </Observer>
+      <Table<PlagSetModel>
+        ariaLabel="Advanced table"
+        //behaviors={[this.sortingBehavior]}
+        className="table-example"
+        columns={this.columns}
+        containerClassName="h-scroll-auto"
+        itemProvider={this.props.itemProvider}
+        showLines={true}
+        onSelect={(event, data) =>
+          console.log("Selected Row - " + data.index)
+        }
+        onActivate={(event, row) =>
+          console.log("Activated Row - " + row.index)
+        }
+      />
     );
   }
 
-  private static getStatusIndicatorData(model: PlagiarismSetModel) : IStatusProps {
+  private static getStatusIndicatorData(model: PlagSetModel) : IStatusProps {
     if (model.report_count == 0 || model.submission_count == 0) {
       return { ...Statuses.Skipped, ariaLabel: "Empty" };
     } else if (model.report_pending > 0) {
@@ -119,11 +118,12 @@ export class PlagiarismSetTable extends React.Component {
     return ratio.toString() + '%';
   }
 
-  private columns: ITableColumn<PlagiarismSetModel>[] = [
+  private columns: ITableColumn<PlagSetModel>[] = [
     {
       id: "name",
       name: "Name",
-      renderCell: (rowIndex, columnIndex, tableColumn, tableItem) => (
+      columnLayout: TableColumnLayout.twoLinePrefix,
+      renderCell: ((rowIndex, columnIndex, tableColumn, tableItem) => (
         <SimpleTableCell
             columnIndex={columnIndex}
             tableColumn={tableColumn}
@@ -131,7 +131,7 @@ export class PlagiarismSetTable extends React.Component {
             contentClassName="scroll-hidden"
         >
           <Status
-              {...PlagiarismSetTable.getStatusIndicatorData(tableItem)}
+              {...PlagSetTable.getStatusIndicatorData(tableItem)}
               className="icon-large-margin"
               size={StatusSize.l}
           />
@@ -150,7 +150,7 @@ export class PlagiarismSetTable extends React.Component {
             </div>
           </div>
         </SimpleTableCell>
-      ),
+      )),
       readonly: true,
       sortProps: {
         ariaLabelAscending: "Sorted name A to Z",
@@ -163,7 +163,8 @@ export class PlagiarismSetTable extends React.Component {
       ariaLabel: "Time",
       readonly: true,
       name: "Time",
-      renderCell: (rowIndex, columnIndex, tableColumn, tableItem) => (
+      columnLayout: TableColumnLayout.twoLine,
+      renderCell: ((rowIndex, columnIndex, tableColumn, tableItem) => (
         <TwoLineTableCell
           key={"col-" + columnIndex}
           columnIndex={columnIndex}
@@ -178,17 +179,17 @@ export class PlagiarismSetTable extends React.Component {
               <WithIcon className="fontSize font-size bolt-table-two-line-cell-item icon-margin"
                         iconProps={{ iconName: "AnalyticsReport" }}
                         tooltipProps={{ text: `Reporting progress: ${tableItem.report_count - tableItem.report_pending} / ${tableItem.report_count}` }}>
-                <span>{PlagiarismSetTable.getPercentage(tableItem.report_count - tableItem.report_pending, tableItem.report_count)}</span>
+                <span>{PlagSetTable.getPercentage(tableItem.report_count - tableItem.report_pending, tableItem.report_count)}</span>
               </WithIcon>
               <WithIcon className="fontSize font-size bolt-table-two-line-cell-item"
                         iconProps={{ iconName: "FileCode" }}
                         tooltipProps={{ text: `Compilation progress: ${tableItem.submission_failed + tableItem.submission_succeeded} / ${tableItem.submission_count}` }}>
-                <span>{PlagiarismSetTable.getPercentage(tableItem.submission_failed + tableItem.submission_succeeded, tableItem.submission_count)}</span>
+                <span>{PlagSetTable.getPercentage(tableItem.submission_failed + tableItem.submission_succeeded, tableItem.submission_count)}</span>
               </WithIcon>
             </>
           )}
-      />
-      ),
+        />
+      )),
       sortProps: {
         ariaLabelAscending: "Sorted time A to Z",
         ariaLabelDescending: "Sorted time Z to A",
@@ -196,16 +197,10 @@ export class PlagiarismSetTable extends React.Component {
       width: -22,
     }
   ];
-
-  private currentItems : PlagiarismSetModel[] = [
-  ];
-
-  private itemProvider = new ObservableValue<ArrayItemProvider<PlagiarismSetModel>>(
-    new ArrayItemProvider(this.currentItems));
-
+/*
   private sortingBehavior = new ColumnSorting<PlagiarismSetModel>(
     (columnIndex: number, proposedSortOrder: SortOrder) => {
-      this.itemProvider.value = new ArrayItemProvider(
+      this.props.itemProvider.value = new ArrayItemProvider(
         sortItems(
           columnIndex,
           proposedSortOrder,
@@ -225,5 +220,5 @@ export class PlagiarismSetTable extends React.Component {
     (item1: PlagiarismSetModel, item2: PlagiarismSetModel) => {
       return item1.create_time.localeCompare(item2.create_time);
     },
-  ];
+  ];*/
 }
