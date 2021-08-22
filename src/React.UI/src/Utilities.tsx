@@ -1,5 +1,6 @@
 import * as React from "react";
-import { Icon, IIconProps } from "azure-devops-ui/Icon";
+import { IIconProps } from "azure-devops-ui/Icon";
+import { Icon } from "@fluentui/react/lib/Icon";
 import { Tooltip, ITooltipProps } from "azure-devops-ui/TooltipEx";
 import { css } from "azure-devops-ui/Util";
 

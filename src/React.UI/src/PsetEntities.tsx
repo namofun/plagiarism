@@ -3,7 +3,6 @@ import { Tooltip } from "azure-devops-ui/TooltipEx";
 import { Ago } from "azure-devops-ui/Ago";
 import { Duration } from "azure-devops-ui/Duration";
 import { IStatusProps, Statuses, Status, StatusSize } from "azure-devops-ui/Status";
-import { Icon, IIconProps } from "azure-devops-ui/Icon";
 import { ITableColumn, ColumnMore, SimpleTableCell, TwoLineTableCell, ColumnSorting, SortOrder, sortItems, Table } from "azure-devops-ui/Table";
 import { AgoFormat } from "azure-devops-ui/Utilities/Date";
 import { WithIcon } from "./Utilities";
@@ -163,6 +162,7 @@ export class PlagiarismSetTable extends React.Component {
       id: "time",
       ariaLabel: "Time",
       readonly: true,
+      name: "Time",
       renderCell: (rowIndex, columnIndex, tableColumn, tableItem) => (
         <TwoLineTableCell
           key={"col-" + columnIndex}
@@ -175,7 +175,7 @@ export class PlagiarismSetTable extends React.Component {
           )}
           line2={(
             <>
-              <WithIcon className="fontSize font-size bolt-table-two-line-cell-item"
+              <WithIcon className="fontSize font-size bolt-table-two-line-cell-item icon-margin"
                         iconProps={{ iconName: "AnalyticsReport" }}
                         tooltipProps={{ text: `Reporting progress: ${tableItem.report_count - tableItem.report_pending} / ${tableItem.report_count}` }}>
                 <span>{PlagiarismSetTable.getPercentage(tableItem.report_count - tableItem.report_pending, tableItem.report_count)}</span>
