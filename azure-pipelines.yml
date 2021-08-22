@@ -56,3 +56,20 @@ jobs:
       allowPackageConflicts: true
     displayName: 'Push to NuGet Feed'
     condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+
+- job: Sync
+  displayName: "Sync with Azure Repos"
+
+  pool:
+    vmImage: ubuntu-latest
+
+  steps:
+  - task: CmdLine@2
+    inputs:
+      script: |
+        git remote add target https://tlylz:$(SYNC_PAT)@dev.azure.com/tlylz/namomo/_git/plagiarism
+        git checkout $(Build.SourceBranchName)
+        git pull target $(Build.SourceBranchName) --tags
+        git push target --all
+        git push target HEAD:$(Build.SourceBranchName) --tags
+    displayName: 'Sync via Git Tools'
