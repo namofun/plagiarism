@@ -12,7 +12,7 @@ initializeIcons();
 ReactDOM.render(
   <BrowserRouter>
     <App>
-      <Route path="/" component={PlagSetList} />
+      <Route exact path="/" component={PlagSetList} />
     </App>
   </BrowserRouter>,
   document.getElementById('react-root')
