@@ -6,6 +6,7 @@ import { ITableColumn, ColumnMore, SimpleTableCell, TwoLineTableCell, ColumnSort
 import { AgoFormat } from "azure-devops-ui/Utilities/Date";
 import { WithIcon } from "./Utilities";
 import { IReadonlyObservableValue, ObservableArray } from "azure-devops-ui/Core/Observable";
+import { Card } from "azure-devops-ui/Card";
 
 /**
  * Plagiarism Set Entity
@@ -70,6 +71,27 @@ export interface PlagSetListProps {
 
 interface PlagSetTableProps {
   itemProvider: ObservableArray<PlagSetModel | IReadonlyObservableValue<PlagSetModel | undefined>>;
+  itemClick: (model: PlagSetModel) => void;
+}
+
+export function getStatusIndicatorData(model: PlagSetModel) : IStatusProps {
+  if (model.report_count == 0 || model.submission_count == 0) {
+    return { ...Statuses.Skipped, ariaLabel: "Empty" };
+  } else if (model.report_pending > 0) {
+    return Statuses.Running;
+  } else if (model.submission_failed + model.submission_succeeded < model.submission_count) {
+    return Statuses.Waiting;
+  } else if (model.submission_failed > 0) {
+    return Statuses.Warning;
+  } else {
+    return Statuses.Success;
+  }
+}
+
+export function getPercentage(fz: number, fm: number) : string {
+  if (fz == 0) return '0%';
+  let ratio = Math.floor(fz * 10000 / fm) / 100;
+  return ratio.toString() + '%';
 }
 
 export class PlagSetTable extends React.Component<PlagSetTableProps> {
@@ -88,34 +110,9 @@ export class PlagSetTable extends React.Component<PlagSetTableProps> {
         containerClassName="h-scroll-auto"
         itemProvider={this.props.itemProvider}
         showLines={true}
-        onSelect={(event, data) =>
-          console.log("Selected Row - " + data.index)
-        }
-        onActivate={(event, row) =>
-          console.log("Activated Row - " + row.index)
-        }
+        onActivate={(event, data) => this.props.itemClick(data.data)}
       />
     );
-  }
-
-  private static getStatusIndicatorData(model: PlagSetModel) : IStatusProps {
-    if (model.report_count == 0 || model.submission_count == 0) {
-      return { ...Statuses.Skipped, ariaLabel: "Empty" };
-    } else if (model.report_pending > 0) {
-      return Statuses.Running;
-    } else if (model.submission_failed + model.submission_succeeded < model.submission_count) {
-      return Statuses.Waiting;
-    } else if (model.submission_failed > 0) {
-      return Statuses.Warning;
-    } else {
-      return Statuses.Success;
-    }
-  }
-
-  private static getPercentage(fz: number, fm: number) : string {
-    if (fz == 0) return '0%';
-    let ratio = Math.floor(fz * 10000 / fm) / 100;
-    return ratio.toString() + '%';
   }
 
   private columns: ITableColumn<PlagSetModel>[] = [
@@ -131,7 +128,7 @@ export class PlagSetTable extends React.Component<PlagSetTableProps> {
             contentClassName="scroll-hidden"
         >
           <Status
-              {...PlagSetTable.getStatusIndicatorData(tableItem)}
+              {...getStatusIndicatorData(tableItem)}
               className="icon-large-margin"
               size={StatusSize.l}
           />
@@ -179,12 +176,12 @@ export class PlagSetTable extends React.Component<PlagSetTableProps> {
               <WithIcon className="fontSize font-size bolt-table-two-line-cell-item icon-margin"
                         iconProps={{ iconName: "AnalyticsReport" }}
                         tooltipProps={{ text: `Reporting progress: ${tableItem.report_count - tableItem.report_pending} / ${tableItem.report_count}` }}>
-                <span>{PlagSetTable.getPercentage(tableItem.report_count - tableItem.report_pending, tableItem.report_count)}</span>
+                <span>{getPercentage(tableItem.report_count - tableItem.report_pending, tableItem.report_count)}</span>
               </WithIcon>
               <WithIcon className="fontSize font-size bolt-table-two-line-cell-item"
                         iconProps={{ iconName: "FileCode" }}
                         tooltipProps={{ text: `Compilation progress: ${tableItem.submission_failed + tableItem.submission_succeeded} / ${tableItem.submission_count}` }}>
-                <span>{PlagSetTable.getPercentage(tableItem.submission_failed + tableItem.submission_succeeded, tableItem.submission_count)}</span>
+                <span>{getPercentage(tableItem.submission_failed + tableItem.submission_succeeded, tableItem.submission_count)}</span>
               </WithIcon>
             </>
           )}
@@ -221,4 +218,56 @@ export class PlagSetTable extends React.Component<PlagSetTableProps> {
       return item1.create_time.localeCompare(item2.create_time);
     },
   ];*/
+}
+
+export function PlagSetInfoCard(props: { model: PlagSetModel }) : JSX.Element {
+  return (
+    <Card className="flex-grow" titleProps={{ text: "Summary", ariaLevel: 3 }}>
+      <div className="flex-row summary-card-content" style={{ flexWrap: "wrap" }}>
+        <div className="flex-column" style={{ minWidth: "372px", width: '50%' }} key={0}>
+          <div className="body-m secondary-text summary-line-non-link">Create time and usage</div>
+          <div className="body-m primary-text summary-line-non-link">
+            <WithIcon iconProps={{iconName: "Calendar"}}>
+              <Ago date={new Date(props.model.create_time)} format={AgoFormat.Extended} />
+            </WithIcon>
+          </div>
+          <div className="body-m flex-row primary-text summary-line-non-link">
+            <WithIcon iconProps={{iconName: "Trophy2"}}>
+              <span>Contest {props.model.related?.toLocaleString() ?? 'N/A'}</span>
+            </WithIcon>
+            <div style={{width: '12px'}} />
+            <WithIcon iconProps={{iconName: "Contact"}}>
+              <span>User {props.model.creator?.toLocaleString() ?? 'N/A'}</span>
+            </WithIcon>
+          </div>
+        </div>
+        <div className="flex-column" style={{ minWidth: "186px", width: '25%' }} key={1}>
+          <div className="body-m secondary-text summary-line-non-link">Submissions</div>
+          <div className="body-m primary-text summary-line-non-link">
+            <WithIcon iconProps={{iconName: "FileCode"}}>
+              <span>{props.model.submission_count} total</span>
+            </WithIcon>
+          </div>
+          <div className="body-m primary-text summary-line-non-link">
+            <WithIcon iconProps={{iconName: "Archive"}}>
+              <span>{props.model.submission_succeeded} ok, {props.model.submission_failed} fail</span>
+            </WithIcon>
+          </div>
+        </div>
+        <div className="flex-column" style={{ minWidth: "186px", width: '25%' }} key={2}>
+          <div className="body-m secondary-text summary-line-non-link">Reports</div>
+          <div className="body-m primary-text summary-line-non-link">
+            <WithIcon iconProps={{iconName: "CRMReport"}}>
+              <span>{props.model.report_count} total</span>
+            </WithIcon>
+          </div>
+          <div className="body-m primary-text summary-line-non-link">
+            <WithIcon iconProps={{iconName: "Diagnostic"}}>
+              <span>{props.model.report_count - props.model.report_pending} finished</span>
+            </WithIcon>
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
 }

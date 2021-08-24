@@ -145,13 +145,13 @@ class PlagSetList extends React.Component<RouteComponentProps & PlagSetListProps
           />
           <div className="page-content page-content-top">
             <Card className="flex-grow bolt-table-card" contentProps={{ contentPadding: false }}>
-              <PlagSetTable itemProvider={this.observableArray} />
+              <PlagSetTable itemProvider={this.observableArray} itemClick={(model => this.props.history.push('/' + model.setid))} />
             </Card>
           </div>
         </Page>
         {this.state.rescuing &&
           <Dialog
-              titleProps={{ text: "Plagiarism service",  }}
+              titleProps={{ text: "Plagiarism service" }}
               onDismiss={() => this.closeRescueDialog()}
               footerButtonProps={[
                 { text: "Cancel", disabled: this.state.busy, onClick: () => this.closeRescueDialog() },

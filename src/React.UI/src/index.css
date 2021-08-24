@@ -42,3 +42,9 @@ code {
   font-size: 14px;
   font-family: inherit;
 }
+
+.summary-card-content .summary-line-non-link {
+  padding-left: 6px;
+  padding-top: 3px;
+  padding-bottom: 3px;
+}
