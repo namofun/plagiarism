@@ -1,12 +1,9 @@
-import * as React from 'react';
-import { RouteComponentProps } from "react-router-dom";
-import { Page } from 'azure-devops-ui/Page';
-import { CustomHeader, Header, HeaderBackButton, HeaderDescription, HeaderIcon, HeaderTitle, HeaderTitleArea, HeaderTitleRow, TitleSize } from 'azure-devops-ui/Header';
-import { HeaderCommandBar, IHeaderCommandBarItem } from 'azure-devops-ui/HeaderCommandBar';
-import { Surface, SurfaceBackground } from 'azure-devops-ui/Surface';
-import { getStatusIndicatorData, PlagSetInfoCard, PlagSetModel } from './PlagSetEntities';
-import { Card } from 'azure-devops-ui/Card';
-import { Status, Statuses, StatusSize } from 'azure-devops-ui/Status';
+import { Card, CustomHeader, HeaderDescription, HeaderIcon, HeaderTitle, HeaderTitleArea, HeaderTitleRow, Page, React, RouteComponentProps, Status, Statuses, StatusSize, Surface, SurfaceBackground, TitleSize } from "../AzureDevOpsUI";
+import { PlagSetInfoCard } from "../Views/PlagSetInfoCard";
+import { PlagiarismSet as PlagSetModel } from "../Models/PlagiarismSet";
+
+//import { Header, HeaderBackButton } from 'azure-devops-ui/Header';
+//import { HeaderCommandBar, IHeaderCommandBarItem } from 'azure-devops-ui/HeaderCommandBar';
 
 interface PlagSetViewProps {
   match: {
@@ -86,12 +83,14 @@ class PlagSetView extends React.Component<PlagSetViewProps & RouteComponentProps
                 </HeaderTitle>
               </HeaderTitleRow>
               <HeaderDescription>
-                {this.state.model?.setid}
+                #{this.state.model?.setid}
               </HeaderDescription>
             </HeaderTitleArea>
           </CustomHeader>
           <div className="page-content page-content-top">
-            {this.state.model && <PlagSetInfoCard model={this.state.model} />}
+            {this.state.model &&
+              <PlagSetInfoCard model={this.state.model} />
+            }
             <Card className="margin-top-16"
                 titleProps={{ text: 'Submissions' }}
                 headerCommandBarItems={[]}>

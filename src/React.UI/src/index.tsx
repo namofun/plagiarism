@@ -5,8 +5,8 @@ import App from './App';
 import { initializeIcons } from '@fluentui/font-icons-mdl2';
 import { BrowserRouter, Route } from 'react-router-dom';
 
-import PlagSetList from './PlagSetList';
-import PlagSetView from './PlagSetView';
+import PlagSetList from './Pages/PlagSetList';
+import PlagSetView from './Pages/PlagSetView';
 
 initializeIcons();
 

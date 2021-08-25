@@ -4,7 +4,7 @@ import { Icon } from "@fluentui/react/lib/Icon";
 import { Tooltip, ITooltipProps } from "azure-devops-ui/TooltipEx";
 import { css } from "azure-devops-ui/Util";
 
-interface IWithIconProps {
+export interface IWithIconProps {
   className?: string;
   iconProps: IIconProps;
   children?: React.ReactNode;

@@ -1,17 +1,12 @@
-import * as React from 'react';
-import { RouteComponentProps } from "react-router-dom";
-import { Page } from 'azure-devops-ui/Page';
-import { Header, TitleSize } from 'azure-devops-ui/Header';
-import { IHeaderCommandBarItem } from 'azure-devops-ui/HeaderCommandBar';
-import { Surface, SurfaceBackground } from 'azure-devops-ui/Surface';
-import { PlagSetModel, PlagSetTable, PlagSetListProps } from './PlagSetEntities';
-import { Card } from "azure-devops-ui/Card";
-import { IReadonlyObservableValue, ObservableArray, ObservableValue } from 'azure-devops-ui/Core/Observable';
-import { Dialog } from 'azure-devops-ui/Dialog';
-import { Panel } from 'azure-devops-ui/Panel';
-import { TextField } from 'azure-devops-ui/TextField';
-import { Spinner, SpinnerOrientation } from 'azure-devops-ui/Spinner';
+import { Card, Dialog, Header, IHeaderCommandBarItem, IReadonlyObservableValue, ObservableArray, ObservableValue, Page, Panel, React, RouteComponentProps, Spinner, SpinnerOrientation, Surface, SurfaceBackground, TextField, TitleSize } from "../AzureDevOpsUI";
+import { PlagiarismSet as PlagSetModel } from '../Models/PlagiarismSet';
+import { PlagSetTable } from "../Views/PlagSetTable";
 import Q from 'q';
+
+interface PlagSetListProps {
+  creator?: number;
+  related?: number;
+}
 
 interface PlagSetListState {
   loading: boolean;
@@ -177,7 +172,8 @@ class PlagSetList extends React.Component<RouteComponentProps & PlagSetListProps
                   required
                   value={this.newPsetName}
                   disabled={this.state.busy}
-                  onChange={(e, newValue) => (this.newPsetName.value = newValue)} />
+                  onChange={(e, newValue) => (this.newPsetName.value = newValue)}
+              />
               <TextField
                   className="bolt-formitem"
                   label="Description"
@@ -185,7 +181,8 @@ class PlagSetList extends React.Component<RouteComponentProps & PlagSetListProps
                   rows={4}
                   value={this.newPsetDescription}
                   disabled={this.state.busy}
-                  onChange={(e, newValue) => (this.newPsetDescription.value = newValue)} />
+                  onChange={(e, newValue) => (this.newPsetDescription.value = newValue)}
+              />
               {this.state.busy &&
                 <div style={{ margin: '24px auto 0 0' }} className="flex-row">
                   <Spinner label="Creating new plagiarism set..." orientation={SpinnerOrientation.row} />
