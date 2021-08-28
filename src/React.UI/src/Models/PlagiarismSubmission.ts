@@ -43,7 +43,7 @@ export interface PlagiarismSubmission {
   /**
    * Whether the token is produced
    */
-  token_produced: boolean;
+  token_produced: boolean | null;
 
   /**
    * Upload time (ISO format)
@@ -53,7 +53,7 @@ export interface PlagiarismSubmission {
   /**
    * The file of submission
    */
-  files?: PlagiarismFile[];
+  files: PlagiarismFile[] | null | undefined;
 
   /**
    * Language name

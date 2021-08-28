@@ -7,9 +7,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-code {
+code, .text-code-like {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+.text-cap-like {
+  font-variant: small-caps;
 }
 
 .bolt-textfield-label {

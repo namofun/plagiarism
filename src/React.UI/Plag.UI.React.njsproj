@@ -1,79 +1,19 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+<Project Sdk="Namofun.Sdk.React/0.0.428">
   <PropertyGroup>
-    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">14.0</VisualStudioVersion>
-    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
-    <ProjectGuid>{8b0f066f-c6fd-4883-877e-cdf29934a8d5}</ProjectGuid>
-    <!--<Name>Plag.UI.React</Name>
-    <RootNamespace>Plag.UI.React</RootNamespace>-->
+    <Name>Plag.UI.React</Name>
+    <RootNamespace>Plag.UI.React</RootNamespace>
+    <EnableTypeScript>true</EnableTypeScript>
+    <ProjectGuid>{e6e22e00-7c6c-4b45-8db8-79c0a2a869c1}</ProjectGuid>
   </PropertyGroup>
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <StartupFile>node_modules\react-scripts\scripts\start.js</StartupFile>
-    <!--<SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{8b0f066f-c6fd-4883-877e-cdf29934a8d5}</ProjectGuid>
-    <ProjectHome>.</ProjectHome>
-    <SearchPath>
-    </SearchPath>
-    <WorkingDirectory>.</WorkingDirectory>
-    <OutputPath>.</OutputPath>-->
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{349c5851-65df-11da-9384-00065b846f21};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
-    <!--<NodejsPort>1337</NodejsPort>
-    <StartWebBrowser>true</StartWebBrowser>
-    <ScriptArguments>serve</ScriptArguments>-->
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <DebugSymbols>true</DebugSymbols>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <DebugSymbols>true</DebugSymbols>
-  </PropertyGroup>
-  <PropertyGroup>
-    <PostBuildEvent>
-      npm run build
-    </PostBuildEvent>
-  </PropertyGroup>
-
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props"
-          Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <Import Project="$(VSToolsPath)\Node.js Tools\Microsoft.NodejsToolsV2.targets"
-          Condition="Exists('$(VSToolsPath)\Node.js Tools\Microsoft.NodejsToolsV2.targets')" />
-  <Target Name="Build" Condition="!Exists('$(VSToolsPath)\Node.js Tools\Microsoft.NodejsToolsV2.targets')">
-  </Target>
-
   <ItemGroup>
-    <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="4.3.5">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
+    <Compile Include="@(None);@(Content)" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Content Include=".gitignore" />
-    <Content Include="package-lock.json" />
-    <Content Include="package.json" />
-    <Content Include="public\index.html" />
-    <Content Include="public\robots.txt" />
-    <Content Include="README.md" />
-    <Content Include="src\App.css" />
-    <Content Include="src\index.css" />
-    <Content Include="src\logo.svg" />
-    <Content Include="tsconfig.json" />
-    <Content Include="tslint.json" />
-  </ItemGroup>
-
   <ItemGroup>
     <Folder Include="public\" />
     <Folder Include="src\" />
+    <Folder Include="src\Components\" />
+    <Folder Include="src\Models\" />
+    <Folder Include="src\Pages\" />
+    <Folder Include="src\Views\" />
   </ItemGroup>
-
-  <ItemGroup>
-    <TypeScriptCompile Include="src\App.test.tsx" />
-    <TypeScriptCompile Include="src\App.tsx" />
-    <TypeScriptCompile Include="src\index.tsx" />
-    <TypeScriptCompile Include="src\react-app-env.d.ts" />
-    <TypeScriptCompile Include="src\setupTests.ts" />
-  </ItemGroup>
-
 </Project>
