@@ -13,10 +13,6 @@ export interface IWithIconProps {
 
 export class WithIcon extends React.Component<IWithIconProps> {
 
-  constructor(props: IWithIconProps) {
-    super(props);
-  }
-
   public render() {
     let content = (
       <div className={css(this.props.className, "flex-row flex-center")}>

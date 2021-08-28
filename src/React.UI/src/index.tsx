@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
+import 'azure-devops-ui/Core/override.css';
 import App from './App';
 import { initializeIcons } from '@fluentui/font-icons-mdl2';
 import { BrowserRouter, Route } from 'react-router-dom';

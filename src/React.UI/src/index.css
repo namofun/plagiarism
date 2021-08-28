@@ -1,17 +1,3 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-code, .text-code-like {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}
-
 .text-cap-like {
   font-variant: small-caps;
 }
@@ -47,8 +33,49 @@ code, .text-code-like {
   font-family: inherit;
 }
 
+.summary-card-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.summary-card-content-item ~ .summary-card-content-item {
+  margin-top: 12px;
+}
+
+@media (min-width: 700px) {
+
+  .summary-card-content {
+    flex-direction: row;
+  }
+
+  .summary-card-content-item ~ .summary-card-content-item {
+    margin-top: 0;
+  }
+  
+}
+
 .summary-card-content .summary-line-non-link {
   padding-left: 6px;
   padding-top: 3px;
   padding-bottom: 3px;
+}
+
+.margin-left-12 {
+  margin-left: 12px;
+}
+
+.margin-right-12 {
+  margin-right: 12px;
+}
+
+.margin-top-12 {
+  margin-top: 12px;
+}
+
+.margin-bottom-12 {
+  margin-bottom: 12px;
+}
+
+.summary-line-non-link > div ~ div {
+  margin-left: 12px;
 }

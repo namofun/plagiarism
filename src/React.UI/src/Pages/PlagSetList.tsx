@@ -1,6 +1,7 @@
-import { Card, Dialog, Header, IHeaderCommandBarItem, IReadonlyObservableValue, ObservableArray, ObservableValue, Page, Panel, React, RouteComponentProps, Spinner, SpinnerOrientation, Surface, SurfaceBackground, TextField, TitleSize } from "../AzureDevOpsUI";
+import { Card, Dialog, Header, IHeaderCommandBarItem, IReadonlyObservableValue, ObservableArray, ObservableValue, Page, React, RouteComponentProps, Spinner, SpinnerOrientation, Surface, SurfaceBackground, TitleSize } from "../AzureDevOpsUI";
 import { PlagiarismSet as PlagSetModel } from '../Models/PlagiarismSet';
 import { PlagSetTable } from "../Views/PlagSetTable";
+import { PlagSetCreatePanel } from "../Views/PlagSetCreatePanel";
 import Q from 'q';
 
 interface PlagSetListProps {
@@ -61,7 +62,7 @@ class PlagSetList extends React.Component<RouteComponentProps & PlagSetListProps
 
     this.newPsetName.subscribe(value => {
       let shouldCanCreate = value !== '';
-      if (this.state.canCreate != shouldCanCreate) {
+      if (this.state.canCreate !== shouldCanCreate) {
         this.setState({ ...this.state, canCreate: shouldCanCreate });
       }
     });
@@ -140,7 +141,11 @@ class PlagSetList extends React.Component<RouteComponentProps & PlagSetListProps
           />
           <div className="page-content page-content-top">
             <Card className="flex-grow bolt-table-card" contentProps={{ contentPadding: false }}>
-              <PlagSetTable itemProvider={this.observableArray} itemClick={(model => this.props.history.push('/' + model.setid))} />
+              <PlagSetTable
+                  itemProvider={this.observableArray}
+                  itemClick={(model => this.props.history.push('/' + model.setid))}
+                  canSort={!this.state.loading}
+              />
             </Card>
           </div>
         </Page>
@@ -158,38 +163,14 @@ class PlagSetList extends React.Component<RouteComponentProps & PlagSetListProps
           </Dialog>
         }
         {this.state.creating &&
-          <Panel
-              onDismiss={() => this.closeCreatePanel()}
-              titleProps={{ text: "Create Plagiarism Set" }}
-              footerButtonProps={[
-                { text: "Cancel", onClick: () => this.closeCreatePanel(), disabled: this.state.busy },
-                { text: "Create", onClick: () => this.sendCreateRequest(), disabled: !this.state.canCreate || this.state.busy, primary: true }
-              ]}>
-            <div style={{ width: '100%' }}>
-              <TextField
-                  className="bolt-required bolt-formitem"
-                  label="Name"
-                  required
-                  value={this.newPsetName}
-                  disabled={this.state.busy}
-                  onChange={(e, newValue) => (this.newPsetName.value = newValue)}
-              />
-              <TextField
-                  className="bolt-formitem"
-                  label="Description"
-                  multiline
-                  rows={4}
-                  value={this.newPsetDescription}
-                  disabled={this.state.busy}
-                  onChange={(e, newValue) => (this.newPsetDescription.value = newValue)}
-              />
-              {this.state.busy &&
-                <div style={{ margin: '24px auto 0 0' }} className="flex-row">
-                  <Spinner label="Creating new plagiarism set..." orientation={SpinnerOrientation.row} />
-                </div>
-              }
-            </div>
-          </Panel>
+          <PlagSetCreatePanel
+              closeCreatePanel={() => this.closeCreatePanel()}
+              busy={this.state.busy}
+              valid={this.state.canCreate}
+              sendCreateRequest={() => this.sendCreateRequest()}
+              newPsetName={this.newPsetName}
+              newPsetDescription={this.newPsetDescription}
+          />
         }
       </Surface>
     );

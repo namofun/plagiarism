@@ -1,23 +1,20 @@
-import { React, IReadonlyObservableValue, ObservableArray, Status, StatusSize, WithIcon, Tooltip, Table, ITableColumn, TableColumnLayout, SimpleTableCell, Ago, AgoFormat, TwoLineTableCell } from "../AzureDevOpsUI";
+import { React, IReadonlyObservableValue, ObservableArray, Status, StatusSize, WithIcon, Tooltip, Table, ITableColumn, TableColumnLayout, SimpleTableCell, Ago, AgoFormat, TwoLineTableCell, ColumnSorting, SortOrder } from "../AzureDevOpsUI";
 import { PlagiarismSet as PlagSetModel } from "../DataModels";
 import { Helpers } from '../Components/Helpers';
 
 export interface PlagSetTableProps {
+  canSort: boolean;
   itemProvider: ObservableArray<PlagSetModel | IReadonlyObservableValue<PlagSetModel | undefined>>;
   itemClick: (model: PlagSetModel) => void;
 }
 
 export class PlagSetTable extends React.Component<PlagSetTableProps> {
 
-  constructor(props: PlagSetTableProps) {
-    super(props);
-  }
-
   public render(): JSX.Element {
     return (
       <Table<PlagSetModel>
         ariaLabel="Advanced table"
-        //behaviors={[this.sortingBehavior]}
+        behaviors={[this.sortingBehavior]}
         className="table-example"
         columns={this.columns}
         containerClassName="h-scroll-auto"
@@ -62,10 +59,7 @@ export class PlagSetTable extends React.Component<PlagSetTableProps> {
         </SimpleTableCell>
       )),
       readonly: true,
-      sortProps: {
-        ariaLabelAscending: "Sorted name A to Z",
-        ariaLabelDescending: "Sorted name Z to A",
-      },
+      sortProps: {},
       width: -33,
     },
     {
@@ -100,35 +94,42 @@ export class PlagSetTable extends React.Component<PlagSetTableProps> {
           )}
         />
       )),
-      sortProps: {
-        ariaLabelAscending: "Sorted time A to Z",
-        ariaLabelDescending: "Sorted time Z to A",
-      },
+      sortProps: {},
       width: -22,
     }
   ];
-/*
-  private sortingBehavior = new ColumnSorting<PlagiarismSetModel>(
+
+  private sortingBehavior = new ColumnSorting<PlagSetModel>(
     (columnIndex: number, proposedSortOrder: SortOrder) => {
-      this.props.itemProvider.value = new ArrayItemProvider(
-        sortItems(
-          columnIndex,
-          proposedSortOrder,
-          this.sortFunctions,
-          this.columns,
-          this.currentItems
-        )
-      );
+      if (columnIndex < this.sortFunctions.length) {
+        console.log(columnIndex);
+        console.log(proposedSortOrder);
+        const sortFunc = this.sortFunctions[columnIndex];
+        const values = this.props.itemProvider.value;
+        values.sort((item1, item2) => {
+          const model1 = item1 as (PlagSetModel | undefined | null);
+          const model2 = item2 as (PlagSetModel | undefined | null);
+          if (!model1 && !model2) return 0;
+          else if (model1 && model2) return proposedSortOrder === SortOrder.ascending ? sortFunc(model1, model2) : sortFunc(model2, model1);
+          else return model1 ? -1 : 1;
+        });
+
+        this.props.itemProvider.change(0, ...values);
+        for (const column of this.columns) {
+          if (column.sortProps) {
+            column.sortProps.sortOrder = undefined;
+          }
+        }
+
+        if (this.columns[columnIndex].sortProps) {
+          this.columns[columnIndex].sortProps!.sortOrder = proposedSortOrder;
+        }
+      }
     }
   );
 
   private sortFunctions = [
-    // Sort on Name column
-    (item1: PlagiarismSetModel, item2: PlagiarismSetModel) => {
-      return item1.formal_name.localeCompare(item2.formal_name);
-    },
-    (item1: PlagiarismSetModel, item2: PlagiarismSetModel) => {
-      return item1.create_time.localeCompare(item2.create_time);
-    },
-  ];*/
+    (item1: PlagSetModel, item2: PlagSetModel) => item1.formal_name.localeCompare(item2.formal_name),
+    (item1: PlagSetModel, item2: PlagSetModel) => item1.create_time.localeCompare(item2.create_time),
+  ];
 }
