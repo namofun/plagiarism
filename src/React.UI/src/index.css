@@ -2,37 +2,6 @@
   font-variant: small-caps;
 }
 
-.bolt-textfield-label {
-  color: rgb(51, 51, 51);
-  box-sizing: border-box;
-  box-shadow: none;
-  margin: 0px;
-  display: block;
-  padding: 5px 0px;
-  overflow-wrap: break-word;
-}
-
-.bolt-formitem > .bolt-textfield-label {
-  font-size: .875rem;
-  margin-bottom: 8px;
-  padding: 0;
-}
-
-.bolt-required > .bolt-textfield-label::after {
-  content: " *";
-  color: rgb(168, 0, 0);
-  padding-right: 12px;
-}
-
-.bolt-formitem ~ .bolt-formitem {
-  margin-top: 16px;
-}
-
-.bolt-textfield-input {
-  font-size: 14px;
-  font-family: inherit;
-}
-
 .summary-card-content {
   display: flex;
   flex-direction: column;

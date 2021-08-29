@@ -1,0 +1,15 @@
+
+.bolt-required.bolt-formitem-label::after {
+  content: " *";
+  color: rgb(168, 0, 0);
+  padding-right: 12px;
+}
+
+.bolt-alternative-required.bolt-formitem-label::after {
+  content: " *";
+  padding-right: 12px;
+}
+
+.bolt-formitem ~ .bolt-formitem {
+  margin-top: 16px;
+}

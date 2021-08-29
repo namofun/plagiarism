@@ -32,3 +32,5 @@ export * from "azure-devops-ui/TooltipEx";
 export * from "azure-devops-ui/Utilities/Date";
 
 export * from "./Components/WithIcon";
+export type { IFormItemContext, IFormItemV2Props as IFormItemProps } from "./Components/FormItemV2";
+export { FormItemV2 as FormItem, FormItemContext } from "./Components/FormItemV2";
