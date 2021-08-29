@@ -1,6 +1,7 @@
 import { Card, CustomHeader, HeaderDescription, HeaderIcon, HeaderTitle, HeaderTitleArea, HeaderTitleRow, IHeaderCommandBarItem, IReadonlyObservableValue, ObservableArray, ObservableValue, Page, React, RouteComponentProps, Status, StatusSize, Surface, SurfaceBackground, TitleSize } from "../AzureDevOpsUI";
 import { PlagSetInfoCard } from "../Views/PlagSetInfoCard";
 import { PlagSetSubmitList } from "../Views/PlagSetSubmitList";
+import { PlagSubmitUploadPanel } from "../Views/PlagSubmitUploadPanel";
 import { PlagiarismSet as PlagSetModel } from "../Models/PlagiarismSet";
 import { PlagiarismSubmission as PlagSubmitModel } from "../Models/PlagiarismSubmission";
 import { Helpers } from "../Components/Helpers";
@@ -15,7 +16,9 @@ interface PlagSetViewProps {
 }
 
 interface PlagSetViewState {
-  loading: boolean;
+  busy: boolean;
+  uploading: boolean;
+  uploadValid: boolean;
   notFound: boolean;
   formal_name: string;
   setid: string;
@@ -26,16 +29,25 @@ interface PlagSetViewState {
 class PlagSetView extends React.Component<PlagSetViewProps & RouteComponentProps, PlagSetViewState> {
 
   private loadController = new AbortController();
+  private uploadLang = new ObservableValue<string | undefined>("");
+  private uploadExccat = new ObservableValue<string | undefined>("");
+  private uploadInccat = new ObservableValue<string | undefined>("0");
 
   constructor(props: PlagSetViewProps & RouteComponentProps) {
     super(props);
 
     this.state = {
-      loading: false,
+      busy: true,
+      uploading: false,
+      uploadValid: false,
       notFound: false,
       formal_name: 'Loading...',
       setid: props.match.params.id
     };
+  }
+
+  private activateUpload() {
+    this.setState({ ...this.state, uploading: true });
   }
 
   private commandBarItems : IHeaderCommandBarItem[] = [
@@ -44,7 +56,7 @@ class PlagSetView extends React.Component<PlagSetViewProps & RouteComponentProps
       id: "upload-button",
       isPrimary: true,
       text: "Upload",
-      onActivate: () => {}
+      onActivate: () => this.activateUpload()
     }
   ];
 
@@ -65,6 +77,7 @@ class PlagSetView extends React.Component<PlagSetViewProps & RouteComponentProps
         const submits = json as PlagSubmitModel[];
         this.setState({
           ...this.state,
+          busy: false,
           model: set,
           setid: set.setid,
           formal_name: set.formal_name,
@@ -75,6 +88,7 @@ class PlagSetView extends React.Component<PlagSetViewProps & RouteComponentProps
       console.log(reason);
       this.setState({
         ...this.state,
+        busy: false,
         notFound: true
       })
     });
@@ -82,6 +96,16 @@ class PlagSetView extends React.Component<PlagSetViewProps & RouteComponentProps
 
   public componentWillUnmount() {
     this.loadController.abort();
+  }
+
+  private closeUploadPanel() {
+    if (!this.state.busy) {
+      this.setState({ ...this.state, uploading: false });
+    }
+  }
+
+  private sendUploadRequest() {
+    this.setState({ ...this.state, busy: true });
   }
 
   public render() {
@@ -94,6 +118,7 @@ class PlagSetView extends React.Component<PlagSetViewProps & RouteComponentProps
     else for (let i = 0; i < 5; i++) arr.push(new ObservableValue<PlagSubmitModel | undefined>(undefined));
     return (
       <>
+        <>
           <CustomHeader className="bolt-header-with-commandbar">
             <HeaderIcon
                 className="bolt-table-status-icon-large"
@@ -115,10 +140,28 @@ class PlagSetView extends React.Component<PlagSetViewProps & RouteComponentProps
             <Card className="margin-top-16 flex-grow bolt-table-card"
                 titleProps={{ text: 'Submissions' }}
                 contentProps={{ contentPadding: false }}
-                headerCommandBarItems={this.commandBarItems}>
-              <PlagSetSubmitList observableArray={arr} />
+                headerCommandBarItems={arr.length === 0 ? [] : this.commandBarItems}>
+              <PlagSetSubmitList
+                  observableArray={arr}
+                  zeroDataActionText="Upload submissions"
+                  zeroDataAction={() => this.activateUpload()} />
             </Card>
           </div>
+        </>
+        <>
+          {this.state.uploading && (
+            <PlagSubmitUploadPanel
+                busy={this.state.busy}
+                avaliableLanguage={[]}
+                valid={this.state.uploadValid}
+                language={this.uploadLang}
+                exclusiveCategory={this.uploadExccat}
+                nonExclusiveCategory={this.uploadInccat}
+                closeUploadPanel={() => this.closeUploadPanel()}
+                sendUploadRequest={() => this.sendUploadRequest()}
+            />
+          )}
+        </>
       </>
     );
   }

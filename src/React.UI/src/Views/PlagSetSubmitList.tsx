@@ -1,8 +1,10 @@
-import { Ago, AgoFormat, IReadonlyObservableValue, IStatusProps, ITableBreakpoint, ITableColumn, ObservableArray, ObservableValue, React, renderSimpleCell, ScreenBreakpoints, SimpleTableCell, Status, Statuses, StatusSize, Table, TableColumnLayout, Tooltip } from "../AzureDevOpsUI";
+import { Ago, AgoFormat, IReadonlyObservableValue, IStatusProps, ITableBreakpoint, ITableColumn, ObservableArray, ObservableValue, React, renderSimpleCell, ScreenBreakpoints, SimpleTableCell, Status, Statuses, StatusSize, Table, TableColumnLayout, Tooltip, ZeroData, ZeroDataActionType } from "../AzureDevOpsUI";
 import { PlagiarismSubmission as PlagSubmitModel } from "../Models/PlagiarismSubmission";
 
 interface PlagSetSubmitListCardProps {
   observableArray: ObservableArray<PlagSubmitModel | IReadonlyObservableValue<PlagSubmitModel | undefined>>;
+  zeroDataAction: () => void;
+  zeroDataActionText: string;
 }
 
 export class PlagSetSubmitList extends React.Component<PlagSetSubmitListCardProps> {
@@ -112,7 +114,7 @@ export class PlagSetSubmitList extends React.Component<PlagSetSubmitListCardProp
   ];
 
   public render() {
-    return (
+    return this.props.observableArray.length > 0 ? (
       <Table<PlagSubmitModel>
           ariaLabel="Table with sorting"
           //behaviors={[sortingBehavior]}
@@ -122,6 +124,17 @@ export class PlagSetSubmitList extends React.Component<PlagSetSubmitListCardProp
           itemProvider={this.props.observableArray}
           role="table"
           tableBreakpoints={this.tableBreakpoints}
+      />
+    ) : (
+      <ZeroData
+          className="flex-grow vss-ZeroData-fullsize"
+          primaryText="No uploaded submissions"
+          secondaryText="Upload codes as zip archives to compare their similarity."
+          imageAltText="No items"
+          imagePath="https://cdn.vsassets.io/ext/ms.vss-code-web/tags-view-content/Content/no-results.YsM6nMXPytczbbtz.png"
+          actionText={this.props.zeroDataActionText}
+          actionType={ZeroDataActionType.ctaButton}
+          onActionClick={(event, item) => this.props.zeroDataAction()}
       />
     );
   }

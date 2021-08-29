@@ -1,8 +1,5 @@
 import * as React from "react";
-import { IIconProps } from "azure-devops-ui/Icon";
 import { Icon } from "@fluentui/react/lib/Icon";
-import { Tooltip, ITooltipProps } from "azure-devops-ui/TooltipEx";
-import { css } from "azure-devops-ui/Util";
 import { Link } from "azure-devops-ui/Link";
 import { Breadcrumb } from "azure-devops-ui/Breadcrumb";
 import { RouteComponentProps } from "react-router";

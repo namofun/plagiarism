@@ -1,4 +1,4 @@
-import { Card, Dialog, Header, IHeaderCommandBarItem, IReadonlyObservableValue, ObservableArray, ObservableValue, Page, React, RouteComponentProps, Spinner, SpinnerOrientation, Surface, SurfaceBackground, TitleSize } from "../AzureDevOpsUI";
+import { Card, Dialog, Header, IHeaderCommandBarItem, IReadonlyObservableValue, ObservableArray, ObservableValue, Page, React, RouteComponentProps, Spinner, SpinnerOrientation, TitleSize, ZeroData, ZeroDataActionType } from "../AzureDevOpsUI";
 import { PlagiarismSet as PlagSetModel } from '../Models/PlagiarismSet';
 import { PlagSetTable } from "../Views/PlagSetTable";
 import { PlagSetCreatePanel } from "../Views/PlagSetCreatePanel";
@@ -29,13 +29,7 @@ class PlagSetList extends React.Component<RouteComponentProps & PlagSetListProps
       id: "test1",
       isPrimary: true,
       text: "Create",
-      onActivate: () => {
-        if (!this.state.busy) {
-          this.newPsetName.value = "";
-          this.newPsetDescription.value = "";
-          this.setState({ ...this.state, creating: true });
-        }
-      }
+      onActivate: () => this.openCreatePanel()
     },
     {
       iconProps: { iconName: "Refresh" },
@@ -49,6 +43,14 @@ class PlagSetList extends React.Component<RouteComponentProps & PlagSetListProps
       }
     }
   ];
+
+  private openCreatePanel() {
+    if (!this.state.busy) {
+      this.newPsetName.value = "";
+      this.newPsetDescription.value = "";
+      this.setState({ ...this.state, creating: true });
+    }
+  }
 
   constructor(props: RouteComponentProps & PlagSetListProps) {
     super(props);
@@ -136,9 +138,10 @@ class PlagSetList extends React.Component<RouteComponentProps & PlagSetListProps
         <>
           <Header
               title="Plagiarism Set"
-              commandBarItems={this.commandBarItems}
+              commandBarItems={this.observableArray.length > 0 ? this.commandBarItems : [this.commandBarItems[1]]}
               titleSize={TitleSize.Large}
           />
+          {this.observableArray.length > 0 ? (
           <div className="page-content page-content-top">
             <Card className="flex-grow bolt-table-card" contentProps={{ contentPadding: false }}>
               <PlagSetTable
@@ -148,6 +151,24 @@ class PlagSetList extends React.Component<RouteComponentProps & PlagSetListProps
               />
             </Card>
           </div>
+          ) : (
+          <div className="page-content page-content-top flex-grow flex-column">
+            <div className="flex-grow" />
+            <div className="flex-cell flex-grow">
+              <ZeroData
+                className="flex-grow vss-ZeroData-fullsize"
+                primaryText="Create your first plagiarism set"
+                secondaryText="Use plagiarism set to detect code similarity and manage homework integrity."
+                imageAltText="No items"
+                imagePath="https://cdn.vsassets.io/ext/ms.vss-environments-web/environments-landing/ZeroData.pKQ45bYFZi6gXJbV.svg"
+                actionText="Create plagiarism set"
+                actionType={ZeroDataActionType.ctaButton}
+                onActionClick={(event, item) => this.openCreatePanel()}
+              />
+            </div>
+            <div className="flex-grow" style={{ flexGrow: 2.5 }} />
+          </div>
+          )}
         </>
         {this.state.rescuing &&
           <Dialog

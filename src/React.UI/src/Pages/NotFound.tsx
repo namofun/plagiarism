@@ -4,6 +4,8 @@ export default class NotFound extends React.Component<RouteComponentProps> {
 
   public render() {
     return (
+      <>
+      <div className="flex-grow" />
       <div className="flex-grow flex-cell">
         <ZeroData
             className="flex-grow vss-ZeroData-fullsize"
@@ -16,6 +18,8 @@ export default class NotFound extends React.Component<RouteComponentProps> {
             onActionClick={(event, item) => this.props.history.push('/')}
         />
       </div>
+      <div className="flex-grow" style={{ flexGrow: 2 }} />
+      </>
     );
   }
 }
