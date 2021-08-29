@@ -45,6 +45,33 @@
   margin-bottom: 12px;
 }
 
+.margin-left-0 {
+  margin-left: 0;
+}
+
+.margin-right-0 {
+  margin-right: 0;
+}
+
+.margin-top-0 {
+  margin-top: 0;
+}
+
+.margin-bottom-0 {
+  margin-bottom: 0;
+}
+
+.vss-ZeroData.vss-ZeroData-fullsize {
+  margin-top: 0;
+  margin-bottom: 35px;
+}
+
 .summary-line-non-link > div ~ div {
   margin-left: 12px;
+}
+
+#react-root {
+  display: flex;
+  flex-grow: 1;
+  flex-direction: row;
 }

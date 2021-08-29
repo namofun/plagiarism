@@ -1,0 +1,12 @@
+
+.region-header {
+  background: rgba(255, 255, 255, 1);
+  background: var(--nav-header-background,rgba(255, 255, 255, 1));
+  box-shadow: rgba(0, 0, 0, .08) 0 1px 0;
+  box-shadow: var(--border-subtle-color,rgba(0, 0, 0, .08)) 0 1px 0;
+  color: rgba(0, 0, 0, .55);
+  color: var(--nav-vertical-text-secondary-color,rgba(0, 0, 0, .55));
+  min-height: 48px;
+  overflow-x: hidden;
+  z-index: 10;
+}

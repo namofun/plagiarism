@@ -4,6 +4,7 @@ import { PlagSetSubmitList } from "../Views/PlagSetSubmitList";
 import { PlagiarismSet as PlagSetModel } from "../Models/PlagiarismSet";
 import { PlagiarismSubmission as PlagSubmitModel } from "../Models/PlagiarismSubmission";
 import { Helpers } from "../Components/Helpers";
+import NotFound from "./NotFound";
 
 interface PlagSetViewProps {
   match: {
@@ -15,6 +16,7 @@ interface PlagSetViewProps {
 
 interface PlagSetViewState {
   loading: boolean;
+  notFound: boolean;
   formal_name: string;
   setid: string;
   model?: PlagSetModel;
@@ -30,6 +32,7 @@ class PlagSetView extends React.Component<PlagSetViewProps & RouteComponentProps
 
     this.state = {
       loading: false,
+      notFound: false,
       formal_name: 'Loading...',
       setid: props.match.params.id
     };
@@ -68,6 +71,12 @@ class PlagSetView extends React.Component<PlagSetViewProps & RouteComponentProps
           submissions: submits
         });
       });
+    }).catch(reason => {
+      console.log(reason);
+      this.setState({
+        ...this.state,
+        notFound: true
+      })
     });
   }
 
@@ -76,12 +85,15 @@ class PlagSetView extends React.Component<PlagSetViewProps & RouteComponentProps
   }
 
   public render() {
+    if (this.state.notFound) {
+      return (<NotFound {...this.props} />);
+    }
+
     const arr = new ObservableArray<PlagSubmitModel | IReadonlyObservableValue<PlagSubmitModel | undefined>>();
     if (this.state.submissions !== null && this.state.submissions !== undefined) arr.push(...this.state.submissions);
     else for (let i = 0; i < 5; i++) arr.push(new ObservableValue<PlagSubmitModel | undefined>(undefined));
     return (
-      <Surface background={SurfaceBackground.neutral}>
-        <Page>
+      <>
           <CustomHeader className="bolt-header-with-commandbar">
             <HeaderIcon
                 className="bolt-table-status-icon-large"
@@ -107,8 +119,7 @@ class PlagSetView extends React.Component<PlagSetViewProps & RouteComponentProps
               <PlagSetSubmitList observableArray={arr} />
             </Card>
           </div>
-        </Page>
-      </Surface>
+      </>
     );
   }
 }

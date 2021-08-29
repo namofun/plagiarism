@@ -30,6 +30,7 @@ export * from "azure-devops-ui/Table";
 export * from "azure-devops-ui/TextField";
 export * from "azure-devops-ui/TooltipEx";
 export * from "azure-devops-ui/Utilities/Date";
+export * from "azure-devops-ui/ZeroData";
 
 export * from "./Components/WithIcon";
 export type { IFormItemContext, IFormItemV2Props as IFormItemProps } from "./Components/FormItemV2";

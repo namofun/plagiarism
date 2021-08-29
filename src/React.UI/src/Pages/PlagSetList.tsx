@@ -132,8 +132,8 @@ class PlagSetList extends React.Component<RouteComponentProps & PlagSetListProps
 
   public render() {
     return (
-      <Surface background={SurfaceBackground.neutral}>
-        <Page>
+      <>
+        <>
           <Header
               title="Plagiarism Set"
               commandBarItems={this.commandBarItems}
@@ -148,7 +148,7 @@ class PlagSetList extends React.Component<RouteComponentProps & PlagSetListProps
               />
             </Card>
           </div>
-        </Page>
+        </>
         {this.state.rescuing &&
           <Dialog
               titleProps={{ text: "Plagiarism service" }}
@@ -172,7 +172,7 @@ class PlagSetList extends React.Component<RouteComponentProps & PlagSetListProps
               newPsetDescription={this.newPsetDescription}
           />
         }
-      </Surface>
+      </>
     );
   }
 }
