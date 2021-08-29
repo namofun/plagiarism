@@ -10,3 +10,40 @@
   overflow-x: hidden;
   z-index: 10;
 }
+
+.commandbar-item {
+  align-items: center;
+  align-self: stretch;
+  display: flex;
+  flex-shrink: 0;
+  outline: none;
+  position: relative;
+}
+
+.region-header .commandbar-item {
+  position: relative;
+}
+
+.region-header .commandbar-item:hover {
+  background-color: rgba(0,0,0,.02);
+  background-color: var(--nav-header-item-hover-background,rgba(0, 0, 0, .02));
+}
+
+.suite-logo .suite-image {
+  font-size: 1.3125rem;
+}
+
+.region-header .commandbar-icon {
+  width: 48px;
+}
+
+.compact-fabric-icon.medium {
+  font-size: 1rem;
+  line-height: 1rem;
+}
+
+.compact-fabric-icon {
+  align-self: center;
+  display: inline-flex;
+  -webkit-font-smoothing: antialiased;
+}
