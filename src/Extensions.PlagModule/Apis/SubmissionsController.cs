@@ -164,13 +164,15 @@ namespace SatelliteSite.PlagModule.Apis
         /// </summary>
         /// <param name="sid">The plagiarism set ID</param>
         /// <param name="id">The ID of the entity to get</param>
+        /// <param name="includeFiles">Whether to include submission files</param>
         /// <response code="200">Returns the comparison results of given submission for the plagiarism system</response>
         [HttpGet("{id}/comparisons")]
         public async Task<ActionResult<Vertex>> GetComparisons(
             [FromRoute, Required] string sid,
-            [FromRoute, Required] int id)
+            [FromRoute, Required] int id,
+            [FromQuery] bool includeFiles = false)
         {
-            return await Store.GetComparisonsBySubmissionAsync(sid, id);
+            return await Store.GetComparisonsBySubmissionAsync(sid, id, includeFiles);
         }
     }
 }

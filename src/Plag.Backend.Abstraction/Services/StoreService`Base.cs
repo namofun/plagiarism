@@ -42,7 +42,7 @@ namespace Plag.Backend.Services
         /// <inheritdoc cref="IPlagiarismDetectService.FindSubmissionAsync(string, int, bool)" />
         public abstract Task<Submission<TKey>> FindSubmissionAsync(TKey setid, int submitid);
 
-        /// <inheritdoc cref="IPlagiarismDetectService.GetComparisonsBySubmissionAsync(string, int)" />
+        /// <inheritdoc cref="IPlagiarismDetectService.GetComparisonsBySubmissionAsync(string, int, bool)" />
         public abstract Task<IReadOnlyList<Comparison>> GetComparisonsBySubmissionAsync(TKey setid, int submitid);
 
         /// <inheritdoc cref="IPlagiarismDetectService.GetCompilationAsync(string, int)" />
@@ -129,7 +129,7 @@ namespace Plag.Backend.Services
             return await GetCompilationAsync(setid, submitid);
         }
 
-        async Task<Vertex> IPlagiarismDetectService.GetComparisonsBySubmissionAsync(string setId, int submitid)
+        async Task<Vertex> IPlagiarismDetectService.GetComparisonsBySubmissionAsync(string setId, int submitid, bool includeFiles)
         {
             if (!TryGetKey(setId, out var setid)) return null;
             var submit = await FindSubmissionAsync(setid, submitid);
@@ -137,6 +137,7 @@ namespace Plag.Backend.Services
 
             var returns = submit.To<Vertex>();
             returns.Comparisons = await GetComparisonsBySubmissionAsync(setid, submitid);
+            if (includeFiles) returns.Files = await GetFilesAsync(submit.ExternalId);
             return returns;
         }
 

@@ -129,8 +129,9 @@ namespace Plag.Backend.Services
         /// </summary>
         /// <param name="setid">The id of plagiarism set.</param>
         /// <param name="submitid">The id of submission.</param>
+        /// <param name="includeFiles">Whether to include files.</param>
         /// <returns>The submission with comparison results.</returns>
-        Task<Vertex?> GetComparisonsBySubmissionAsync(string setid, int submitid);
+        Task<Vertex?> GetComparisonsBySubmissionAsync(string setid, int submitid, bool includeFiles = false);
 
         /// <summary>
         /// Justificates the stauts of the report as Ignored, Unspecified or Claimed.
