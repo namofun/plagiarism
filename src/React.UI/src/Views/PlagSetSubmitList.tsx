@@ -5,6 +5,7 @@ interface PlagSetSubmitListCardProps {
   observableArray: ObservableArray<PlagSubmitModel | IReadonlyObservableValue<PlagSubmitModel | undefined>>;
   zeroDataAction: () => void;
   zeroDataActionText: string;
+  onActivate: (model: PlagSubmitModel) => void;
 }
 
 export class PlagSetSubmitList extends React.Component<PlagSetSubmitListCardProps> {
@@ -124,6 +125,7 @@ export class PlagSetSubmitList extends React.Component<PlagSetSubmitListCardProp
           itemProvider={this.props.observableArray}
           role="table"
           tableBreakpoints={this.tableBreakpoints}
+          onActivate={(event, row) => this.props.onActivate(row.data)}
       />
     ) : (
       <ZeroData

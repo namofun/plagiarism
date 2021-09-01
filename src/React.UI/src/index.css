@@ -75,3 +75,7 @@
   flex-grow: 1;
   flex-direction: row;
 }
+
+.card-list > .bolt-card ~ .bolt-card {
+  margin-top: 16px;
+}

@@ -144,7 +144,8 @@ class PlagSetView extends React.Component<PlagSetViewProps & RouteComponentProps
               <PlagSetSubmitList
                   observableArray={arr}
                   zeroDataActionText="Upload submissions"
-                  zeroDataAction={() => this.activateUpload()} />
+                  zeroDataAction={() => this.activateUpload()}
+                  onActivate={s => this.props.history.push('/' + this.state.setid + '/submissions/' + s.submitid)} />
             </Card>
           </div>
         </>

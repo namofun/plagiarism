@@ -9,6 +9,7 @@ import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
 
 import PlagSetList from './Pages/PlagSetList';
 import PlagSetView from './Pages/PlagSetView';
+import PlagSubmitView from './Pages/PlagSubmitView';
 import NotFound from './Pages/NotFound';
 
 initializeIcons();
@@ -19,6 +20,7 @@ ReactDOM.render(
       <Switch>
         <Route exact path="/" component={PlagSetList} />
         <Route exact path="/:id" component={PlagSetView} />
+        <Route exact path="/:id/submissions/:sid" component={PlagSubmitView} />
         <Route component={NotFound} />
       </Switch>
     </App>
