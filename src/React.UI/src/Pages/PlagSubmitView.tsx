@@ -194,7 +194,7 @@ export default class PlagSubmitView extends React.Component<RouteComponentProps 
           selectedTabId={this.tabId}
           tabSize={TabSize.Tall}
         >
-          <Tab name="Summary" id="tab1" badgeCount={this.state.reportCount} iconProps={{ iconName: 'BranchMerge' }} />
+          <Tab name="Reports" id="tab1" badgeCount={this.state.reportCount} iconProps={{ iconName: 'BranchMerge' }} />
           <Tab name="Source Code" id="tab3" badgeCount={this.state.sourceCodeNumber} iconProps={{ iconName: 'FileCode' }} />
         </TabBar>
         <div className="page-content page-content-top" id="tab-contents">
@@ -237,12 +237,12 @@ export default class PlagSubmitView extends React.Component<RouteComponentProps 
                     ? <>
                         <div className="body-m flex-row primary-text summary-line-non-link">
                           <WithIcon iconProps={{iconName: "Contact"}}>
-                            <span>Exclusive category {this.state.vertex.exclusive_category}</span>
+                            <span>Exclusive {this.state.vertex.exclusive_category}</span>
                           </WithIcon>
                         </div>
                         <div className="body-m flex-row primary-text summary-line-non-link">
                           <WithIcon iconProps={{iconName: "IssueTracking"}}>
-                            <span>Non-exclusive category {this.state.vertex.inclusive_category}</span>
+                            <span>Non-exclusive {this.state.vertex.inclusive_category}</span>
                           </WithIcon>
                         </div>
                         <div className="body-m flex-row primary-text summary-line-non-link">
@@ -261,7 +261,7 @@ export default class PlagSubmitView extends React.Component<RouteComponentProps 
               </div>
             </Card>
             {this.state.vertex?.comparisons && (this.state.vertex.comparisons.length ? (
-              <Card className="bolt-table-card flex-grow" contentProps={{ contentPadding: false }}>
+              <Card className="bolt-table-card flex-grow" titleProps={{ text: 'Comparison reports' }} contentProps={{ contentPadding: false }}>
                 <Table<PlagiarismComparison>
                   //behaviors={[sortingBehavior]}
                   className="table-example"
@@ -277,14 +277,14 @@ export default class PlagSubmitView extends React.Component<RouteComponentProps 
               <Card
                 className="bolt-table-card flex-grow"
                 contentProps={{ contentPadding: false }}
-                titleProps={{ text: ' ' }}
+                titleProps={{ text: 'Comparison reports' }}
               >
                 <ZeroData
                   className="flex-grow vss-ZeroData-fullsize"
                   primaryText="No comparison reports"
                   secondaryText="Either the submission cannot be compiled by system, or no submission matches the exclusive category, non-exclusive category and language."
                   imageAltText="No items"
-                  imagePath="https://cdn.vsassets.io/ext/ms.vss-code-web/tags-view-content/Content/no-results.YsM6nMXPytczbbtz.png"
+                  imagePath="https://cdn.vsassets.io/v/M191_20210817.10/_content/Illustrations/zerodata-no-work-scheduled.svg"
                 />
               </Card>
             ))}

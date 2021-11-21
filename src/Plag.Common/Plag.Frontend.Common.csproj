@@ -2,8 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <LangVersion>8.0</LangVersion>
+    <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>Plag.Frontend</RootNamespace>
     <DescriptionAttach>The common libraries between algorithms and frontends</DescriptionAttach>
   </PropertyGroup>

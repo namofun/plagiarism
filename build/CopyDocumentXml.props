@@ -5,7 +5,7 @@
   Wanted to keep the document XML always be present so that we can discover it for swagger-gen.
   -->
   <ItemGroup>
-    <ContentWithTargetPath Include="$(MSBuildThisFileDirectory)\..\lib\netcoreapp3.1\SatelliteSite.PlagModule.xml" TargetPath="SatelliteSite.PlagModule.xml" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <ContentWithTargetPath Include="$(MSBuildThisFileDirectory)\..\lib\net6.0\SatelliteSite.PlagModule.xml" TargetPath="SatelliteSite.PlagModule.xml" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

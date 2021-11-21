@@ -11,6 +11,12 @@ trigger:
     include:
     - '*'
 
+resources:
+  repositories:
+  - repository: "Azure Repos Mirror"
+    type: git
+    name: namomo/plagiarism
+
 variables:
 - group: azure-repos-sync
 
@@ -27,6 +33,12 @@ jobs:
       targetType: 'inline'
       script: 'echo "ref: $(Build.SourceBranch)" > $(Build.SourcesDirectory)/.git/ADO_OVERRIDE_HEAD'
     displayName: 'Set Source Branch'
+
+  - task: UseDotNet@2
+    inputs:
+      packageType: 'sdk'
+      version: '6.0.x'
+    displayName: 'Setup Build Environment'
 
   - task: DotNetCoreCLI@2
     inputs:
@@ -64,15 +76,10 @@ jobs:
   displayName: "Sync with Azure Repos"
 
   pool:
-    vmImage: ubuntu-latest
+    vmImage: windows-latest
 
   steps:
-  - task: CmdLine@2
+  - task: gitmirror@0
     inputs:
-      script: |
-        git remote add target https://tlylz:$(SYNC_PAT)@dev.azure.com/tlylz/namomo/_git/plagiarism
-        git checkout $(Build.SourceBranchName)
-        git pull target $(Build.SourceBranchName) --tags
-        git push target --all
-        git push target HEAD:$(Build.SourceBranchName) --tags
+      GitRepoUrl: 'https://tlylz:$(SYNC_PAT)@dev.azure.com/tlylz/namomo/_git/plagiarism'
     displayName: 'Sync via Git Tools'

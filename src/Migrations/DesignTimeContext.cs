@@ -66,7 +66,7 @@ namespace SatelliteSite
         public MysqlDesignTimeContext CreateDbContext(string[] args)
         {
             var optionsBuilder = new DbContextOptionsBuilder<MysqlDesignTimeContext>();
-            optionsBuilder.UseMySql("Host=localhost");
+            optionsBuilder.UseMySql("Host=localhost", ServerVersion.Parse("10.0.18-mariadb"));
             optionsBuilder.ReplaceService<IModelCustomizer, ProductionModelCustomizer<MysqlDesignTimeContext>>();
             return new MysqlDesignTimeContext(optionsBuilder.Options);
         }

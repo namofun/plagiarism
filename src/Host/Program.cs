@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Plag.Backend;
-using Pomelo.EntityFrameworkCore.MySql.Storage;
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -76,7 +75,7 @@ namespace SatelliteSite
                         else if (connectionType == "MySql")
                         {
                             var version = ServerVersion.AutoDetect(connectionString);
-                            builder.UseMySql(connectionString, b => b.ServerVersion(version).UseBulk());
+                            builder.UseMySql(connectionString, version, b => b.UseBulk());
                         }
                         else
                         {

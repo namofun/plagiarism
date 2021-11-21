@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>SatelliteSite</RootNamespace>
     <IsPackable>false</IsPackable>
     <UserSecretsId>7c468677-7f8f-4910-b0d5-eb41af3d2456</UserSecretsId>

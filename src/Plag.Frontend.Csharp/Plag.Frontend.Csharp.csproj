@@ -2,8 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <LangVersion>8.0</LangVersion>
+    <TargetFramework>net6.0</TargetFramework>
     <AntlrGeneratedNamespace>Antlr4.Grammar.Csharp</AntlrGeneratedNamespace>
     <DescriptionAttach>The C# 8.0 Frontend</DescriptionAttach>
   </PropertyGroup>
