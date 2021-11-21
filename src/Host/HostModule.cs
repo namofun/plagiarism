@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -28,8 +29,13 @@ namespace SatelliteSite
                 }
             });
 
-            endpoints.MapFallback("/{**slug}", app.Build())
+            var requestDelegate = app.Build();
+
+            endpoints.MapFallback("/{**slug}", requestDelegate)
                 .WithDisplayName("Fallback React UI");
+            endpoints.MapFallback("/static/{**slug}", requestDelegate)
+                .WithDisplayName("Fallback React UI")
+                .Add(eb => ((RouteEndpointBuilder)eb).Order = -10);
         }
     }
 }
