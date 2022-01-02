@@ -10,11 +10,6 @@
   <Import Project="..\..\build\NugetPackage.Backend.props" />
 
   <ItemGroup>
-    <PackageReference Include="SatelliteSite.JobsCore" Version="$(SubstrateVersion)" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="$(AspNetCoreVersion)" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Plag.Algorithm\Plag.Frontend.Algorithm.csproj" />
     <ProjectReference Include="..\Plag.Backend.Abstraction\Plag.Backend.Abstraction.csproj" />
     <ProjectReference Include="..\Plag.Common\Plag.Frontend.Common.csproj" />

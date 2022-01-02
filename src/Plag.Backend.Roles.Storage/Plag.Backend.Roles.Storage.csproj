@@ -10,6 +10,11 @@
   <Import Project="..\..\build\NugetPackage.Backend.props" />
 
   <ItemGroup>
+    <Compile Include="..\Plag.Backend.Generation.Service\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SatelliteSite.JobsCore" Version="$(SubstrateVersion)" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="$(AspNetCoreVersion)" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="$(AspNetCoreVersion)" />
     <PackageReference Include="SatelliteSite.DataAccess" Version="$(SubstrateVersion)" />
