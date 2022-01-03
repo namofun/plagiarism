@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Plag.Backend.Jobs
+namespace Plag.Backend.Services
 {
     public class LruStore<TKey, TValue>
     {
