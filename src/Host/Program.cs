@@ -22,7 +22,11 @@ namespace SatelliteSite
         {
             Current = CreateHostBuilder(args).Build();
 
-            if (args.Contains("--restful"))
+            if (args.Contains("--cosmos"))
+            {
+                Current.Services.GetRequiredService<IPdsCosmosConnection>().Migrate();
+            }
+            else if (args.Contains("--restful"))
             {
                 // no database are needed.
             }
@@ -44,7 +48,19 @@ namespace SatelliteSite
             var host = Host.CreateDefaultBuilder(args);
             host.MarkDomain<Program>();
 
-            if (args.Contains("--restful"))
+            if (args.Contains("--cosmos"))
+            {
+                host.AddModule<PlagModule.PlagModule<CosmosBackendRole>>();
+                host.ConfigureServices((context, services) =>
+                {
+                    services.Configure<PdsCosmosOptions>(options =>
+                    {
+                        options.ConnectionString = context.GetConnectionString("CosmosDbAccount");
+                        options.DatabaseName = context.GetConnectionString("CosmosDbName");
+                    });
+                });
+            }
+            else if (args.Contains("--restful"))
             {
                 host.AddModule<PlagModule.PlagModule<RestfulBackendRole>>();
             }

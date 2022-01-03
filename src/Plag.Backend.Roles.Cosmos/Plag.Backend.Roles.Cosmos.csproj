@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <RootNamespace>Plag.Backend</RootNamespace>
+    <DescriptionAttach>The role for Azure Cosmos DB reader</DescriptionAttach>
+  </PropertyGroup>
+
+  <Import Project="..\..\build\NugetPackage.Backend.props" />
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Azure.Cosmos" Version="$(AzureCosmosSdkVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Plag.Backend.Abstraction\Plag.Backend.Abstraction.csproj" />
+  </ItemGroup>
+
+</Project>

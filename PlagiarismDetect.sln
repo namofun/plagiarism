@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30011.22
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plag.Frontend.Common", "src\Plag.Common\Plag.Frontend.Common.csproj", "{277271A3-95DF-4395-B4DB-F9165DEBF665}"
 EndProject
@@ -67,7 +67,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plag.Backend.Relational.Tes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SatelliteSite.Migrations", "src\Migrations\SatelliteSite.Migrations.csproj", "{D2010F2C-8C21-480D-A073-B603373B8F24}"
 EndProject
-Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "Plag.UI.React", "src\React.UI\Plag.UI.React.njsproj", "{8B0F066F-C6FD-4883-877E-CDF29934A8D5}"
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "Plag.UI.React", "src\React.UI\Plag.UI.React.njsproj", "{E6E22E00-7C6C-4B45-8DB8-79C0A2A869C1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plag.Backend.Roles.Cosmos", "src\Plag.Backend.Roles.Cosmos\Plag.Backend.Roles.Cosmos.csproj", "{3E6C9E31-1A14-402A-8E87-AE4A9C1799C1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -151,8 +153,12 @@ Global
 		{D2010F2C-8C21-480D-A073-B603373B8F24}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D2010F2C-8C21-480D-A073-B603373B8F24}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D2010F2C-8C21-480D-A073-B603373B8F24}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8B0F066F-C6FD-4883-877E-CDF29934A8D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8B0F066F-C6FD-4883-877E-CDF29934A8D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E6E22E00-7C6C-4B45-8DB8-79C0A2A869C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6E22E00-7C6C-4B45-8DB8-79C0A2A869C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E6C9E31-1A14-402A-8E87-AE4A9C1799C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E6C9E31-1A14-402A-8E87-AE4A9C1799C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E6C9E31-1A14-402A-8E87-AE4A9C1799C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E6C9E31-1A14-402A-8E87-AE4A9C1799C1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -177,7 +183,8 @@ Global
 		{D33530E8-95EE-4041-9080-5D5017D8E8BA} = {C6B49B4C-FEB2-477D-986D-F2216E34BA9C}
 		{E7F3BA09-7304-4B64-A60E-CA38B5D0A598} = {47AFCF7A-6593-4310-9130-9B4B9C76E3C6}
 		{D2010F2C-8C21-480D-A073-B603373B8F24} = {C6B49B4C-FEB2-477D-986D-F2216E34BA9C}
-		{8B0F066F-C6FD-4883-877E-CDF29934A8D5} = {C6B49B4C-FEB2-477D-986D-F2216E34BA9C}
+		{E6E22E00-7C6C-4B45-8DB8-79C0A2A869C1} = {C6B49B4C-FEB2-477D-986D-F2216E34BA9C}
+		{3E6C9E31-1A14-402A-8E87-AE4A9C1799C1} = {C6B49B4C-FEB2-477D-986D-F2216E34BA9C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2AA9BAB4-9C10-43E7-8722-DEBB04D9924A}

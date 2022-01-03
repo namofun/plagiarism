@@ -14,6 +14,7 @@ Role based design. Storage is for EFCore version and Rest is for Remote API serv
 - [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fv3%2Fpackage%2FPlag.Backend.Generation%2Fshields-io.json)](https://nuget.xylab.fun/packages/Plag.Backend.Generation)
 - [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fv3%2Fpackage%2FPlag.Backend.Roles.Rest%2Fshields-io.json)](https://nuget.xylab.fun/packages/Plag.Backend.Roles.Rest)
 - [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fv3%2Fpackage%2FPlag.Backend.Roles.Storage%2Fshields-io.json)](https://nuget.xylab.fun/packages/Plag.Backend.Roles.Storage)
+- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fv3%2Fpackage%2FPlag.Backend.Roles.Cosmos%2Fshields-io.json)](https://nuget.xylab.fun/packages/Plag.Backend.Roles.Cosmos)
 
 ### Frontend
 

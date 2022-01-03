@@ -10,6 +10,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Extensions.PlagModule\SatelliteSite.PlagModule.csproj" />
     <ProjectReference Include="..\Migrations\SatelliteSite.Migrations.csproj" />
+    <ProjectReference Include="..\Plag.Backend.Roles.Cosmos\Plag.Backend.Roles.Cosmos.csproj" />
     <ProjectReference Include="..\Plag.Backend.Roles.Rest\Plag.Backend.Roles.Rest.csproj" />
     <ProjectReference Include="..\Plag.Backend.Roles.Storage\Plag.Backend.Roles.Storage.csproj" />
     <PackageReference Include="SatelliteSite.HostBuilder" Version="$(SubstrateVersion)" />
