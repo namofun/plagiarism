@@ -176,5 +176,10 @@ namespace Plag.Backend
         {
             throw new NotImplementedException();
         }
+
+        public Task ToggleReportSharenessAsync(string reportid)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

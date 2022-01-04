@@ -39,5 +39,8 @@ namespace Plag.Backend.Models
 
         [JsonPropertyName("justification")]
         public bool? Justification { get; set; }
+
+        [JsonPropertyName("shared")]
+        public bool Shared { get; set; }
     }
 }

@@ -25,6 +25,10 @@
                 <td>@($"{Model.Report.PercentB:F2}%") - <a asp-action="Submission" asp-route-id="@Model.Report.SubmissionB">@Model.B.Sid</a></td>
             </tr>
             <tr>
+                <th>Shared</th>
+                <td>@(Model.Report.Shared ? "Yes" : "No") (<a data-toggle="ajaxWindow" data-target="toggleShared" asp-action="ToggleShared" asp-route-rid="@Model.Report.Id">toggle</a>)</td>
+            </tr>
+            <tr>
                 <th>Match</th>
                 <td>@Model.Report.TokensMatched total, @Model.Report.BiggestMatch consecutive longest</td>
             </tr>

@@ -142,6 +142,13 @@ namespace Plag.Backend.Services
         Task JustificateAsync(string reportid, bool? status);
 
         /// <summary>
+        /// Toggles the shareness of the report.
+        /// </summary>
+        /// <param name="reportid">The id of report.</param>
+        /// <returns>The toggling task.</returns>
+        Task ToggleReportSharenessAsync(string reportid);
+
+        /// <summary>
         /// Sends a signal and try to rescue the background service.
         /// </summary>
         /// <returns>The rescue signal task.</returns>

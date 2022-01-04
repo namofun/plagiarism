@@ -96,6 +96,11 @@ namespace Plag.Backend.Services
                     ? new FormUrlEncodedContent(new[] { new KeyValuePair<string, string>("justification", status.Value.ToString()) })
                     : RestfulClient.EmptyContent);
 
+        public Task ToggleReportSharenessAsync(string reportid)
+            => Client.PatchAsync<ServiceVersion>(
+                $"/reports/{UrlEncoder.Default.Encode(reportid)}",
+                new FormUrlEncodedContent(new[] { new KeyValuePair<string, string>("toggleShared", "1") }));
+
         public ServiceVersion GetVersion()
         {
             return new ServiceVersion

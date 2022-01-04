@@ -243,6 +243,29 @@ namespace SatelliteSite.PlagModule.Dashboards
         }
 
 
+        [HttpGet("{sid}/reports/{rid}/[action]")]
+        public async Task<IActionResult> ToggleShared(string sid, string rid)
+        {
+            var report = await Store.FindReportAsync(rid);
+            if (report == null || sid != report.SetId) return NotFound();
+
+            return AskPost(
+                title: "Toggle shareness of report",
+                message: $"After toggling this property, guests {(report.Shared ? "won't" : "will")} be able to see this report.");
+        }
+
+
+        [HttpPost("{sid}/reports/{rid}/[action]")]
+        public async Task<IActionResult> ToggleShared(string sid, string rid, bool _ = false)
+        {
+            var report = await Store.FindReportAsync(rid);
+            if (report == null || sid != report.SetId) return NotFound();
+
+            await Store.ToggleReportSharenessAsync(rid);
+            return RedirectToAction(nameof(Compare));
+        }
+
+
         [HttpPost("{sid}/reports/{rid}/[action]")]
         public async Task<IActionResult> Justificate(string sid, string rid, int status)
         {

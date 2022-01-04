@@ -54,6 +54,9 @@ namespace Plag.Backend.Services
         /// <inheritdoc cref="IPlagiarismDetectService.JustificateAsync(string, bool?)" />
         public abstract Task JustificateAsync(TKey reportid, bool? status);
 
+        /// <inheritdoc cref="IPlagiarismDetectService.ToggleReportSharenessAsync(string)" />
+        public abstract Task ToggleReportSharenessAsync(TKey reportid);
+
         /// <inheritdoc cref="IPlagiarismDetectService.ListSetsAsync(int?, int?, int?, int?, bool)" />
         public abstract Task<List<PlagiarismSet<TKey>>> ListSetsAsync(int? cid = null, int? uid = null, int? skip = null, int? limit = null, bool asc = false);
 
@@ -159,10 +162,16 @@ namespace Plag.Backend.Services
             return await GetFilesAsync(submit.ExternalId);
         }
 
-        public Task ResetCompilationAsync(string setId, int submitid)
+        Task IPlagiarismDetectService.ResetCompilationAsync(string setId, int submitid)
         {
             if (!TryGetKey(setId, out var setid)) throw new KeyNotFoundException();
             return ResetCompilationAsync(setid, submitid);
+        }
+
+        Task IPlagiarismDetectService.ToggleReportSharenessAsync(string reportid)
+        {
+            if (!TryGetKey(reportid, out var id)) return null;
+            return ToggleReportSharenessAsync(id);
         }
 
         #endregion

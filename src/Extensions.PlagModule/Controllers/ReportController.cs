@@ -18,7 +18,7 @@ namespace SatelliteSite.PlagModule.Controllers
         public async Task<IActionResult> Compare(string rid)
         {
             var report = await Store.FindReportAsync(rid);
-            if (report == null) return NotFound();
+            if (report == null || !report.Shared) return NotFound();
 
             var subA = await Store.FindSubmissionAsync(report.SetId, report.SubmissionA);
             var subB = await Store.FindSubmissionAsync(report.SetId, report.SubmissionB);

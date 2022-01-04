@@ -28,6 +28,8 @@ namespace Plag.Backend.Entities
 
         public bool? Justification { get; set; }
 
+        public bool Shared { get; set; }
+
         public Models.Report ToModel()
         {
             return new Models.Report
@@ -44,6 +46,7 @@ namespace Plag.Backend.Entities
                 SubmissionB = SubmissionB,
                 TokensMatched = TokensMatched,
                 Justification = Justification,
+                Shared = Shared,
             };
         }
     }

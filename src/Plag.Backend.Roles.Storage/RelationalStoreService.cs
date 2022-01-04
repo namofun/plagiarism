@@ -488,6 +488,18 @@ namespace Plag.Backend.Services
                         .Max() ?? 0
                 });
         }
+
+        public override async Task ToggleReportSharenessAsync(Guid reportid)
+        {
+            var aff = await Reports
+                .Where(r => r.ExternalId == reportid)
+                .BatchUpdateAsync(r => new Report<Guid> { Shared = !r.Shared });
+
+            if (aff == 0)
+            {
+                throw new KeyNotFoundException("The report doesn't exists.");
+            }
+        }
     }
 
     internal static class OrderByQueryableExtensions
