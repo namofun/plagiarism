@@ -1,4 +1,5 @@
 ﻿using Microsoft.Azure.Cosmos;
+using Newtonsoft.Json.Linq;
 using Plag.Backend.Entities;
 using Plag.Backend.Models;
 using Plag.Backend.Services;
@@ -34,7 +35,7 @@ namespace Plag.Backend
                 ContestId = metadata.ContestId,
                 UserId = metadata.UserId,
                 CreateTime = DateTimeOffset.Now,
-                Id = Guid.NewGuid().ToString(),
+                Id = SetGuid.New().ToString(),
             });
         }
 
@@ -52,14 +53,24 @@ namespace Plag.Backend
             return reports.SingleOrDefault();
         }
 
-        public Task<PlagiarismSet> FindSetAsync(string id)
+        public async Task<PlagiarismSet> FindSetAsync(string id)
         {
-            throw new NotImplementedException();
+            return !SetGuid.TryParse(id, out var setGuid)
+                ? null
+                : await _sets.GetEntityAsync<PlagiarismSet>(setGuid.ToString(), setGuid.ToString());
         }
 
-        public Task<Submission> FindSubmissionAsync(string setid, int submitid, bool includeFiles = true)
+        public async Task<Submission> FindSubmissionAsync(string setid, int submitid, bool includeFiles = true)
         {
-            throw new NotImplementedException();
+            if (!SetGuid.TryParse(setid, out var setGuid)
+                || !submitid.CanBeInt24())
+            {
+                return null;
+            }
+
+            SubmissionGuid subGuid = SubmissionGuid.FromStructured(setGuid, submitid);
+            if (!includeFiles) throw new NotImplementedException();
+            return await _submissions.GetEntityAsync<Submission>(subGuid.ToString(), setGuid.ToString());
         }
 
         public Task<Vertex> GetComparisonsBySubmissionAsync(string setid, int submitid, bool includeFiles = false)
@@ -88,7 +99,7 @@ namespace Plag.Backend
 
         public Task<List<LanguageInfo>> ListLanguageAsync()
         {
-            throw new NotImplementedException();
+            return _languages.GetListAsync<LanguageInfo>("SELECT * FROM Languages l");
         }
 
         public Task<Submission> SubmitAsync(SubmissionCreation submission)
@@ -96,14 +107,59 @@ namespace Plag.Backend
             throw new NotImplementedException();
         }
 
-        public Task<IReadOnlyList<Submission>> ListSubmissionsAsync(string setid, string language = null, int? exclusive_category = null, int? inclusive_category = null, double? min_percent = null, int? skip = null, int? limit = null, string order = "id", bool asc = true)
+        public Task<IReadOnlyList<Submission>> ListSubmissionsAsync(
+            string setid,
+            string language = null,
+            int? exclusive_category = null,
+            int? inclusive_category = null,
+            double? min_percent = null,
+            int? skip = null,
+            int? limit = null,
+            string order = "id",
+            bool asc = true)
         {
             throw new NotImplementedException();
         }
 
-        public Task<IReadOnlyList<PlagiarismSet>> ListSetsAsync(int? cid = null, int? uid = null, int? skip = null, int? limit = null, bool asc = false)
+        public async Task<IReadOnlyList<PlagiarismSet>> ListSetsAsync(
+            int? cid = null,
+            int? uid = null,
+            int? skip = null,
+            int? limit = null,
+            bool asc = false)
         {
-            throw new NotImplementedException();
+            if (skip.HasValue != limit.HasValue)
+            {
+                throw new NotSupportedException("Must specify skip and limit at the same time when querying sets.");
+            }
+
+            string query = "SELECT * FROM Sets c";
+            JObject param = new();
+
+            if (cid.HasValue)
+            {
+                query += param.Count == 0 ? " WHERE" : " AND";
+                query += " c.related = @cid";
+                param["cid"] = cid.Value;
+            }
+
+            if (uid.HasValue)
+            {
+                query += param.Count == 0 ? " WHERE" : " AND";
+                query += " c.creator = @uid";
+                param["uid"] = cid.Value;
+            }
+
+            query += " ORDER BY c.create_time " + (asc ? "ASC" : "DESC");
+
+            if (skip.HasValue)
+            {
+                query += " OFFSET @skip LIMIT @limit";
+                param["skip"] = skip.Value;
+                param["limit"] = limit.Value;
+            }
+
+            return await _sets.GetListAsync<PlagiarismSet>(query, param);
         }
 
         public Task ResetCompilationAsync(string setid, int submitid)
