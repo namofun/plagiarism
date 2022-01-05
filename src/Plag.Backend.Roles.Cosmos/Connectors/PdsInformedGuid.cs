@@ -116,91 +116,6 @@ namespace Plag.Backend
         }
     }
 
-    public readonly struct ReportExternalGuid : IEquatable<ReportExternalGuid>
-    {
-        public const byte Flag = 0xe8;
-
-        private readonly Guid _guid;
-
-        private ReportExternalGuid(Guid guid)
-        {
-            _guid = guid;
-        }
-
-        public SetGuid GetSetId()
-        {
-            Span<byte> guidBytes = stackalloc byte[16];
-            _guid.TryWriteBytes(guidBytes);
-            PdsInformedGuid.OperateIfLittleEndian(guidBytes);
-
-            byte guidByte9 = PdsInformedGuid.CheckSum(guidBytes, Flag);
-            guidBytes[9] = guidByte9;
-            return SetGuid.UnsafeGet(guidBytes);
-        }
-
-        public static ReportExternalGuid New(SetGuid guid)
-        {
-            Span<byte> guidBytes = stackalloc byte[16];
-            guid.TryWriteBytes(guidBytes);
-
-            guidBytes[9] = (byte)(guidBytes[9] ^ (SetGuid.Flag ^ Flag));
-            RandomNumberGenerator.Fill(guidBytes[10..16]);
-
-            return new ReportExternalGuid(new Guid(guidBytes));
-        }
-
-        public static bool TryParse(ReadOnlySpan<char> input, out ReportExternalGuid extId)
-        {
-            if (!Guid.TryParse(input, out Guid guid))
-            {
-                extId = default;
-                return false;
-            }
-            else
-            {
-                extId = new ReportExternalGuid(guid);
-                return true;
-            }
-        }
-
-        public static ReportExternalGuid Parse(ReadOnlySpan<char> input)
-        {
-            return TryParse(input, out ReportExternalGuid result)
-                ? result
-                : throw new FormatException("input is not in the correct format.");
-        }
-
-        public override string ToString()
-        {
-            return _guid.ToString();
-        }
-
-        public override int GetHashCode()
-        {
-            return _guid.GetHashCode();
-        }
-
-        public bool Equals(ReportExternalGuid obj)
-        {
-            return this._guid == obj._guid;
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is ReportExternalGuid other && Equals(other);
-        }
-
-        public static bool operator ==(ReportExternalGuid left, ReportExternalGuid right)
-        {
-            return left.Equals(right);
-        }
-
-        public static bool operator !=(ReportExternalGuid left, ReportExternalGuid right)
-        {
-            return !left.Equals(right);
-        }
-    }
-
     public readonly struct SubmissionGuid : IEquatable<SubmissionGuid>
     {
         public const byte Flag = 0x37;
@@ -298,13 +213,13 @@ namespace Plag.Backend
         }
     }
 
-    public readonly struct ReportInternalGuid : IEquatable<ReportInternalGuid>
+    public readonly struct ReportGuid : IEquatable<ReportGuid>
     {
         public const byte Flag = 0x6c;
 
         private readonly Guid _guid;
 
-        private ReportInternalGuid(Guid guid)
+        private ReportGuid(Guid guid)
         {
             _guid = guid;
         }
@@ -338,7 +253,7 @@ namespace Plag.Backend
             return BitConverter.ToInt32(guidBytes[12..16]) + PdsInformedGuid.Int24MinValue;
         }
 
-        public static ReportInternalGuid FromStructured(SetGuid guid, int aid, int bid)
+        public static ReportGuid FromStructured(SetGuid guid, int aid, int bid)
         {
             PdsInformedGuid.ValidateInRange(nameof(aid), aid);
             PdsInformedGuid.ValidateInRange(nameof(bid), bid);
@@ -353,10 +268,10 @@ namespace Plag.Backend
             if (BitConverter.IsLittleEndian) guidBytes[9..13].Reverse();
             guidBytes[9] = guidByte9;
 
-            return new ReportInternalGuid(new Guid(guidBytes));
+            return new ReportGuid(new Guid(guidBytes));
         }
 
-        public static bool TryParse(ReadOnlySpan<char> input, out ReportInternalGuid extId)
+        public static bool TryParse(ReadOnlySpan<char> input, out ReportGuid extId)
         {
             if (!Guid.TryParse(input, out Guid guid))
             {
@@ -365,14 +280,14 @@ namespace Plag.Backend
             }
             else
             {
-                extId = new ReportInternalGuid(guid);
+                extId = new ReportGuid(guid);
                 return true;
             }
         }
 
-        public static ReportInternalGuid Parse(ReadOnlySpan<char> input)
+        public static ReportGuid Parse(ReadOnlySpan<char> input)
         {
-            return TryParse(input, out ReportInternalGuid result)
+            return TryParse(input, out ReportGuid result)
                 ? result
                 : throw new FormatException("input is not in the correct format.");
         }
@@ -387,22 +302,22 @@ namespace Plag.Backend
             return _guid.GetHashCode();
         }
 
-        public bool Equals(ReportInternalGuid obj)
+        public bool Equals(ReportGuid obj)
         {
             return this._guid == obj._guid;
         }
 
         public override bool Equals(object obj)
         {
-            return obj is ReportInternalGuid other && Equals(other);
+            return obj is ReportGuid other && Equals(other);
         }
 
-        public static bool operator ==(ReportInternalGuid left, ReportInternalGuid right)
+        public static bool operator ==(ReportGuid left, ReportGuid right)
         {
             return left.Equals(right);
         }
 
-        public static bool operator !=(ReportInternalGuid left, ReportInternalGuid right)
+        public static bool operator !=(ReportGuid left, ReportGuid right)
         {
             return !left.Equals(right);
         }
