@@ -38,14 +38,14 @@ namespace Plag.Backend.Entities
                 SetId = SetId.ToString(),
                 Id = ExternalId.ToString(),
                 Matches = Matches,
-                Pending = !Finished.GetValueOrDefault(),
+                ProvisioningState = Models.Report.GetProvisioningStateName(Finished),
                 Percent = Percent,
                 PercentA = PercentA,
                 PercentB = PercentB,
                 SubmissionA = SubmissionA,
                 SubmissionB = SubmissionB,
                 TokensMatched = TokensMatched,
-                Justification = Justification,
+                Justification = Models.Report.GetJustificationName(Justification),
                 Shared = Shared,
             };
         }
