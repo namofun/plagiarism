@@ -496,9 +496,7 @@ namespace Plag.Backend.Services
                 .BatchUpdateAsync(r => new Report<Guid> { Shared = !r.Shared });
 
             if (aff == 0)
-            {
                 throw new KeyNotFoundException("The report doesn't exists.");
-            }
         }
     }
 

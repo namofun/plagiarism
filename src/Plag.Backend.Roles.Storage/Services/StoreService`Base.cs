@@ -170,7 +170,11 @@ namespace Plag.Backend.Services
 
         Task IPlagiarismDetectService.ToggleReportSharenessAsync(string reportid)
         {
-            if (!TryGetKey(reportid, out var id)) return null;
+            if (!TryGetKey(reportid, out var id))
+            {
+                throw new KeyNotFoundException("The report doesn't exists.");
+            }
+
             return ToggleReportSharenessAsync(id);
         }
 

@@ -3,7 +3,7 @@
     <GitRepositoryDirectory>$(MSBuildThisFileDirectory).git</GitRepositoryDirectory>
     <SubstrateVersion>1.0.42</SubstrateVersion>
     <AspNetCoreVersion>6.0.0</AspNetCoreVersion>
-    <EFCoreBulkVersion>6.0.27-preview</EFCoreBulkVersion>
+    <EFCoreBulkVersion>6.0.28</EFCoreBulkVersion>
     <AzureCosmosSdkVersion>3.23.0</AzureCosmosSdkVersion>
   </PropertyGroup>
 </Project>
