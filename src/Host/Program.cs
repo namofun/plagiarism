@@ -24,7 +24,7 @@ namespace SatelliteSite
 
             if (args.Contains("--cosmos"))
             {
-                Current.Services.GetRequiredService<IPdsCosmosConnection>().Migrate();
+                Current.Services.GetRequiredService<ICosmosConnection>().MigrateAsync().Wait();
             }
             else if (args.Contains("--restful"))
             {

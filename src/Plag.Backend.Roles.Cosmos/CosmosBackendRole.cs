@@ -8,7 +8,7 @@ namespace Plag.Backend
         public void Apply(IServiceCollection services)
         {
             services.AddOptions<PdsCosmosOptions>().PostConfigure(options => options.Validate());
-            services.AddSingleton<IPdsCosmosConnection, PdsCosmosConnection>();
+            services.AddSingleton<ICosmosConnection, CosmosConnection>();
             services.AddScoped<IPlagiarismDetectService, CosmosStoreService>();
         }
     }

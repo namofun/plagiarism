@@ -1,35 +1,25 @@
 ﻿using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json.Linq;
-using Plag.Backend.Entities;
 using Plag.Backend.Models;
 using Plag.Backend.Services;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Plag.Backend
 {
     internal class CosmosStoreService : IPlagiarismDetectService
     {
-        private readonly Database _database;
-        private readonly Container _sets;
-        private readonly Container _submissions;
-        private readonly Container _reports;
-        private readonly Container _languages;
+        private readonly ICosmosConnection _database;
 
-        public CosmosStoreService(IPdsCosmosConnection connection)
+        public CosmosStoreService(ICosmosConnection connection)
         {
-            _database = connection.GetDatabase();
-            _sets = _database.GetContainer(connection.SetsContainerName);
-            _submissions = _database.GetContainer(connection.SubmissionsContainerName);
-            _reports = _database.GetContainer(connection.ReportsContainerName);
-            _languages = _database.GetContainer(connection.LanguagesContainerName);
+            _database = connection;
         }
 
         public async Task<PlagiarismSet> CreateSetAsync(SetCreation metadata)
         {
-            return await _sets.CreateItemAsync<PlagiarismSet>(new()
+            return await _database.Sets.GetContainer().CreateItemAsync<PlagiarismSet>(new()
             {
                 Name = metadata.Name,
                 ContestId = metadata.ContestId,
@@ -41,36 +31,33 @@ namespace Plag.Backend
 
         public Task<LanguageInfo> FindLanguageAsync(string langName)
         {
-            return _languages.GetEntityAsync<LanguageInfo>(langName, langName);
+            return _database.Languages.GetEntityAsync<LanguageInfo>(langName, langName);
         }
 
         public async Task<Report> FindReportAsync(string id)
         {
-            List<ReportEntity> reports = await _reports.GetListAsync<ReportEntity>(
-                "SELECT * FROM Report c WHERE c.externalid = @id",
-                new { id });
-
-            return reports.SingleOrDefault();
+            return !ReportGuid.TryParse(id, out var reportId)
+                ? null
+                : await _database.Reports.GetEntityAsync<Report>(reportId.ToString(), reportId.GetSetId().ToString());
         }
 
         public async Task<PlagiarismSet> FindSetAsync(string id)
         {
             return !SetGuid.TryParse(id, out var setGuid)
                 ? null
-                : await _sets.GetEntityAsync<PlagiarismSet>(setGuid.ToString(), setGuid.ToString());
+                : await _database.Sets.GetEntityAsync<PlagiarismSet>(setGuid.ToString(), setGuid.ToString());
         }
 
         public async Task<Submission> FindSubmissionAsync(string setid, int submitid, bool includeFiles = true)
         {
-            if (!SetGuid.TryParse(setid, out var setGuid)
-                || !submitid.CanBeInt24())
+            if (!SetGuid.TryParse(setid, out var setGuid) || !submitid.CanBeInt24())
             {
                 return null;
             }
 
             SubmissionGuid subGuid = SubmissionGuid.FromStructured(setGuid, submitid);
             if (!includeFiles) throw new NotImplementedException();
-            return await _submissions.GetEntityAsync<Submission>(subGuid.ToString(), setGuid.ToString());
+            return await _database.Submissions.GetEntityAsync<Submission>(subGuid.ToString(), setGuid.ToString());
         }
 
         public Task<Vertex> GetComparisonsBySubmissionAsync(string setid, int submitid, bool includeFiles = false)
@@ -99,7 +86,7 @@ namespace Plag.Backend
 
         public Task<List<LanguageInfo>> ListLanguageAsync()
         {
-            return _languages.GetListAsync<LanguageInfo>("SELECT * FROM Languages l");
+            return _database.Languages.GetListAsync<LanguageInfo>("SELECT * FROM Languages l");
         }
 
         public Task<Submission> SubmitAsync(SubmissionCreation submission)
@@ -159,7 +146,7 @@ namespace Plag.Backend
                 param["limit"] = limit.Value;
             }
 
-            return await _sets.GetListAsync<PlagiarismSet>(query, param);
+            return await _database.Sets.GetListAsync<PlagiarismSet>(query, param);
         }
 
         public Task ResetCompilationAsync(string setid, int submitid)
