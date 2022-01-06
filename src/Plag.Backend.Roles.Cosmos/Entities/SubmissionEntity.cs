@@ -2,7 +2,7 @@
 
 namespace Plag.Backend.Entities
 {
-    internal class SubmissionEntity : Models.Submission
+    public class SubmissionEntity : Models.Submission
     {
         [JsonPropertyName("error")]
         public string Error { get; set; }

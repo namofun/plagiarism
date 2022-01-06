@@ -15,5 +15,17 @@ namespace Plag.Backend.Models
 
         [JsonPropertyName("content")]
         public string Content { get; set; }
+
+        public SubmissionFile()
+        {
+        }
+
+        public SubmissionFile(int fileId, SubmissionCreation.SubmissionFileCreation creation)
+        {
+            FileId = fileId;
+            FileName = creation.FileName;
+            Content = creation.Content;
+            FilePath = creation.FilePath;
+        }
     }
 }

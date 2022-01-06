@@ -4,11 +4,12 @@ using Plag.Backend.Models;
 using Plag.Backend.Services;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Plag.Backend
 {
-    internal class CosmosStoreService : IPlagiarismDetectService
+    internal class CosmosStoreService : IPlagiarismDetectService, IJobContext
     {
         private readonly ICosmosConnection _database;
 
@@ -19,7 +20,7 @@ namespace Plag.Backend
 
         public async Task<PlagiarismSet> CreateSetAsync(SetCreation metadata)
         {
-            return await _database.Sets.GetContainer().CreateItemAsync<PlagiarismSet>(new()
+            return await _database.Sets.CreateAsync(new()
             {
                 Name = metadata.Name,
                 ContestId = metadata.ContestId,
@@ -89,12 +90,70 @@ namespace Plag.Backend
             return _database.Languages.GetListAsync<LanguageInfo>("SELECT * FROM Languages l");
         }
 
-        public Task<Submission> SubmitAsync(SubmissionCreation submission)
+        public async Task<Submission> SubmitAsync(SubmissionCreation submission)
         {
-            throw new NotImplementedException();
+            PlagiarismSet set = await FindSetAsync(submission.SetId);
+            if (set == null) throw new KeyNotFoundException("Set not found.");
+
+            int submitId;
+            SubmissionGuid subGuid;
+
+            if (submission.Id.HasValue)
+            {
+                submitId = submission.Id.Value;
+                subGuid = SubmissionGuid.FromStructured(SetGuid.Parse(set.Id), submitId);
+
+                JObject jobj = await _database.Submissions.SingleOrDefaultAsync<JObject>(
+                    "SELECT s.id FROM Submissions s WHERE s.id = @sid",
+                    new { sid = subGuid.ToString() },
+                    new PartitionKey(set.Id));
+
+                if (jobj != null)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(set), "Duplicate submission ID.");
+                }
+            }
+            else
+            {
+                bool upwards = !set.ContestId.HasValue;
+
+                JObject jobj = await _database.Submissions.SingleOrDefaultAsync<JObject>(
+                    "SELECT " + (upwards ? "MAX" : "MIN") + "(s.submitid) AS id FROM Submissions s",
+                    new PartitionKey(set.Id));
+
+                int? aggId = jobj.TryGetValue("id", out JToken token) && token.Type == JTokenType.Integer
+                    ? (int)token
+                    : default(int?);
+
+                submitId = upwards
+                    ? Math.Max(1, 1 + aggId ?? 0) // maxid < 0 ? fix to 1
+                    : Math.Min(-1, -1 + aggId ?? 0); // minid > 0 ? fix to -1
+
+                subGuid = SubmissionGuid.FromStructured(SetGuid.Parse(set.Id), submitId);
+            }
+
+            Submission s = await _database.Submissions.CreateAsync(new()
+            {
+                ExternalId = subGuid.ToString(),
+                Id = submitId,
+                SetId = set.Id,
+                ExclusiveCategory = submission.ExclusiveCategory ?? submitId,
+                InclusiveCategory = submission.InclusiveCategory,
+                Language = submission.Language,
+                Name = submission.Name,
+                UploadTime = DateTimeOffset.Now,
+                Files = submission.Files.Select((i, j) => new SubmissionFile(j + 1, i)).ToList(),
+            });
+
+            await _database.Sets
+                .Patch(set.Id, new PartitionKey(set.Id))
+                .IncrementProperty(s => s.SubmissionCount, 1)
+                .ExecuteAsync();
+
+            return s;
         }
 
-        public Task<IReadOnlyList<Submission>> ListSubmissionsAsync(
+        public async Task<IReadOnlyList<Submission>> ListSubmissionsAsync(
             string setid,
             string language = null,
             int? exclusive_category = null,
@@ -105,7 +164,52 @@ namespace Plag.Backend
             string order = "id",
             bool asc = true)
         {
-            throw new NotImplementedException();
+            if (skip.HasValue != limit.HasValue)
+            {
+                throw new ArgumentOutOfRangeException(nameof(skip), "Must specify skip and limit at the same time when querying sets.");
+            }
+
+            string query = "SELECT * FROM Submissions c";
+            JObject param = new();
+
+            if (exclusive_category.HasValue)
+            {
+                query += param.Count == 0 ? " WHERE" : " AND";
+                query += " c.exclusive_category = @exclid";
+                param["exclid"] = exclusive_category.Value;
+            }
+
+            if (inclusive_category.HasValue)
+            {
+                query += param.Count == 0 ? " WHERE" : " AND";
+                query += " c.inclusive_category = @inclid";
+                param["inclid"] = inclusive_category.Value;
+            }
+
+            if (!string.IsNullOrEmpty(language))
+            {
+                query += param.Count == 0 ? " WHERE" : " AND";
+                query += " c.language = @langid";
+                param["langid"] = language;
+            }
+
+            if (min_percent.HasValue)
+            {
+                query += param.Count == 0 ? " WHERE" : " AND";
+                query += " c.max_percent = @percent";
+                param["percent"] = min_percent.Value;
+            }
+
+            query += " ORDER BY c." + (order == "percent" ? "max_percent" : "id") + " " + (asc ? "ASC" : "DESC");
+
+            if (skip.HasValue)
+            {
+                query += " OFFSET @skip LIMIT @limit";
+                param["skip"] = skip.Value;
+                param["limit"] = limit.Value;
+            }
+
+            return await _database.Submissions.GetListAsync<Submission>(query, param);
         }
 
         public async Task<IReadOnlyList<PlagiarismSet>> ListSetsAsync(
@@ -117,7 +221,7 @@ namespace Plag.Backend
         {
             if (skip.HasValue != limit.HasValue)
             {
-                throw new NotSupportedException("Must specify skip and limit at the same time when querying sets.");
+                throw new ArgumentOutOfRangeException(nameof(skip), "Must specify skip and limit at the same time when querying sets.");
             }
 
             string query = "SELECT * FROM Sets c";
@@ -149,11 +253,6 @@ namespace Plag.Backend
             return await _database.Sets.GetListAsync<PlagiarismSet>(query, param);
         }
 
-        public Task ResetCompilationAsync(string setid, int submitid)
-        {
-            throw new NotImplementedException();
-        }
-
         public Task JustificateAsync(string reportid, bool? status)
         {
             throw new NotImplementedException();
@@ -165,6 +264,79 @@ namespace Plag.Backend
         }
 
         public Task ToggleReportSharenessAsync(string reportid)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task ResetCompilationAsync(string setid, int submitid)
+        {
+            if (!SetGuid.TryParse(setid, out var setGuid) || !submitid.CanBeInt24())
+                throw new KeyNotFoundException();
+            SubmissionGuid subGuid = SubmissionGuid.FromStructured(setGuid, submitid);
+
+            JObject jobj = await _database.Submissions.SingleOrDefaultAsync<JObject>(
+                "SELECT c.token_produced FROM c WHERE c.id = @sid",
+                new { sid = subGuid.ToString() },
+                new PartitionKey(setGuid.ToString()));
+
+            bool? tokenProduced = (bool?)jobj["token_produced"];
+            if (!tokenProduced.HasValue) throw new ArgumentOutOfRangeException();
+
+            await _database.Submissions
+                .Patch(subGuid.ToString(), new PartitionKey(setGuid.ToString()))
+                .SetProperty(s => s.Error, null)
+                .SetProperty(s => s.Tokens, null)
+                .SetProperty(s => s.TokenProduced, null)
+                .ConcurrencyGuard("FROM c WHERE c.token_produced <> null")
+                .ExecuteAsync();
+
+            var (a, b) = tokenProduced.Value ? (1, 0) : (0, 1);
+            await _database.Sets
+                .Patch(setGuid.ToString(), new PartitionKey(setGuid.ToString()))
+                .IncrementProperty(s => s.SubmissionSucceeded, -a)
+                .IncrementProperty(s => s.SubmissionFailed, -b)
+                .ExecuteAsync();
+        }
+
+        public async Task CompileAsync(string setid, int submitId, string error, byte[] result)
+        {
+            if (!SetGuid.TryParse(setid, out var setGuid) || !submitId.CanBeInt24())
+                throw new KeyNotFoundException();
+            SubmissionGuid subGuid = SubmissionGuid.FromStructured(setGuid, submitId);
+
+            bool tokenProduced = result != null;
+            await _database.Submissions
+                .Patch(subGuid.ToString(), new PartitionKey(setGuid.ToString()))
+                .SetProperty(s => s.Error, error)
+                .SetProperty(s => s.Tokens, result)
+                .SetProperty(s => s.TokenProduced, tokenProduced)
+                .ConcurrencyGuard("FROM c WHERE c.token_produced = null")
+                .ExecuteAsync();
+
+            var (a, b) = tokenProduced ? (1, 0) : (0, 1);
+            await _database.Sets
+                .Patch(setGuid.ToString(), new PartitionKey(setGuid.ToString()))
+                .IncrementProperty(s => s.SubmissionSucceeded, a)
+                .IncrementProperty(s => s.SubmissionFailed, b)
+                .ExecuteAsync();
+        }
+
+        public Task<Submission> DequeueSubmissionAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ReportTask> DequeueReportAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task ScheduleAsync(string setId, int submitId, int exclusive, int inclusive, string langId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task SaveReportAsync(ReportTask task, ReportFragment fragment)
         {
             throw new NotImplementedException();
         }

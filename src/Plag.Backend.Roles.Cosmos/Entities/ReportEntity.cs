@@ -3,9 +3,18 @@ using System.Text.Json.Serialization;
 
 namespace Plag.Backend.Entities
 {
-    internal class ReportEntity : Report
+    public class ReportEntity : Report
     {
-        [JsonPropertyName("id")]
-        public string InternalId { get; set; }
+        [JsonPropertyName("exclusive_category_a")]
+        public int ExclusiveCategoryA { get; set; }
+
+        [JsonPropertyName("exclusive_category_b")]
+        public int ExclusiveCategoryB { get; set; }
+
+        [JsonPropertyName("submitname_a")]
+        public string NameA { get; set; }
+
+        [JsonPropertyName("submitname_b")]
+        public string NameB { get; set; }
     }
 }

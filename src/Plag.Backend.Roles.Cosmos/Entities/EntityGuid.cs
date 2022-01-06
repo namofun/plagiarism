@@ -32,7 +32,7 @@ namespace Plag.Backend
         internal static SetGuid UnsafeGet(Span<byte> guidBytes)
         {
             // Assert that input.Length = 16 and first 10 bytes are valid
-            byte checksum = PdsInformedGuid.CheckSum(guidBytes, Flag);
+            byte checksum = EntityGuidHelper.CheckSum(guidBytes, Flag);
             guidBytes[10] = (byte)(guidBytes[5] ^ guidBytes[8]);
             guidBytes[11] = (byte)(guidBytes[2] ^ guidBytes[6]);
             guidBytes[12] = (byte)(guidBytes[1] ^ guidBytes[7]);
@@ -41,7 +41,7 @@ namespace Plag.Backend
             guidBytes[15] = (byte)(guidBytes[3] ^ guidBytes[5]);
             guidBytes[9] = checksum;
 
-            PdsInformedGuid.OperateIfLittleEndian(guidBytes);
+            EntityGuidHelper.OperateIfLittleEndian(guidBytes);
             return new SetGuid(new Guid(guidBytes));
         }
 
@@ -55,9 +55,9 @@ namespace Plag.Backend
 
             Span<byte> guidBytes = stackalloc byte[16];
             guid.TryWriteBytes(guidBytes);
-            PdsInformedGuid.OperateIfLittleEndian(guidBytes);
+            EntityGuidHelper.OperateIfLittleEndian(guidBytes);
 
-            byte guidByte9 = PdsInformedGuid.CheckSum(guidBytes, Flag);
+            byte guidByte9 = EntityGuidHelper.CheckSum(guidBytes, Flag);
             if (guidBytes[10] != (byte)(guidBytes[5] ^ guidBytes[8])
                 || guidBytes[11] != (byte)(guidBytes[2] ^ guidBytes[6])
                 || guidBytes[12] != (byte)(guidBytes[1] ^ guidBytes[7])
@@ -131,9 +131,9 @@ namespace Plag.Backend
         {
             Span<byte> guidBytes = stackalloc byte[16];
             _guid.TryWriteBytes(guidBytes);
-            PdsInformedGuid.OperateIfLittleEndian(guidBytes);
+            EntityGuidHelper.OperateIfLittleEndian(guidBytes);
 
-            byte guidByte9 = PdsInformedGuid.CheckSum(guidBytes, Flag);
+            byte guidByte9 = EntityGuidHelper.CheckSum(guidBytes, Flag);
             guidBytes[9] = guidByte9;
             return SetGuid.UnsafeGet(guidBytes);
         }
@@ -143,18 +143,18 @@ namespace Plag.Backend
             Span<byte> guidBytes = stackalloc byte[16];
             _guid.TryWriteBytes(guidBytes);
             if (BitConverter.IsLittleEndian) guidBytes[12..16].Reverse();
-            return BitConverter.ToInt32(guidBytes[12..16]) + PdsInformedGuid.Int24MinValue;
+            return BitConverter.ToInt32(guidBytes[12..16]) + EntityGuidHelper.Int24MinValue;
         }
 
         public static SubmissionGuid FromStructured(SetGuid guid, int sid)
         {
-            PdsInformedGuid.ValidateInRange(nameof(sid), sid);
+            EntityGuidHelper.ValidateInRange(nameof(sid), sid);
 
             Span<byte> guidBytes = stackalloc byte[16];
             guid.TryWriteBytes(guidBytes);
 
             guidBytes[9] = (byte)(guidBytes[9] ^ (SetGuid.Flag ^ Flag));
-            BitConverter.TryWriteBytes(guidBytes[12..16], sid - PdsInformedGuid.Int24MinValue);
+            BitConverter.TryWriteBytes(guidBytes[12..16], sid - EntityGuidHelper.Int24MinValue);
             if (BitConverter.IsLittleEndian) guidBytes[12..16].Reverse();
             guidBytes[10..13].Fill(0x00);
 
@@ -228,9 +228,9 @@ namespace Plag.Backend
         {
             Span<byte> guidBytes = stackalloc byte[16];
             _guid.TryWriteBytes(guidBytes);
-            PdsInformedGuid.OperateIfLittleEndian(guidBytes);
+            EntityGuidHelper.OperateIfLittleEndian(guidBytes);
 
-            byte guidByte9 = PdsInformedGuid.CheckSum(guidBytes, Flag);
+            byte guidByte9 = EntityGuidHelper.CheckSum(guidBytes, Flag);
             guidBytes[9] = guidByte9;
             return SetGuid.UnsafeGet(guidBytes);
         }
@@ -241,7 +241,7 @@ namespace Plag.Backend
             _guid.TryWriteBytes(guidBytes);
             guidBytes[9] = 0;
             if (BitConverter.IsLittleEndian) guidBytes[9..13].Reverse();
-            return BitConverter.ToInt32(guidBytes[9..13]) + PdsInformedGuid.Int24MinValue;
+            return BitConverter.ToInt32(guidBytes[9..13]) + EntityGuidHelper.Int24MinValue;
         }
 
         public int GetIdOfB()
@@ -250,21 +250,21 @@ namespace Plag.Backend
             _guid.TryWriteBytes(guidBytes);
             guidBytes[12] = 0;
             if (BitConverter.IsLittleEndian) guidBytes[12..16].Reverse();
-            return BitConverter.ToInt32(guidBytes[12..16]) + PdsInformedGuid.Int24MinValue;
+            return BitConverter.ToInt32(guidBytes[12..16]) + EntityGuidHelper.Int24MinValue;
         }
 
         public static ReportGuid FromStructured(SetGuid guid, int aid, int bid)
         {
-            PdsInformedGuid.ValidateInRange(nameof(aid), aid);
-            PdsInformedGuid.ValidateInRange(nameof(bid), bid);
+            EntityGuidHelper.ValidateInRange(nameof(aid), aid);
+            EntityGuidHelper.ValidateInRange(nameof(bid), bid);
 
             Span<byte> guidBytes = stackalloc byte[16];
             guid.TryWriteBytes(guidBytes);
 
             byte guidByte9 = (byte)(guidBytes[9] ^ (SetGuid.Flag ^ Flag));
-            BitConverter.TryWriteBytes(guidBytes[12..16], bid - PdsInformedGuid.Int24MinValue);
+            BitConverter.TryWriteBytes(guidBytes[12..16], bid - EntityGuidHelper.Int24MinValue);
             if (BitConverter.IsLittleEndian) guidBytes[12..16].Reverse();
-            BitConverter.TryWriteBytes(guidBytes[9..13], aid - PdsInformedGuid.Int24MinValue);
+            BitConverter.TryWriteBytes(guidBytes[9..13], aid - EntityGuidHelper.Int24MinValue);
             if (BitConverter.IsLittleEndian) guidBytes[9..13].Reverse();
             guidBytes[9] = guidByte9;
 
@@ -323,7 +323,7 @@ namespace Plag.Backend
         }
     }
 
-    internal static class PdsInformedGuid
+    internal static class EntityGuidHelper
     {
         public const int Int24MinValue = -8388608;
         public const int Int24MaxValue = 8388607;

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Plag.Backend.QueryProvider;
 using Plag.Backend.Services;
 
 namespace Plag.Backend

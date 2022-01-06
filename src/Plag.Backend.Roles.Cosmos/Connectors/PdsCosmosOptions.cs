@@ -33,7 +33,7 @@ namespace Plag.Backend
         {
             NullValueHandling = NullValueHandling.Include,
             Formatting = Formatting.None,
-            ContractResolver = new PdsJsonContractResolver(),
+            ContractResolver = new EntityJsonContractResolver(),
         };
 
         /// <summary>
