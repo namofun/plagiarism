@@ -9,8 +9,8 @@ namespace Plag.Backend
     {
         CosmosContainer<PlagiarismSet> Sets { get; }
         CosmosContainer<Entities.SubmissionEntity> Submissions { get; }
-        CosmosContainer<LanguageInfo> Languages { get; }
         CosmosContainer<Entities.ReportEntity> Reports { get; }
+        CosmosContainer<Entities.MetadataEntity> Metadata { get; }
 
         Database GetDatabase();
         Task MigrateAsync();

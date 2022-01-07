@@ -1,5 +1,6 @@
 ﻿using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json.Linq;
+using Plag.Backend.Entities;
 using Plag.Backend.Models;
 using Plag.Backend.Services;
 using System;
@@ -28,11 +29,6 @@ namespace Plag.Backend
                 CreateTime = DateTimeOffset.Now,
                 Id = SetGuid.New().ToString(),
             });
-        }
-
-        public Task<LanguageInfo> FindLanguageAsync(string langName)
-        {
-            return _database.Languages.GetEntityAsync<LanguageInfo>(langName, langName);
         }
 
         public async Task<Report> FindReportAsync(string id)
@@ -78,7 +74,7 @@ namespace Plag.Backend
             vertex.Comparisons = await _database.Reports.GetListAsync<Comparison>(
                 "SELECT " +
                     " r.id AS reportid, r.state, r.tokens_matched, r.biggest_match, r.percent, r.justification, " +
-                    " ((r.submitid_a = @submitid) ? r.submitid_b : r.submitid_a) AS reportid, " +
+                    " ((r.submitid_a = @submitid) ? r.submitid_b : r.submitid_a) AS submitid, " +
                     " ((r.submitid_a = @submitid) ? r.submitname_b : r.submitname_a) AS submit, " +
                     " ((r.submitid_a = @submitid) ? r.exclusive_category_b : r.exclusive_category_a) AS exclusive, " +
                     " ((r.submitid_a = @submitid) ? r.percent_a : r.percent_b) AS percent_self, " +
@@ -126,9 +122,22 @@ namespace Plag.Backend
             };
         }
 
-        public Task<List<LanguageInfo>> ListLanguageAsync()
+        public async Task<List<LanguageInfo>> ListLanguageAsync()
         {
-            return _database.Languages.GetListAsync<LanguageInfo>("SELECT * FROM Languages l");
+            var metadata = await _database.Metadata
+                .GetEntityAsync<MetadataEntity<List<LanguageInfo>>>(
+                    MetadataEntity.LanguagesMetadataKey,
+                    MetadataEntity.LanguagesMetadataKey);
+
+            return metadata.Data;
+        }
+
+        public Task<LanguageInfo> FindLanguageAsync(string langName)
+        {
+            return _database.Metadata.SingleOrDefaultAsync<LanguageInfo>(
+                "SELECT * FROM l in Metadata.data WHERE l.id = @id",
+                new { id = langName },
+                new PartitionKey(MetadataEntity.LanguagesMetadataKey));
         }
 
         public async Task<Submission> SubmitAsync(SubmissionCreation submission)

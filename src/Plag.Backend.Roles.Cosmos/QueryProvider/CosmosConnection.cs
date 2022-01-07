@@ -3,6 +3,8 @@
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Plag.Backend.Connectors;
 using Plag.Backend.Models;
 using System.Collections.Generic;
@@ -20,8 +22,8 @@ namespace Plag.Backend.QueryProvider
 
         public CosmosContainer<PlagiarismSet> Sets { get; }
         public CosmosContainer<Entities.SubmissionEntity> Submissions { get; }
-        public CosmosContainer<LanguageInfo> Languages { get; }
         public CosmosContainer<Entities.ReportEntity> Reports { get; }
+        public CosmosContainer<Entities.MetadataEntity> Metadata { get; }
 
         public CosmosConnection(IOptions<PdsCosmosOptions> options, ILogger<CosmosConnection> logger)
         {
@@ -39,8 +41,8 @@ namespace Plag.Backend.QueryProvider
             _database = _client.GetDatabase(_options.DatabaseName);
             Sets = new(_database.GetContainer(nameof(Sets)), logger);
             Submissions = new(_database.GetContainer(nameof(Submissions)), logger);
-            Languages = new(_database.GetContainer(nameof(Languages)), logger);
             Reports = new(_database.GetContainer(nameof(Reports)), logger);
+            Metadata = new(_database.GetContainer(nameof(Metadata)), logger);
         }
 
         public Database GetDatabase()
@@ -64,7 +66,7 @@ namespace Plag.Backend.QueryProvider
             Dictionary<string, string> pkeyPathMap = new()
             {
                 [nameof(Sets)] = "/id",
-                [nameof(Languages)] = "/id",
+                [nameof(Metadata)] = "/id",
                 [nameof(Submissions)] = "/setid",
                 [nameof(Reports)] = "/setid",
             };
@@ -87,10 +89,11 @@ namespace Plag.Backend.QueryProvider
 
             if (_options.LanguageSeeds != null)
             {
-                foreach (LanguageInfo language in _options.LanguageSeeds)
+                await Metadata.UpsertAsync(new Entities.MetadataEntity<List<LanguageInfo>>()
                 {
-                    await Languages.UpsertAsync(language).ConfigureAwait(false);
-                }
+                    Id = Entities.MetadataEntity.LanguagesMetadataKey,
+                    Data = _options.LanguageSeeds,
+                });
             }
         }
     }
