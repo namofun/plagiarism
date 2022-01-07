@@ -13,6 +13,7 @@ namespace Plag.Backend.QueryProvider
         private readonly string _id;
         private readonly List<PatchOperation> _operations;
         private string _concurrencyGuard;
+        private bool _ignorePreconditionFailure;
 
         public CosmosPatch(Container container, string id, PartitionKey partitionKey, ILogger logger)
             : base(container, partitionKey, logger)
@@ -26,7 +27,7 @@ namespace Plag.Backend.QueryProvider
             TProperty propertyValue)
         {
             string path = "/" + ParseProperty(propertySelector);
-            _operations.Add(PatchOperation.Set(path, propertyValue));
+            _operations.Add(PatchOperation.Replace(path, propertyValue));
             return this;
         }
 
@@ -42,6 +43,14 @@ namespace Plag.Backend.QueryProvider
         public CosmosPatch<TEntity> ConcurrencyGuard(string conditionWithWhere)
         {
             _concurrencyGuard = conditionWithWhere;
+            _ignorePreconditionFailure = false;
+            return this;
+        }
+
+        public CosmosPatch<TEntity> UpdateOnCondition(string conditionWithWhere)
+        {
+            _concurrencyGuard = conditionWithWhere;
+            _ignorePreconditionFailure = true;
             return this;
         }
 
@@ -62,6 +71,10 @@ namespace Plag.Backend.QueryProvider
             catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
             {
                 throw new KeyNotFoundException("Entity not found in set.", ex);
+            }
+            catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.PreconditionFailed && _ignorePreconditionFailure)
+            {
+                // Skip the failure when only update on condition
             }
         }
     }

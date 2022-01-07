@@ -79,7 +79,7 @@ namespace Plag.Backend.QueryProvider
             return result;
         }
 
-        public async Task<TEntity?> SingleOrDefaultAsync<TEntity>(string sql, PartitionKey partitionKey) where TEntity : class
+        public async Task<TEntity?> SingleOrDefaultAsync<TEntity>(string sql, PartitionKey? partitionKey) where TEntity : class
         {
             return (await GetListAsync<TEntity>(sql, partitionKey).ConfigureAwait(false)).SingleOrDefault();
         }

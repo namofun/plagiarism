@@ -49,31 +49,72 @@ namespace Plag.Backend
                 : await _database.Sets.GetEntityAsync<PlagiarismSet>(setGuid.ToString(), setGuid.ToString());
         }
 
-        public async Task<Submission> FindSubmissionAsync(string setid, int submitid, bool includeFiles = true)
+        private Task<TSubmission> GetSubmissionCoreAsync<TSubmission>(SetGuid setGuid, int submitId, bool includeFiles) where TSubmission : Submission
         {
-            if (!SetGuid.TryParse(setid, out var setGuid) || !submitid.CanBeInt24())
-            {
-                return null;
-            }
-
-            SubmissionGuid subGuid = SubmissionGuid.FromStructured(setGuid, submitid);
-            if (!includeFiles) throw new NotImplementedException();
-            return await _database.Submissions.GetEntityAsync<Submission>(subGuid.ToString(), setGuid.ToString());
+            return _database.Submissions.SingleOrDefaultAsync<TSubmission>(
+                "SELECT s.id, s.setid, s.submitid, s.name, " +
+                      " s.exclusive_category, s.inclusive_category, " +
+                      " s.max_percent, s.token_produced, s.upload_time, s.language " +
+                      (includeFiles ? ", s.files" : "") +
+                " FROM Submissions s WHERE s.id = @id",
+                new { id = SubmissionGuid.FromStructured(setGuid, submitId).ToString() },
+                new PartitionKey(setGuid.ToString()));
         }
 
-        public Task<Vertex> GetComparisonsBySubmissionAsync(string setid, int submitid, bool includeFiles = false)
+        public Task<Submission> FindSubmissionAsync(string setid, int submitid, bool includeFiles = true)
         {
-            throw new NotImplementedException();
+            if (!SetGuid.TryParse(setid, out var setGuid) || !submitid.CanBeInt24())
+                return Task.FromResult<Submission>(null);
+
+            return GetSubmissionCoreAsync<Submission>(setGuid, submitid, includeFiles);
+        }
+
+        public async Task<Vertex> GetComparisonsBySubmissionAsync(string setid, int submitid, bool includeFiles = false)
+        {
+            if (!SetGuid.TryParse(setid, out var setGuid) || !submitid.CanBeInt24()) return null;
+            Vertex vertex = await GetSubmissionCoreAsync<Vertex>(setGuid, submitid, includeFiles);
+            if (vertex == null) return null;
+
+            vertex.Comparisons = await _database.Reports.GetListAsync<Comparison>(
+                "SELECT " +
+                    " r.id AS reportid, r.state, r.tokens_matched, r.biggest_match, r.percent, r.justification, " +
+                    " ((r.submitid_a = @submitid) ? r.submitid_b : r.submitid_a) AS reportid, " +
+                    " ((r.submitid_a = @submitid) ? r.submitname_b : r.submitname_a) AS submit, " +
+                    " ((r.submitid_a = @submitid) ? r.exclusive_category_b : r.exclusive_category_a) AS exclusive, " +
+                    " ((r.submitid_a = @submitid) ? r.percent_a : r.percent_b) AS percent_self, " +
+                    " ((r.submitid_a = @submitid) ? r.percent_b : r.percent_a) AS percent_another " +
+                " FROM Reports r " +
+                " WHERE r.submitid_a = @submitid OR r.submitid_b = @submitid",
+                new { submitid },
+                new PartitionKey(setGuid.ToString()));
+
+            return vertex;
         }
 
         public Task<Compilation> GetCompilationAsync(string setid, int submitid)
         {
-            throw new NotImplementedException();
+            if (!SetGuid.TryParse(setid, out var setGuid) || !submitid.CanBeInt24())
+                throw new KeyNotFoundException();
+
+            return _database.Submissions.SingleOrDefaultAsync<Compilation>(
+                "SELECT s.error, s.tokens FROM Submissions s WHERE s.id = @id",
+                new { id = SubmissionGuid.FromStructured(setGuid, submitid).ToString() },
+                new PartitionKey(setGuid.ToString()));
         }
 
-        public Task<IReadOnlyList<SubmissionFile>> GetFilesAsync(string setId, int submitId)
+        public async Task<IReadOnlyList<SubmissionFile>> GetFilesAsync(string setId, int submitId)
         {
-            throw new NotImplementedException();
+            if (!SetGuid.TryParse(setId, out var setGuid) || !submitId.CanBeInt24())
+                throw new KeyNotFoundException();
+            SubmissionGuid subGuid = SubmissionGuid.FromStructured(setGuid, submitId);
+
+            QuickResult<List<SubmissionFile>> result =
+                await _database.Submissions.SingleOrDefaultAsync<QuickResult<List<SubmissionFile>>>(
+                    "SELECT s.files AS result FROM Submissions s WHERE s.id = @sid",
+                    new { sid = subGuid.ToString() },
+                    new PartitionKey(setGuid.ToString()));
+
+            return result?.Result;
         }
 
         public ServiceVersion GetVersion()
@@ -103,12 +144,13 @@ namespace Plag.Backend
                 submitId = submission.Id.Value;
                 subGuid = SubmissionGuid.FromStructured(SetGuid.Parse(set.Id), submitId);
 
-                JObject jobj = await _database.Submissions.SingleOrDefaultAsync<JObject>(
-                    "SELECT s.id FROM Submissions s WHERE s.id = @sid",
-                    new { sid = subGuid.ToString() },
-                    new PartitionKey(set.Id));
+                QuickResult<string> sidCheck =
+                    await _database.Submissions.SingleOrDefaultAsync<QuickResult<string>>(
+                        "SELECT s.id AS result FROM Submissions s WHERE s.id = @sid",
+                        new { sid = subGuid.ToString() },
+                        new PartitionKey(set.Id));
 
-                if (jobj != null)
+                if (sidCheck != null)
                 {
                     throw new ArgumentOutOfRangeException(nameof(set), "Duplicate submission ID.");
                 }
@@ -117,17 +159,14 @@ namespace Plag.Backend
             {
                 bool upwards = !set.ContestId.HasValue;
 
-                JObject jobj = await _database.Submissions.SingleOrDefaultAsync<JObject>(
-                    "SELECT " + (upwards ? "MAX" : "MIN") + "(s.submitid) AS id FROM Submissions s",
-                    new PartitionKey(set.Id));
-
-                int? aggId = jobj.TryGetValue("id", out JToken token) && token.Type == JTokenType.Integer
-                    ? (int)token
-                    : default(int?);
+                QuickResult<int?> agg =
+                    await _database.Submissions.SingleOrDefaultAsync<QuickResult<int?>>(
+                        "SELECT " + (upwards ? "MAX" : "MIN") + "(s.submitid) AS result FROM Submissions s",
+                        new PartitionKey(set.Id));
 
                 submitId = upwards
-                    ? Math.Max(1, 1 + aggId ?? 0) // maxid < 0 ? fix to 1
-                    : Math.Min(-1, -1 + aggId ?? 0); // minid > 0 ? fix to -1
+                    ? Math.Max(1, 1 + agg.Result ?? 0) // maxid < 0 ? fix to 1
+                    : Math.Min(-1, -1 + agg.Result ?? 0); // minid > 0 ? fix to -1
 
                 subGuid = SubmissionGuid.FromStructured(SetGuid.Parse(set.Id), submitId);
             }
@@ -253,33 +292,19 @@ namespace Plag.Backend
             return await _database.Sets.GetListAsync<PlagiarismSet>(query, param);
         }
 
-        public Task JustificateAsync(string reportid, bool? status)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task RescueAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task ToggleReportSharenessAsync(string reportid)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task ResetCompilationAsync(string setid, int submitid)
         {
             if (!SetGuid.TryParse(setid, out var setGuid) || !submitid.CanBeInt24())
                 throw new KeyNotFoundException();
             SubmissionGuid subGuid = SubmissionGuid.FromStructured(setGuid, submitid);
 
-            JObject jobj = await _database.Submissions.SingleOrDefaultAsync<JObject>(
-                "SELECT c.token_produced FROM c WHERE c.id = @sid",
-                new { sid = subGuid.ToString() },
-                new PartitionKey(setGuid.ToString()));
+            QuickResult<bool?> jobj =
+                await _database.Submissions.SingleOrDefaultAsync<QuickResult<bool?>>(
+                    "SELECT c.token_produced AS result FROM c WHERE c.id = @sid",
+                    new { sid = subGuid.ToString() },
+                    new PartitionKey(setGuid.ToString()));
 
-            bool? tokenProduced = (bool?)jobj["token_produced"];
+            bool? tokenProduced = jobj.Result;
             if (!tokenProduced.HasValue) throw new ArgumentOutOfRangeException();
 
             await _database.Submissions
@@ -323,12 +348,48 @@ namespace Plag.Backend
 
         public Task<Submission> DequeueSubmissionAsync()
         {
-            throw new NotImplementedException();
+            return _database.Submissions.SingleOrDefaultAsync<Submission>(
+                "SELECT TOP 1 * FROM Submissions s WHERE s.token_produced = null",
+                default(PartitionKey?));
         }
 
-        public Task<ReportTask> DequeueReportAsync()
+        public async Task<ReportTask> DequeueReportAsync()
         {
-            throw new NotImplementedException();
+            ReportTask reportTask = null;
+            int retry = 0;
+            while (reportTask == null && retry <= 2)
+            {
+                QuickResult<string> topReportId =
+                    await _database.Reports.SingleOrDefaultAsync<QuickResult<string>>(
+                        "SELECT TOP 1 r.id AS result FROM Reports r WHERE r.state = \"Pending\"",
+                        default(PartitionKey?));
+
+                if (topReportId == null) return null;
+                ReportGuid reportGuid = ReportGuid.Parse(topReportId.Result);
+                ReportTask tempTask = new(
+                    reportGuid.ToString(),
+                    reportGuid.GetSetId().ToString(),
+                    reportGuid.GetIdOfA(),
+                    reportGuid.GetIdOfB());
+
+                try
+                {
+                    await _database.Reports
+                        .Patch(tempTask.Id, new PartitionKey(tempTask.SetId))
+                        .SetProperty(r => r.State, ReportState.Analyzing)
+                        .ConcurrencyGuard("FROM r WHERE r.state = \"Pending\"")
+                        .ExecuteAsync();
+                }
+                catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.PreconditionFailed)
+                {
+                    retry++;
+                    continue;
+                }
+
+                reportTask = tempTask;
+            }
+
+            return reportTask;
         }
 
         public Task ScheduleAsync(string setId, int submitId, int exclusive, int inclusive, string langId)
@@ -336,9 +397,81 @@ namespace Plag.Backend
             throw new NotImplementedException();
         }
 
-        public Task SaveReportAsync(ReportTask task, ReportFragment fragment)
+        public Task RescueAsync()
         {
             throw new NotImplementedException();
+        }
+
+        public async Task SaveReportAsync(ReportTask task, ReportFragment fragment)
+        {
+            ReportGuid reportGuid = ReportGuid.Parse(task.Id);
+            SetGuid setGuid = reportGuid.GetSetId();
+            if (task.SetId != setGuid.ToString()
+                || task.SubmissionA != reportGuid.GetIdOfA()
+                || task.SubmissionB != reportGuid.GetIdOfB())
+                throw new InvalidOperationException("Unknown report.");
+
+            await _database.Reports
+                .Patch(reportGuid.ToString(), new PartitionKey(task.SetId))
+                .SetProperty(r => r.TokensMatched, fragment.TokensMatched)
+                .SetProperty(r => r.BiggestMatch, fragment.BiggestMatch)
+                .SetProperty(r => r.State, ReportState.Finished)
+                .SetProperty(r => r.Percent, fragment.Percent)
+                .SetProperty(r => r.PercentA, fragment.PercentA)
+                .SetProperty(r => r.PercentB, fragment.PercentB)
+                .SetProperty(r => r.Matches, fragment.Matches)
+                .ExecuteAsync();
+
+            await _database.Sets
+                .Patch(task.SetId, new PartitionKey(task.SetId))
+                .IncrementProperty(s => s.ReportPending, -1)
+                .ExecuteAsync();
+
+            foreach (int sid in new[] { task.SubmissionA, task.SubmissionB })
+            {
+                await _database.Submissions
+                    .Patch(
+                        SubmissionGuid.FromStructured(setGuid, sid).ToString(),
+                        new PartitionKey(task.SetId))
+                    .SetProperty(s => s.MaxPercent, fragment.Percent)
+                    .UpdateOnCondition("FROM s WHERE s.max_percent < " + fragment.Percent.ToJson())
+                    .ExecuteAsync();
+            }
+        }
+
+        public async Task JustificateAsync(string reportid, ReportJustification status)
+        {
+            ReportGuid reportGuid = ReportGuid.Parse(reportid);
+            SetGuid setGuid = reportGuid.GetSetId();
+
+            await _database.Reports
+                .Patch(reportGuid.ToString(), new PartitionKey(setGuid.ToString()))
+                .SetProperty(r => r.Justification, status)
+                .ExecuteAsync();
+
+            foreach (int id in new[] { reportGuid.GetIdOfA(), reportGuid.GetIdOfB() })
+            {
+                QuickResult<double?> agg =
+                    await _database.Reports.SingleOrDefaultAsync<QuickResult<double?>>(
+                        "SELECT MAX(r.percent) AS result FROM Reports r WHERE (r.submitid_a = @id OR r.submitid_b = @id) AND r.justification <> \"Ignored\"",
+                        new { id },
+                        new PartitionKey(setGuid.ToString()));
+
+                await _database.Submissions
+                    .Patch(SubmissionGuid.FromStructured(setGuid, id).ToString(), new PartitionKey(setGuid.ToString()))
+                    .SetProperty(s => s.MaxPercent, agg.Result ?? 0)
+                    .ExecuteAsync();
+            }
+        }
+
+        public Task ShareReportAsync(string reportid, bool shared)
+        {
+            ReportGuid reportGuid = ReportGuid.Parse(reportid);
+
+            return _database.Reports
+                .Patch(reportGuid.ToString(), new PartitionKey(reportGuid.GetSetId().ToString()))
+                .SetProperty(r => r.Shared, shared)
+                .ExecuteAsync();
         }
     }
 }
