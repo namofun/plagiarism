@@ -63,15 +63,15 @@
             <tbody>
                 @foreach (var cmp in Model.Comparisons)
                 {
-                    <tr asp-action="Compare" asp-route-rid="@cmp.Id" class="@(cmp.Justification == true ? "table-danger" : "")">
+                    <tr asp-action="Compare" asp-route-rid="@cmp.Id" class="@(cmp.Justification == ReportJustification.Claimed ? "table-danger" : "")">
                         <td use-a data-order="@cmp.ExclusiveCategory">@cmp.ExclusiveCategory</td>
                         <td use-a data-order="@cmp.SubmissionIdAnother">s@(cmp.SubmissionIdAnother): @cmp.SubmissionNameAnother</td>
-                        <td use-a class="text-variant">@(cmp.Finished == true ? cmp.Justification == false ? "ignored" : cmp.Justification == true ? "marked" : "finished" : "pending")</td>
-                        <td class="@(cmp.Justification == false ? "text-delete" : "")" use-a>@cmp.TokensMatched</td>
-                        <td class="@(cmp.Justification == false ? "text-delete" : "")" use-a>@cmp.BiggestMatch</td>
-                        <td class="@(cmp.Justification == false ? "text-delete" : "")" use-a data-order="@(cmp.Justification == false ? 0 : cmp.Percent)">@($"{cmp.Percent:F2}%")</td>
-                        <td class="@(cmp.Justification == false ? "text-delete" : "")" use-a data-order="@(cmp.Justification == false ? 0 : cmp.PercentSelf)">@($"{cmp.PercentSelf:F2}%")</td>
-                        <td class="@(cmp.Justification == false ? "text-delete" : "")" use-a data-order="@(cmp.Justification == false ? 0 : cmp.PercentIt)">@($"{cmp.PercentIt:F2}%")</td>
+                        <td use-a class="text-variant">@(cmp.State == ReportState.Finished ? cmp.Justification == ReportJustification.Ignored ? "ignored" : cmp.Justification == ReportJustification.Claimed ? "marked" : "finished" : "pending")</td>
+                        <td class="@(cmp.Justification == ReportJustification.Ignored ? "text-delete" : "")" use-a>@cmp.TokensMatched</td>
+                        <td class="@(cmp.Justification == ReportJustification.Ignored ? "text-delete" : "")" use-a>@cmp.BiggestMatch</td>
+                        <td class="@(cmp.Justification == ReportJustification.Ignored ? "text-delete" : "")" use-a data-order="@(cmp.Justification == ReportJustification.Ignored ? 0 : cmp.Percent)">@($"{cmp.Percent:F2}%")</td>
+                        <td class="@(cmp.Justification == ReportJustification.Ignored ? "text-delete" : "")" use-a data-order="@(cmp.Justification == ReportJustification.Ignored ? 0 : cmp.PercentSelf)">@($"{cmp.PercentSelf:F2}%")</td>
+                        <td class="@(cmp.Justification == ReportJustification.Ignored ? "text-delete" : "")" use-a data-order="@(cmp.Justification == ReportJustification.Ignored ? 0 : cmp.PercentIt)">@($"{cmp.PercentIt:F2}%")</td>
                         <td><a asp-action="SourceCode" asp-route-id="@cmp.SubmissionIdAnother"><i class="fas fa-file-code"></i></a></td>
                         <td><a asp-area="Plagiarism" asp-controller="Report" asp-action="Compare" asp-route-rid="@cmp.Id" target="_blank"><i class="fas fa-external-link-alt"></i></a></td>
                     </tr>

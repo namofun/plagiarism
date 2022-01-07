@@ -16,8 +16,8 @@ namespace Plag.Backend.Models
         [JsonPropertyName("exclusive")]
         public int ExclusiveCategory { get; set; }
 
-        [JsonPropertyName("finished")]
-        public bool? Finished { get; set; }
+        [JsonPropertyName("state")]
+        public virtual ReportState State { get; set; }
 
         [JsonPropertyName("tokens_matched")]
         public int TokensMatched { get; set; }
@@ -35,6 +35,6 @@ namespace Plag.Backend.Models
         public double PercentIt { get; set; }
 
         [JsonPropertyName("justification")]
-        public bool? Justification { get; set; }
+        public virtual ReportJustification Justification { get; set; }
     }
 }

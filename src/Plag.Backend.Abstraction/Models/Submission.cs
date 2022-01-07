@@ -34,6 +34,8 @@ namespace Plag.Backend.Models
         public DateTimeOffset UploadTime { get; set; }
 
         [JsonPropertyName("files")]
+        [JsonPropertyOrder(5)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public IReadOnlyCollection<SubmissionFile> Files { get; set; }
 
         [JsonPropertyName("language")]
@@ -43,6 +45,7 @@ namespace Plag.Backend.Models
     public class Vertex : Submission
     {
         [JsonPropertyName("comparisons")]
+        [JsonPropertyOrder(10)]
         public IReadOnlyCollection<Comparison> Comparisons { get; set; }
     }
 }

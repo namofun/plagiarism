@@ -7,6 +7,7 @@ using Plag.Backend.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Plag.Backend.Services
@@ -261,9 +262,32 @@ namespace Plag.Backend.Services
 
         private class HoistedComparison : Comparison
         {
+            [JsonIgnore]
             public Guid ExternalId { get; set; }
 
-            public override string Id { get => ExternalId.ToString(); set { } }
+            [JsonIgnore]
+            public bool? JustificationV2 { get; set; }
+
+            [JsonIgnore]
+            public bool? FinishedV2 { get; set; }
+
+            public override string Id
+            {
+                get => ExternalId.ToString();
+                set { }
+            }
+
+            public override ReportJustification Justification
+            {
+                get => Report<Guid>.GetJustificationName(JustificationV2);
+                set { }
+            }
+
+            public override ReportState State
+            {
+                get => Report<Guid>.GetProvisioningStateName(FinishedV2);
+                set { }
+            }
         }
 
         public override async Task<IReadOnlyList<Comparison>> GetComparisonsBySubmissionAsync(Guid setid, int submitid)
@@ -277,14 +301,14 @@ namespace Plag.Backend.Services
                     BiggestMatch = r.BiggestMatch,
                     SubmissionIdAnother = r.SubmissionA,
                     SubmissionNameAnother = s.Name,
-                    Finished = r.Finished,
+                    FinishedV2 = r.Finished,
                     TokensMatched = r.TokensMatched,
                     Percent = r.Percent,
                     PercentIt = r.PercentA,
                     PercentSelf = r.PercentB,
                     ExternalId = r.ExternalId,
                     ExclusiveCategory = s.ExclusiveCategory,
-                    Justification = r.Justification,
+                    JustificationV2 = r.Justification,
                 };
 
             var reportB =
@@ -296,14 +320,14 @@ namespace Plag.Backend.Services
                     BiggestMatch = r.BiggestMatch,
                     SubmissionIdAnother = r.SubmissionB,
                     SubmissionNameAnother = s.Name,
-                    Finished = r.Finished,
+                    FinishedV2 = r.Finished,
                     TokensMatched = r.TokensMatched,
                     Percent = r.Percent,
                     PercentIt = r.PercentB,
                     PercentSelf = r.PercentA,
                     ExternalId = r.ExternalId,
                     ExclusiveCategory = s.ExclusiveCategory,
-                    Justification = r.Justification,
+                    JustificationV2 = r.Justification,
                 };
 
             return await reportA.Concat(reportB).ToListAsync();

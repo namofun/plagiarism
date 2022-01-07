@@ -1,4 +1,6 @@
 ﻿using System;
+using ReportJustification = Plag.Backend.Models.ReportJustification;
+using ReportState = Plag.Backend.Models.ReportState;
 
 namespace Plag.Backend.Entities
 {
@@ -38,16 +40,34 @@ namespace Plag.Backend.Entities
                 SetId = SetId.ToString(),
                 Id = ExternalId.ToString(),
                 Matches = Matches,
-                ProvisioningState = Models.Report.GetProvisioningStateName(Finished),
+                State = GetProvisioningStateName(Finished),
                 Percent = Percent,
                 PercentA = PercentA,
                 PercentB = PercentB,
                 SubmissionA = SubmissionA,
                 SubmissionB = SubmissionB,
                 TokensMatched = TokensMatched,
-                Justification = Models.Report.GetJustificationName(Justification),
+                Justification = GetJustificationName(Justification),
                 Shared = Shared,
             };
+        }
+
+        public static ReportJustification GetJustificationName(bool? value)
+        {
+            return !value.HasValue
+                ? ReportJustification.Unspecified
+                : value.Value
+                ? ReportJustification.Claimed
+                : ReportJustification.Ignored;
+        }
+
+        public static ReportState GetProvisioningStateName(bool? value)
+        {
+            return !value.HasValue
+                ? ReportState.Pending
+                : value.Value
+                ? ReportState.Finished
+                : ReportState.Analyzing;
         }
     }
 }

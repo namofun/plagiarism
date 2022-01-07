@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Plag.Backend.Models
 {
@@ -33,47 +32,15 @@ namespace Plag.Backend.Models
         public double PercentB { get; set; }
 
         [JsonPropertyName("state")]
-        public string ProvisioningState { get; set; }
+        public ReportState State { get; set; }
 
         [JsonPropertyName("matches")]
         public byte[] Matches { get; set; }
 
         [JsonPropertyName("justification")]
-        public string Justification { get; set; }
+        public ReportJustification Justification { get; set; }
 
         [JsonPropertyName("shared")]
         public bool Shared { get; set; }
-
-        public static string GetJustificationName(bool? value)
-        {
-            return !value.HasValue ? "Unspecified" : value.Value ? "Claimed" : "Ignored";
-        }
-
-        public static bool? GetJustificationValue(string description)
-        {
-            return description?.ToLower() switch
-            {
-                "unspecified" => default(bool?),
-                "claimed" => true,
-                "ignored" => false,
-                _ => throw new FormatException("Unknown justification value"),
-            };
-        }
-
-        public static string GetProvisioningStateName(bool? value)
-        {
-            return !value.HasValue ? "Pending" : value.Value ? "Finished" : "Analyzing";
-        }
-
-        public static bool? GetProvisioningStateValue(string description)
-        {
-            return description?.ToLower() switch
-            {
-                "pending" => default(bool?),
-                "finished" => true,
-                "analyzing" => false,
-                _ => throw new FormatException("Unknown provisioning state value"),
-            };
-        }
     }
 }
