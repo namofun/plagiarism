@@ -51,11 +51,11 @@ namespace Plag.Backend.Services
         /// <inheritdoc cref="IPlagiarismDetectService.ResetCompilationAsync(string, int)" />
         public abstract Task ResetCompilationAsync(TKey setid, int submitid);
 
-        /// <inheritdoc cref="IPlagiarismDetectService.JustificateAsync(string, bool?)" />
-        public abstract Task JustificateAsync(TKey reportid, bool? status);
+        /// <inheritdoc cref="IPlagiarismDetectService.JustificateAsync(string, ReportJustification)" />
+        public abstract Task JustificateAsync(TKey reportid, ReportJustification status);
 
-        /// <inheritdoc cref="IPlagiarismDetectService.ToggleReportSharenessAsync(string)" />
-        public abstract Task ToggleReportSharenessAsync(TKey reportid);
+        /// <inheritdoc cref="IPlagiarismDetectService.ShareReportAsync(string, bool)" />
+        public abstract Task ShareReportAsync(TKey reportid, bool shared);
 
         /// <inheritdoc cref="IPlagiarismDetectService.ListSetsAsync(int?, int?, int?, int?, bool)" />
         public abstract Task<List<PlagiarismSet<TKey>>> ListSetsAsync(int? cid = null, int? uid = null, int? skip = null, int? limit = null, bool asc = false);
@@ -144,7 +144,7 @@ namespace Plag.Backend.Services
             return returns;
         }
 
-        Task IPlagiarismDetectService.JustificateAsync(string reportid, bool? status)
+        Task IPlagiarismDetectService.JustificateAsync(string reportid, ReportJustification status)
         {
             if (!TryGetKey(reportid, out var reportId))
             {
@@ -168,14 +168,14 @@ namespace Plag.Backend.Services
             return ResetCompilationAsync(setid, submitid);
         }
 
-        Task IPlagiarismDetectService.ToggleReportSharenessAsync(string reportid)
+        Task IPlagiarismDetectService.ShareReportAsync(string reportid, bool shared)
         {
             if (!TryGetKey(reportid, out var id))
             {
                 throw new KeyNotFoundException("The report doesn't exists.");
             }
 
-            return ToggleReportSharenessAsync(id);
+            return ShareReportAsync(id, shared);
         }
 
         #endregion

@@ -137,16 +137,17 @@ namespace Plag.Backend.Services
         /// Justificates the stauts of the report as Ignored, Unspecified or Claimed.
         /// </summary>
         /// <param name="reportid">The id of report.</param>
-        /// <param name="status">The status of report. <c>True</c> if claimed, <c>false</c> if ignored, <c>null</c> if unspecified.</param>
+        /// <param name="status">The status of report.</param>
         /// <returns>The justificating task.</returns>
-        Task JustificateAsync(string reportid, bool? status);
+        Task JustificateAsync(string reportid, ReportJustification status);
 
         /// <summary>
-        /// Toggles the shareness of the report.
+        /// Sets the shareness of the report.
         /// </summary>
         /// <param name="reportid">The id of report.</param>
-        /// <returns>The toggling task.</returns>
-        Task ToggleReportSharenessAsync(string reportid);
+        /// <param name="shared">Whether this report is shared.</param>
+        /// <returns>The setting task.</returns>
+        Task ShareReportAsync(string reportid, bool shared);
 
         /// <summary>
         /// Sends a signal and try to rescue the background service.

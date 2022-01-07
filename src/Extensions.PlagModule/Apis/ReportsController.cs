@@ -43,26 +43,26 @@ namespace SatelliteSite.PlagModule.Apis
         /// Patch the given report for the plagiarism system
         /// </summary>
         /// <param name="id">The ID of the entity to patch</param>
-        /// <param name="justification">The status of report. -1 if claimed, 1 if ignored, 0 if unspecified</param>
-        /// <param name="toggleShared">True to toggle shareness</param>
+        /// <param name="justification">The status of report</param>
+        /// <param name="shared">Whether report is shared</param>
         /// <response code="200">Returns nothing</response>
         [HttpPatch("{id}")]
         public async Task<IActionResult> PatchOne(
             [FromRoute, Required] string id,
-            [FromForm] int? justification = null,
-            [FromForm] bool? toggleShared = null)
+            [FromForm] ReportJustification? justification = null,
+            [FromForm] bool? shared = null)
         {
             Dictionary<string, string> updatedProps = new();
-            if (justification == 0 || justification == 1 || justification == -1)
+            if (justification.HasValue)
             {
                 updatedProps.Add(nameof(justification), justification.ToString());
-                await Store.JustificateAsync(id, justification == 0 ? default(bool?) : justification.Value < 0);
+                await Store.JustificateAsync(id, justification.Value);
             }
 
-            if (toggleShared == true)
+            if (shared.HasValue)
             {
-                updatedProps.Add(nameof(toggleShared), "true");
-                await Store.ToggleReportSharenessAsync(id);
+                updatedProps.Add(nameof(shared), shared.Value.ToString().ToLower());
+                await Store.ShareReportAsync(id, shared.Value);
             }
 
             return Ok(updatedProps);

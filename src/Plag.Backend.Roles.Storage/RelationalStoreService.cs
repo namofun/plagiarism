@@ -486,11 +486,19 @@ namespace Plag.Backend.Services
             };
         }
 
-        public override async Task JustificateAsync(Guid reportid, bool? status)
+        public override async Task JustificateAsync(Guid reportid, ReportJustification status)
         {
+            bool? internalStatus = status switch
+            {
+                ReportJustification.Unspecified => default(bool?),
+                ReportJustification.Claimed => true,
+                ReportJustification.Ignored => false,
+                _ => throw new InvalidCastException(),
+            };
+
             var aff = await Reports
                 .Where(r => r.ExternalId == reportid)
-                .BatchUpdateAsync(r => new Report<Guid> { Justification = status });
+                .BatchUpdateAsync(r => new Report<Guid> { Justification = internalStatus });
 
             if (aff == 0)
                 throw new KeyNotFoundException("The report doesn't exists.");
@@ -513,11 +521,11 @@ namespace Plag.Backend.Services
                 });
         }
 
-        public override async Task ToggleReportSharenessAsync(Guid reportid)
+        public override async Task ShareReportAsync(Guid reportid, bool shared)
         {
             var aff = await Reports
                 .Where(r => r.ExternalId == reportid)
-                .BatchUpdateAsync(r => new Report<Guid> { Shared = !r.Shared });
+                .BatchUpdateAsync(r => new Report<Guid> { Shared = shared });
 
             if (aff == 0)
                 throw new KeyNotFoundException("The report doesn't exists.");

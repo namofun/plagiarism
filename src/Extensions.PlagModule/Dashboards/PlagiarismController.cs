@@ -261,7 +261,7 @@ namespace SatelliteSite.PlagModule.Dashboards
             var report = await Store.FindReportAsync(rid);
             if (report == null || sid != report.SetId) return NotFound();
 
-            await Store.ToggleReportSharenessAsync(rid);
+            await Store.ShareReportAsync(rid, !report.Shared);
             return RedirectToAction(nameof(Compare));
         }
 
@@ -273,7 +273,15 @@ namespace SatelliteSite.PlagModule.Dashboards
             var report = await Store.FindReportAsync(rid);
             if (report == null || sid != report.SetId) return NotFound();
 
-            await Store.JustificateAsync(report.Id, status switch { 0 => default(bool?), 1 => false, _ => true });
+            ReportJustification justification = status switch
+            {
+                0 => ReportJustification.Unspecified,
+                1 => ReportJustification.Ignored,
+                2 => ReportJustification.Claimed,
+                _ => throw new InvalidCastException(),
+            };
+
+            await Store.JustificateAsync(report.Id, justification);
             StatusMessage = $"Plagiarism Report between s{report.SubmissionB} and s{report.SubmissionA} has been justificated.";
             return RedirectToAction(nameof(Compare), new { sid, rid });
         }

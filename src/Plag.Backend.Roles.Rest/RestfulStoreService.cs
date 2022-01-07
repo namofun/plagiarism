@@ -89,15 +89,15 @@ namespace Plag.Backend.Services
                 "/rescue",
                 RestfulClient.EmptyContent);
 
-        public Task JustificateAsync(string reportid, bool? status)
+        public Task JustificateAsync(string reportid, ReportJustification status)
             => Client.PatchAsync<Dictionary<string, string>>(
                 $"/reports/{UrlEncoder.Default.Encode(reportid)}",
-                new FormUrlEncodedContent(new[] { new KeyValuePair<string, string>("justification", !status.HasValue ? "0" : status.Value ? "-1" : "1") }));
+                new FormUrlEncodedContent(new[] { new KeyValuePair<string, string>("justification", status.ToString()) }));
 
-        public Task ToggleReportSharenessAsync(string reportid)
+        public Task ShareReportAsync(string reportid, bool shared)
             => Client.PatchAsync<Dictionary<string, string>>(
                 $"/reports/{UrlEncoder.Default.Encode(reportid)}",
-                new FormUrlEncodedContent(new[] { new KeyValuePair<string, string>("toggleShared", "true") }));
+                new FormUrlEncodedContent(new[] { new KeyValuePair<string, string>("shared", shared.ToString().ToLower()) }));
 
         public ServiceVersion GetVersion()
         {
