@@ -2,13 +2,13 @@
 {
     public class ReportTask
     {
-        public string Id { get; set; }
+        public string Id { get; }
 
-        public string SetId { get; set; }
+        public string SetId { get; }
 
-        public int SubmissionA { get; set; }
+        public int SubmissionA { get; }
 
-        public int SubmissionB { get; set; }
+        public int SubmissionB { get; }
 
         public ReportTask(string reportid, string setid, int a, int b)
         {
@@ -16,11 +16,6 @@
             SetId = setid;
             SubmissionA = a;
             SubmissionB = b;
-        }
-
-        public static ReportTask Of<TKey>(TKey id, TKey setid, int a, int b)
-        {
-            return new ReportTask(id.ToString(), setid.ToString(), a, b);
         }
     }
 }

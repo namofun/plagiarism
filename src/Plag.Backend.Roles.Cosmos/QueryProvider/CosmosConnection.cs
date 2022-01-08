@@ -4,7 +4,6 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Plag.Backend.Entities;
-using Plag.Backend.Models;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
@@ -82,16 +81,6 @@ namespace Plag.Backend.QueryProvider
                 {
                     _logger.LogInformation("Container {Name} created with pk '{PartitionKeyPath}' successfully.", containerName, partitionKeyPath);
                 }
-            }
-
-            if (_options.LanguageSeeds != null)
-            {
-                await Metadata.UpsertAsync(new MetadataEntity<List<LanguageInfo>>()
-                {
-                    Id = MetadataEntity.LanguagesMetadataKey,
-                    Type = MetadataEntity.SettingsTypeKey,
-                    Data = _options.LanguageSeeds,
-                });
             }
         }
     }

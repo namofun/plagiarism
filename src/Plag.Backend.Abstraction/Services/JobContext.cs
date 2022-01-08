@@ -19,16 +19,34 @@ namespace Plag.Backend.Services
         Task CompileAsync(string setid, int submitId, string error, byte[] result);
 
         /// <summary>
+        /// Sets the submissions compiled with error and result.
+        /// </summary>
+        /// <param name="compilationResults">The compilation results.</param>
+        Task CompileAsync(List<KeyValuePair<(string setId, int submitId), Compilation>> compilationResults);
+
+        /// <summary>
         /// Dequeues one pending submission.
         /// </summary>
         /// <returns>The pending submission.</returns>
         Task<Submission> DequeueSubmissionAsync();
 
         /// <summary>
+        /// Dequeues one batch of at least <paramref name="batchSize"/> pending submissions.
+        /// </summary>
+        /// <returns>The pending submissions.</returns>
+        Task<List<Submission>> DequeueSubmissionsBatchAsync(int batchSize = 10);
+
+        /// <summary>
         /// Dequeues one pending report.
         /// </summary>
-        /// <returns>The report.</returns>
+        /// <returns>The pending report.</returns>
         Task<ReportTask> DequeueReportAsync();
+
+        /// <summary>
+        /// Dequeues one batch of at least <paramref name="batchSize"/> pending reports.
+        /// </summary>
+        /// <returns>The pending reports.</returns>
+        Task<List<ReportTask>> DequeueReportsBatchAsync(int batchSize = 100);
 
         /// <summary>
         /// Schedules the report of this submission with other submissions.
@@ -52,9 +70,15 @@ namespace Plag.Backend.Services
         /// <summary>
         /// Saves the report.
         /// </summary>
-        /// <param name="task">The repor task.</param>
+        /// <param name="task">The report task.</param>
         /// <param name="fragment">The report fragment.</param>
         Task SaveReportAsync(ReportTask task, ReportFragment fragment);
+
+        /// <summary>
+        /// Saves the reports.
+        /// </summary>
+        /// <param name="reports">The report tasks and fragments.</param>
+        Task SaveReportsAsync(List<KeyValuePair<ReportTask, ReportFragment>> reports);
 
         /// <summary>
         /// Finds the submission with its files.

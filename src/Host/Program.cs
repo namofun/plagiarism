@@ -53,18 +53,11 @@ namespace SatelliteSite
                 host.AddModule<PlagModule.PlagModule<CosmosBackendRole>>();
                 host.ConfigureServices((context, services) =>
                 {
-                    services.AddSingleton<Plag.Backend.Services.ICompileService, Plag.Backend.Services.AntlrCompileService>();
-
-                    services.AddOptions<PlagBackendCosmosOptions>()
-                        .Configure<Plag.Backend.Services.ICompileService>((options, compiler) =>
-                        {
-                            options.ConnectionString = context.GetConnectionString("CosmosDbAccount");
-                            options.DatabaseName = context.GetConnectionString("CosmosDbName");
-
-                            options.LanguageSeeds = compiler.GetLanguages()
-                                .Select(l => new Plag.Backend.Models.LanguageInfo() { Name = l.Name, ShortName = l.ShortName, Suffixes = l.Suffixes })
-                                .ToList();
-                        });
+                    services.Configure<PlagBackendCosmosOptions>(options =>
+                    {
+                        options.ConnectionString = context.GetConnectionString("CosmosDbAccount");
+                        options.DatabaseName = context.GetConnectionString("CosmosDbName");
+                    });
                 });
             }
             else if (args.Contains("--restful"))

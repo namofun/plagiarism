@@ -2,6 +2,7 @@
 using Plag.Backend.Models;
 using Plag.Backend.Services;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Plag.Backend.Jobs
@@ -82,6 +83,32 @@ namespace Plag.Backend.Jobs
             var result = _reporter.Generate(ss0t, ss1t);
             var frag = MatchReportCreate(ss0.ExternalId != result.SubmissionA.Id, result);
             await context.SaveReportAsync(rep, frag);
+            return true;
+        }
+
+        /// <summary>
+        /// Chooses one report from queue and generate.
+        /// </summary>
+        /// <param name="context">The database context for job scheduling.</param>
+        /// <param name="lru">The LRU store.</param>
+        /// <returns>Whether any report is proceeded.</returns>
+        public async Task<bool> DoWorkBatchAsync(IJobContext context, LruStore<(string, int), (Submission, Frontend.Submission)> lru)
+        {
+            var tasks = await context.DequeueReportsBatchAsync();
+            if (tasks.Count == 0) return false;
+
+            List<KeyValuePair<ReportTask, ReportFragment>> batch = new();
+            foreach (var rep in tasks)
+            {
+                var (ss0, ss0t) = await lru.GetOrLoadAsync((rep.SetId, rep.SubmissionA), context, Load);
+                var (ss1, ss1t) = await lru.GetOrLoadAsync((rep.SetId, rep.SubmissionB), context, Load);
+
+                var result = _reporter.Generate(ss0t, ss1t);
+                var frag = MatchReportCreate(ss0.ExternalId != result.SubmissionA.Id, result);
+                batch.Add(new(rep, frag));
+            }
+
+            await context.SaveReportsAsync(batch);
             return true;
         }
     }

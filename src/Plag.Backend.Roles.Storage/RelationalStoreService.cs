@@ -355,6 +355,52 @@ namespace Plag.Backend.Services
                 });
         }
 
+        public override async Task CompileAsync(
+            List<KeyValuePair<(Guid setId, int submitId), Compilation>> compilationResults)
+        {
+            var flatten = compilationResults
+                .Select(a => new
+                {
+                    SetId = a.Key.setId,
+                    Id = a.Key.submitId,
+                    TokenProduced = a.Value.Tokens != null,
+                    a.Value.Error,
+                    a.Value.Tokens
+                })
+                .ToList();
+
+            await Submissions.BatchUpdateJoinAsync(
+                inner: flatten,
+                outerKeySelector: s => new { s.SetId, s.Id },
+                innerKeySelector: s => new { s.SetId, s.Id },
+                updateSelector: (s, inner) => new()
+                {
+                    Error = inner.Error,
+                    TokenProduced = inner.TokenProduced,
+                    Tokens = inner.Tokens,
+                });
+
+            var summ = flatten
+                .GroupBy(s => s.SetId)
+                .Select(g => new
+                {
+                    Id = g.Key,
+                    Succ = g.Count(a => a.TokenProduced),
+                    Fail = g.Count(a => !a.TokenProduced),
+                })
+                .ToList();
+
+            await Sets.BatchUpdateJoinAsync(
+                inner: summ,
+                outerKeySelector: s => s.Id,
+                innerKeySelector: s => s.Id,
+                updateSelector: (s, inner) => new()
+                {
+                    SubmissionSucceeded = s.SubmissionSucceeded + inner.Succ,
+                    SubmissionFailed = s.SubmissionFailed + inner.Fail,
+                });
+        }
+
         public override async Task<Submission> DequeueSubmissionAsync()
         {
             var s = await Submissions.AsNoTracking()
@@ -363,9 +409,26 @@ namespace Plag.Backend.Services
                 .FirstOrDefaultAsync();
 
             if (s == null) return null;
-            var model = s.ToModel();
-            model.Files = await GetFilesAsync(s.ExternalId);
-            return model;
+            return s.ToModel(await GetFilesAsync(s.ExternalId));
+        }
+
+        public override async Task<List<Submission>> DequeueSubmissionsBatchAsync(int batchSize = 10)
+        {
+            var submissions = await Submissions.AsNoTracking()
+                .Where(s => s.TokenProduced == null)
+                .Select(Submission<Guid>.Minify)
+                .Take(batchSize)
+                .ToListAsync();
+
+            if (submissions.Count == 0) return new List<Submission>();
+
+            List<Guid> extIds = submissions.Select(s => s.ExternalId).ToList();
+            ILookup<Guid, SubmissionFile<Guid>> sf = await Files.AsNoTracking()
+                .Where(s => extIds.Contains(s.SubmissionId))
+                .OrderBy(s => s.FileId)
+                .ToLookupAsync(k => k.SubmissionId, k => k);
+
+            return submissions.Select(s => s.ToModel(sf[s.ExternalId].ToList())).ToList();
         }
 
         public override async Task ScheduleAsync(Guid setId, int submitId, int exclusive, int inclusive, string langId)
@@ -393,6 +456,27 @@ namespace Plag.Backend.Services
                 });
         }
 
+        public override async Task<List<ReportTask>> DequeueReportsBatchAsync(int batchSize = 100)
+        {
+            var reports = await Reports.AsNoTracking()
+                .Where(r => r.Finished == null)
+                .Select(r => new { r.ExternalId, r.SetId, r.SubmissionA, r.SubmissionB })
+                .Take(batchSize)
+                .ToListAsync();
+
+            if (reports.Count == 0) return new List<ReportTask>();
+
+            List<Guid> extIds = reports.Select(s => s.ExternalId).ToList();
+            await Reports
+                .Where(o => extIds.Contains(o.ExternalId))
+                .BatchUpdateAsync(r => new Report<Guid> { Finished = false });
+
+            return reports
+                .Select(r => ReportTask<Guid>.Of(r.ExternalId, r.SetId, r.SubmissionA, r.SubmissionB))
+                .Cast<ReportTask>()
+                .ToList();
+        }
+
         public override async Task<ReportTask> DequeueReportAsync()
         {
            var r = await Reports.AsNoTracking()
@@ -406,7 +490,7 @@ namespace Plag.Backend.Services
                 .Where(o => o.ExternalId == r.ExternalId)
                 .BatchUpdateAsync(r => new Report<Guid> { Finished = false });
 
-            return ReportTask.Of(r.ExternalId, r.SetId, r.SubmissionA, r.SubmissionB);
+            return ReportTask<Guid>.Of(r.ExternalId, r.SetId, r.SubmissionA, r.SubmissionB);
         }
 
         public override async Task<IReadOnlyList<SubmissionFile>> GetFilesAsync(Guid extId)
@@ -417,10 +501,10 @@ namespace Plag.Backend.Services
                 .ToListAsync();
         }
 
-        public override async Task SaveReportAsync(Guid setid, int a, int b, Guid extid, ReportFragment fragment)
+        public override async Task SaveReportAsync(ReportTask<Guid> task, ReportFragment fragment)
         {
             await Reports
-                .Where(r => r.SetId == setid && r.SubmissionA == a && r.SubmissionB == b)
+                .Where(r => r.SetId == task.SetId && r.SubmissionA == task.SubmissionA && r.SubmissionB == task.SubmissionB)
                 .BatchUpdateAsync(r => new Report<Guid>
                 {
                     TokensMatched = fragment.TokensMatched,
@@ -433,12 +517,72 @@ namespace Plag.Backend.Services
                 });
 
             await Sets
-                .Where(c => c.Id == setid)
+                .Where(c => c.Id == task.SetId)
                 .BatchUpdateAsync(c => new PlagiarismSet<Guid> { ReportPending = c.ReportPending - 1 });
 
             await Submissions
-                .Where(c => c.SetId == setid && (c.Id == a || c.Id == b) && c.MaxPercent < fragment.Percent)
+                .Where(c => c.SetId == task.SetId && (c.Id == task.SubmissionA || c.Id == task.SubmissionB) && c.MaxPercent < fragment.Percent)
                 .BatchUpdateAsync(c => new Submission<Guid> { MaxPercent = fragment.Percent });
+        }
+
+        public override async Task SaveReportsAsync(
+            List<KeyValuePair<ReportTask<Guid>, ReportFragment>> reports)
+        {
+            var flatten = reports
+                .Select(rf => new
+                {
+                    rf.Key.SetId,
+                    rf.Key.SubmissionA,
+                    rf.Key.SubmissionB,
+                    rf.Value.TokensMatched,
+                    rf.Value.BiggestMatch,
+                    rf.Value.Percent,
+                    rf.Value.PercentA,
+                    rf.Value.PercentB,
+                    rf.Value.Matches,
+                })
+                .ToList();
+
+            await Reports.BatchUpdateJoinAsync(
+                inner: flatten,
+                outerKeySelector: r => new { r.SetId, r.SubmissionA, r.SubmissionB },
+                innerKeySelector: r => new { r.SetId, r.SubmissionA, r.SubmissionB },
+                updateSelector: (r, fragment) => new()
+                {
+                    TokensMatched = fragment.TokensMatched,
+                    BiggestMatch = fragment.BiggestMatch,
+                    Finished = true,
+                    Percent = fragment.Percent,
+                    PercentA = fragment.PercentA,
+                    PercentB = fragment.PercentB,
+                    Matches = fragment.Matches,
+                });
+
+            var flattenV1 = flatten
+                .GroupBy(a => a.SetId)
+                .Select(g => new { g.Key, Count = g.Count() })
+                .ToList();
+
+            await Sets.BatchUpdateJoinAsync(
+                inner: flattenV1,
+                outerKeySelector: c => c.Id,
+                innerKeySelector: c => c.Key,
+                updateSelector: (s, c) => new() { ReportPending = s.ReportPending - c.Count });
+
+            var flattenV2 =
+                Enumerable.Concat(
+                    flatten.Select(a => new { a.SetId, Id = a.SubmissionA, a.Percent }),
+                    flatten.Select(a => new { a.SetId, Id = a.SubmissionB, a.Percent }))
+                .GroupBy(a => new { a.SetId, a.Id })
+                .Select(g => new { g.Key.SetId, g.Key.Id, MaxPercent = g.Max(a => a.Percent) })
+                .ToList();
+
+            await Submissions.BatchUpdateJoinAsync(
+                inner: flattenV2,
+                outerKeySelector: s => new { s.SetId, s.Id },
+                innerKeySelector: s => new { s.SetId, s.Id },
+                updateSelector: (s, c) => new() { MaxPercent = c.MaxPercent },
+                condition: (s, c) => s.MaxPercent < c.MaxPercent);
         }
 
         public override async Task RescueAsync()

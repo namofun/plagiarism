@@ -540,5 +540,25 @@ namespace Plag.Backend
                 .SetProperty(r => r.Shared, shared)
                 .ExecuteAsync();
         }
+
+        public Task CompileAsync(List<KeyValuePair<(string setId, int submitId), Compilation>> compilationResults)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<Submission>> DequeueSubmissionsBatchAsync(int batchSize = 10)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<ReportTask>> DequeueReportsBatchAsync(int batchSize = 100)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task SaveReportsAsync(List<KeyValuePair<ReportTask, ReportFragment>> reports)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
