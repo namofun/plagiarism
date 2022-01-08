@@ -4,14 +4,14 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace Plag.Backend.Connectors
+namespace Plag.Backend.QueryProvider
 {
-    internal class PdsCosmosSerializer : CosmosSerializer
+    internal class HybridCosmosSerializer : CosmosSerializer
     {
         private static readonly Encoding DefaultEncoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
         private readonly JsonSerializerSettings SerializerSettings;
 
-        public PdsCosmosSerializer(JsonSerializerSettings jsonSerializerSettings)
+        public HybridCosmosSerializer(JsonSerializerSettings jsonSerializerSettings)
         {
             SerializerSettings = jsonSerializerSettings;
         }

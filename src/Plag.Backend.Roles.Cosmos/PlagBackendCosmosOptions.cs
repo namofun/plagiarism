@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Plag.Backend.Connectors;
 using Plag.Backend.Models;
 using System;
 using System.Collections.Generic;
@@ -9,7 +8,7 @@ namespace Plag.Backend
     /// <summary>
     /// Options class for Azure Cosmos DB in plagiarism detection service.
     /// </summary>
-    public class PdsCosmosOptions
+    public class PlagBackendCosmosOptions
     {
         /// <summary>
         /// Azure Cosmos DB account connection string
@@ -33,7 +32,7 @@ namespace Plag.Backend
         {
             NullValueHandling = NullValueHandling.Include,
             Formatting = Formatting.None,
-            ContractResolver = new EntityJsonContractResolver(),
+            ContractResolver = new QueryProvider.EntityJsonContractResolver(),
         };
 
         /// <summary>

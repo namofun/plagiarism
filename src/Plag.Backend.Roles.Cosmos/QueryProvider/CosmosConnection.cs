@@ -3,7 +3,6 @@
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Plag.Backend.Connectors;
 using Plag.Backend.Entities;
 using Plag.Backend.Models;
 using System.Collections.Generic;
@@ -14,7 +13,7 @@ namespace Plag.Backend.QueryProvider
 {
     public class CosmosConnection : ICosmosConnection
     {
-        private readonly PdsCosmosOptions _options;
+        private readonly PlagBackendCosmosOptions _options;
         private readonly CosmosClient _client;
         private readonly ILogger<CosmosConnection> _logger;
         private readonly Database _database;
@@ -24,7 +23,7 @@ namespace Plag.Backend.QueryProvider
         public CosmosContainer<ReportEntity> Reports { get; }
         public CosmosContainer<MetadataEntity> Metadata { get; }
 
-        public CosmosConnection(IOptions<PdsCosmosOptions> options, ILogger<CosmosConnection> logger)
+        public CosmosConnection(IOptions<PlagBackendCosmosOptions> options, ILogger<CosmosConnection> logger)
         {
             _options = options.Value;
             _logger = logger;
@@ -33,7 +32,7 @@ namespace Plag.Backend.QueryProvider
                 _options.ConnectionString,
                 new CosmosClientOptions()
                 {
-                    Serializer = new PdsCosmosSerializer(_options.Serialization),
+                    Serializer = new HybridCosmosSerializer(_options.Serialization),
                     ApplicationName = "pds",
                 });
 

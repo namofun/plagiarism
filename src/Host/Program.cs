@@ -55,7 +55,7 @@ namespace SatelliteSite
                 {
                     services.AddSingleton<Plag.Backend.Services.ICompileService, Plag.Backend.Services.AntlrCompileService>();
 
-                    services.AddOptions<PdsCosmosOptions>()
+                    services.AddOptions<PlagBackendCosmosOptions>()
                         .Configure<Plag.Backend.Services.ICompileService>((options, compiler) =>
                         {
                             options.ConnectionString = context.GetConnectionString("CosmosDbAccount");

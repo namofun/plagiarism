@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Plag.Backend
 {
-    internal class CosmosStoreService : IPlagiarismDetectService, IJobContext
+    public class CosmosStoreService : IPlagiarismDetectService, IJobContext
     {
         private readonly ICosmosConnection _database;
 

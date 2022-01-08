@@ -5,9 +5,10 @@ using Plag.Backend.Models;
 using System.Collections.Generic;
 using System.Reflection;
 using SystemJsonIgnoreAttribute = System.Text.Json.Serialization.JsonIgnoreAttribute;
+using SystemJsonIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition;
 using SystemJsonPropertyNameAttribute = System.Text.Json.Serialization.JsonPropertyNameAttribute;
 
-namespace Plag.Backend.Connectors
+namespace Plag.Backend.QueryProvider
 {
     internal class EntityJsonContractResolver : CamelCasePropertyNamesContractResolver
     {
@@ -35,9 +36,18 @@ namespace Plag.Backend.Connectors
                 || property.DeclaringType == typeof(ReportEntity)
                 || property.DeclaringType == typeof(LanguageInfo))
             {
-                if (member.GetCustomAttribute<SystemJsonIgnoreAttribute>() != null)
+                if (member.GetCustomAttribute<SystemJsonIgnoreAttribute>() is SystemJsonIgnoreAttribute systemIgnore)
                 {
-                    return null;
+                    switch (systemIgnore.Condition)
+                    {
+                        case SystemJsonIgnoreCondition.Always:
+                            return null;
+
+                        case SystemJsonIgnoreCondition.WhenWritingDefault:
+                        case SystemJsonIgnoreCondition.WhenWritingNull:
+                            property.NullValueHandling = NullValueHandling.Ignore;
+                            break;
+                    }
                 }
 
                 SystemJsonPropertyNameAttribute nameAttribute = member.GetCustomAttribute<SystemJsonPropertyNameAttribute>();

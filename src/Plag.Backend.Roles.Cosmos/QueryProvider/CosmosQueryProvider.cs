@@ -27,10 +27,15 @@ namespace Plag.Backend.QueryProvider
                 throw new ArgumentException("Invalid property selector, must be direct member access.");
             }
 
-            string propertyName = memberAccess.Member
-                .GetCustomAttribute<System.Text.Json.Serialization.JsonPropertyNameAttribute>()
-                ?.Name
-                ?? throw new ArgumentException("Invalid property, must be marked with [JsonPropertyName]");
+            if (!EntityJsonContractResolver.SpecialConfiguration.TryGetValue(
+                memberAccess.Member,
+                out string propertyName))
+            {
+                propertyName = memberAccess.Member
+                    .GetCustomAttribute<System.Text.Json.Serialization.JsonPropertyNameAttribute>()
+                    ?.Name
+                    ?? throw new ArgumentException("Invalid property, must be marked with [JsonPropertyName]");
+            }
 
             return propertyName;
         }
