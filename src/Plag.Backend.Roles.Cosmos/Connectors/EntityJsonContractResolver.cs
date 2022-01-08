@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Plag.Backend.Entities;
 using Plag.Backend.Models;
 using System.Collections.Generic;
 using System.Reflection;
@@ -13,10 +14,11 @@ namespace Plag.Backend.Connectors
         public static Dictionary<MemberInfo, string> SpecialConfiguration { get; } = new()
         {
             { typeof(PlagiarismSet).GetProperty(nameof(PlagiarismSet.Id)), "id" },
+            { typeof(SetEntity).GetProperty(nameof(PlagiarismSet.Id)), "id" },
             { typeof(Submission).GetProperty(nameof(Submission.ExternalId)), "id" },
-            { typeof(Entities.SubmissionEntity).GetProperty(nameof(Submission.ExternalId)), "id" },
+            { typeof(SubmissionEntity).GetProperty(nameof(Submission.ExternalId)), "id" },
             { typeof(Report).GetProperty(nameof(Report.Id)), "id" },
-            { typeof(Entities.ReportEntity).GetProperty(nameof(Report.Id)), "id" },
+            { typeof(ReportEntity).GetProperty(nameof(Report.Id)), "id" },
             { typeof(LanguageInfo).GetProperty(nameof(LanguageInfo.ShortName)), "id" },
         };
 
@@ -26,10 +28,11 @@ namespace Plag.Backend.Connectors
             if (property == null) return null;
 
             if (property.DeclaringType == typeof(PlagiarismSet)
+                || property.DeclaringType == typeof(SetEntity)
                 || property.DeclaringType == typeof(Submission)
-                || property.DeclaringType == typeof(Entities.SubmissionEntity)
+                || property.DeclaringType == typeof(SubmissionEntity)
                 || property.DeclaringType == typeof(Report)
-                || property.DeclaringType == typeof(Entities.ReportEntity)
+                || property.DeclaringType == typeof(ReportEntity)
                 || property.DeclaringType == typeof(LanguageInfo))
             {
                 if (member.GetCustomAttribute<SystemJsonIgnoreAttribute>() != null)

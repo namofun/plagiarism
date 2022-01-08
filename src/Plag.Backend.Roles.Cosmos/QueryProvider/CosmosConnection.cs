@@ -3,9 +3,8 @@
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Plag.Backend.Connectors;
+using Plag.Backend.Entities;
 using Plag.Backend.Models;
 using System.Collections.Generic;
 using System.Net;
@@ -20,10 +19,10 @@ namespace Plag.Backend.QueryProvider
         private readonly ILogger<CosmosConnection> _logger;
         private readonly Database _database;
 
-        public CosmosContainer<PlagiarismSet> Sets { get; }
-        public CosmosContainer<Entities.SubmissionEntity> Submissions { get; }
-        public CosmosContainer<Entities.ReportEntity> Reports { get; }
-        public CosmosContainer<Entities.MetadataEntity> Metadata { get; }
+        public CosmosContainer<SetEntity> Sets { get; }
+        public CosmosContainer<SubmissionEntity> Submissions { get; }
+        public CosmosContainer<ReportEntity> Reports { get; }
+        public CosmosContainer<MetadataEntity> Metadata { get; }
 
         public CosmosConnection(IOptions<PdsCosmosOptions> options, ILogger<CosmosConnection> logger)
         {
@@ -39,7 +38,7 @@ namespace Plag.Backend.QueryProvider
                 });
 
             _database = _client.GetDatabase(_options.DatabaseName);
-            Sets = new(_database.GetContainer(nameof(Sets)), logger);
+            Sets = new(_database.GetContainer(nameof(Metadata)), logger);
             Submissions = new(_database.GetContainer(nameof(Submissions)), logger);
             Reports = new(_database.GetContainer(nameof(Reports)), logger);
             Metadata = new(_database.GetContainer(nameof(Metadata)), logger);
@@ -65,8 +64,7 @@ namespace Plag.Backend.QueryProvider
 
             Dictionary<string, string> pkeyPathMap = new()
             {
-                [nameof(Sets)] = "/id",
-                [nameof(Metadata)] = "/id",
+                [nameof(Metadata)] = "/type",
                 [nameof(Submissions)] = "/setid",
                 [nameof(Reports)] = "/setid",
             };
@@ -89,9 +87,10 @@ namespace Plag.Backend.QueryProvider
 
             if (_options.LanguageSeeds != null)
             {
-                await Metadata.UpsertAsync(new Entities.MetadataEntity<List<LanguageInfo>>()
+                await Metadata.UpsertAsync(new MetadataEntity<List<LanguageInfo>>()
                 {
-                    Id = Entities.MetadataEntity.LanguagesMetadataKey,
+                    Id = MetadataEntity.LanguagesMetadataKey,
+                    Type = MetadataEntity.SettingsTypeKey,
                     Data = _options.LanguageSeeds,
                 });
             }

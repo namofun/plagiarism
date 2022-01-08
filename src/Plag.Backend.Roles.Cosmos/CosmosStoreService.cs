@@ -35,14 +35,18 @@ namespace Plag.Backend
         {
             return !ReportGuid.TryParse(id, out var reportId)
                 ? null
-                : await _database.Reports.GetEntityAsync<Report>(reportId.ToString(), reportId.GetSetId().ToString());
+                : await _database.Reports.GetEntityAsync<Report>(
+                    reportId.ToString(),
+                    reportId.GetSetId().ToString());
         }
 
         public async Task<PlagiarismSet> FindSetAsync(string id)
         {
             return !SetGuid.TryParse(id, out var setGuid)
                 ? null
-                : await _database.Sets.GetEntityAsync<PlagiarismSet>(setGuid.ToString(), setGuid.ToString());
+                : await _database.Sets.GetEntityAsync<PlagiarismSet>(
+                    setGuid.ToString(),
+                    MetadataEntity.SetsTypeKey);
         }
 
         private Task<TSubmission> GetSubmissionCoreAsync<TSubmission>(SetGuid setGuid, int submitId, bool includeFiles) where TSubmission : Submission
@@ -194,7 +198,7 @@ namespace Plag.Backend
             });
 
             await _database.Sets
-                .Patch(set.Id, new PartitionKey(set.Id))
+                .Patch(set.Id, new PartitionKey(MetadataEntity.SetsTypeKey))
                 .IncrementProperty(s => s.SubmissionCount, 1)
                 .ExecuteAsync();
 
@@ -298,7 +302,10 @@ namespace Plag.Backend
                 param["limit"] = limit.Value;
             }
 
-            return await _database.Sets.GetListAsync<PlagiarismSet>(query, param);
+            return await _database.Sets.GetListAsync<PlagiarismSet>(
+                query,
+                param,
+                new PartitionKey(MetadataEntity.SetsTypeKey));
         }
 
         public async Task ResetCompilationAsync(string setid, int submitid)
@@ -349,7 +356,7 @@ namespace Plag.Backend
 
             var (a, b) = tokenProduced ? (1, 0) : (0, 1);
             await _database.Sets
-                .Patch(setGuid.ToString(), new PartitionKey(setGuid.ToString()))
+                .Patch(setGuid.ToString(), new PartitionKey(MetadataEntity.SetsTypeKey))
                 .IncrementProperty(s => s.SubmissionSucceeded, a)
                 .IncrementProperty(s => s.SubmissionFailed, b)
                 .ExecuteAsync();
@@ -406,8 +413,59 @@ namespace Plag.Backend
             throw new NotImplementedException();
         }
 
-        public Task RescueAsync()
+        public async Task RescueAsync()
         {
+            List<JObject> reportAggregate =
+                await _database.Reports.GetListAsync<JObject>(
+                    "SELECT r.setid, COUNT(1) AS report_count, " +
+                          " SUM(r.state = \"Finished\" ? 1 : 0) AS report_pending " +
+                    "FROM Reports r " +
+                    "GROUP BY r.setid");
+
+            List<JObject> submissionAggregate =
+                await _database.Submissions.GetListAsync<JObject>(
+                    "SELECT s.setid, COUNT(1) AS submission_count, " +
+                          " SUM(s.token_produced = true ? 1 : 0) AS submission_succeeded, " +
+                          " SUM(s.token_produced = false ? 1 : 0) AS submission_failed " +
+                    "FROM Submissions s " +
+                    "GROUP BY s.setid");
+
+            JObject aggProps = JObject.FromObject(new
+            {
+                report_count = 0,
+                report_pending = 0,
+                submission_count = 0,
+                submission_succeeded = 0,
+                submission_failed = 0,
+            });
+
+            Dictionary<string, JObject> patchEntries = new();
+            foreach (JObject agg in submissionAggregate.Concat(reportAggregate))
+            {
+                string setId = (string)agg["setid"];
+                if (!patchEntries.ContainsKey(setId)) patchEntries.Add(setId, new JObject(aggProps));
+                patchEntries[setId].Merge(agg);
+            }
+
+            Container container = _database.Sets.GetContainer();
+            IEnumerable<string> keys = ((IDictionary<string, JToken>)aggProps).Keys;
+            foreach (JObject[] chunk in patchEntries.Values.Chunk(100))
+            {
+                TransactionalBatch batch =
+                    container.CreateTransactionalBatch(
+                        new PartitionKey(MetadataEntity.SetsTypeKey));
+
+                foreach (JObject patchEntry in chunk)
+                {
+                    batch.PatchItem(
+                        (string)patchEntry["setid"],
+                        keys.Select(aggKey => PatchOperation.Replace($"/{aggKey}", (int)patchEntry[aggKey])).ToList(),
+                        new TransactionalBatchPatchItemRequestOptions() { EnableContentResponseOnWrite = false });
+                }
+
+                await batch.ExecuteAsync();
+            }
+
             throw new NotImplementedException();
         }
 
@@ -432,7 +490,7 @@ namespace Plag.Backend
                 .ExecuteAsync();
 
             await _database.Sets
-                .Patch(task.SetId, new PartitionKey(task.SetId))
+                .Patch(task.SetId, new PartitionKey(MetadataEntity.SetsTypeKey))
                 .IncrementProperty(s => s.ReportPending, -1)
                 .ExecuteAsync();
 
