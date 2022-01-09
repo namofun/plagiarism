@@ -11,9 +11,6 @@ namespace Plag.Backend.Services
         /// <inheritdoc cref="IJobContext.CompileAsync(string, int, string, byte[])" />
         public abstract Task CompileAsync(TKey setid, int submitId, string error, byte[] result);
 
-        /// <inheritdoc cref="IJobContext.CompileAsync(List{KeyValuePair{ValueTuple{string, int}, Compilation}})"/>
-        public abstract Task CompileAsync(List<KeyValuePair<(TKey setId, int submitId), Compilation>> compilationResults);
-
         /// <inheritdoc cref="IJobContext.DequeueReportAsync" />
         public abstract Task<ReportTask> DequeueReportAsync();
 
@@ -22,9 +19,6 @@ namespace Plag.Backend.Services
 
         /// <inheritdoc cref="IJobContext.DequeueSubmissionAsync" />
         public abstract Task<Submission> DequeueSubmissionAsync();
-
-        /// <inheritdoc cref="IJobContext.DequeueSubmissionsBatchAsync(int)" />
-        public abstract Task<List<Submission>> DequeueSubmissionsBatchAsync(int batchSize = 10);
 
         /// <inheritdoc cref="IJobContext.SaveReportAsync(ReportTask, ReportFragment)" />
         public abstract Task SaveReportAsync(ReportTask<TKey> task, ReportFragment fragment);
@@ -44,22 +38,6 @@ namespace Plag.Backend.Services
             }
 
             return CompileAsync(setid, submitId, error, result);
-        }
-
-        Task IJobContext.CompileAsync(List<KeyValuePair<(string setId, int submitId), Compilation>> compilationResults)
-        {
-            List<KeyValuePair<(TKey setId, int submitId), Compilation>> converged = new();
-            foreach (((string setId, int submitId) key, Compilation value) in compilationResults)
-            {
-                if (!TryGetKey(key.setId, out var setid))
-                {
-                    throw new Exception("The ID of plagiarism set is not correct.");
-                }
-
-                converged.Add(new((setid, key.submitId), value));
-            }
-
-            return CompileAsync(converged);
         }
 
         Task IJobContext.SaveReportAsync(ReportTask task, ReportFragment fragment)

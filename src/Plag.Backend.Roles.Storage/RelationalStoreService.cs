@@ -355,52 +355,6 @@ namespace Plag.Backend.Services
                 });
         }
 
-        public override async Task CompileAsync(
-            List<KeyValuePair<(Guid setId, int submitId), Compilation>> compilationResults)
-        {
-            var flatten = compilationResults
-                .Select(a => new
-                {
-                    SetId = a.Key.setId,
-                    Id = a.Key.submitId,
-                    TokenProduced = a.Value.Tokens != null,
-                    a.Value.Error,
-                    a.Value.Tokens
-                })
-                .ToList();
-
-            await Submissions.BatchUpdateJoinAsync(
-                inner: flatten,
-                outerKeySelector: s => new { s.SetId, s.Id },
-                innerKeySelector: s => new { s.SetId, s.Id },
-                updateSelector: (s, inner) => new()
-                {
-                    Error = inner.Error,
-                    TokenProduced = inner.TokenProduced,
-                    Tokens = inner.Tokens,
-                });
-
-            var summ = flatten
-                .GroupBy(s => s.SetId)
-                .Select(g => new
-                {
-                    Id = g.Key,
-                    Succ = g.Count(a => a.TokenProduced),
-                    Fail = g.Count(a => !a.TokenProduced),
-                })
-                .ToList();
-
-            await Sets.BatchUpdateJoinAsync(
-                inner: summ,
-                outerKeySelector: s => s.Id,
-                innerKeySelector: s => s.Id,
-                updateSelector: (s, inner) => new()
-                {
-                    SubmissionSucceeded = s.SubmissionSucceeded + inner.Succ,
-                    SubmissionFailed = s.SubmissionFailed + inner.Fail,
-                });
-        }
-
         public override async Task<Submission> DequeueSubmissionAsync()
         {
             var s = await Submissions.AsNoTracking()
@@ -410,25 +364,6 @@ namespace Plag.Backend.Services
 
             if (s == null) return null;
             return s.ToModel(await GetFilesAsync(s.ExternalId));
-        }
-
-        public override async Task<List<Submission>> DequeueSubmissionsBatchAsync(int batchSize = 10)
-        {
-            var submissions = await Submissions.AsNoTracking()
-                .Where(s => s.TokenProduced == null)
-                .Select(Submission<Guid>.Minify)
-                .Take(batchSize)
-                .ToListAsync();
-
-            if (submissions.Count == 0) return new List<Submission>();
-
-            List<Guid> extIds = submissions.Select(s => s.ExternalId).ToList();
-            ILookup<Guid, SubmissionFile<Guid>> sf = await Files.AsNoTracking()
-                .Where(s => extIds.Contains(s.SubmissionId))
-                .OrderBy(s => s.FileId)
-                .ToLookupAsync(k => k.SubmissionId, k => k);
-
-            return submissions.Select(s => s.ToModel(sf[s.ExternalId].ToList())).ToList();
         }
 
         public override async Task ScheduleAsync(Guid setId, int submitId, int exclusive, int inclusive, string langId)

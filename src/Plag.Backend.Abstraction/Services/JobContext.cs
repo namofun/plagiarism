@@ -19,22 +19,10 @@ namespace Plag.Backend.Services
         Task CompileAsync(string setid, int submitId, string error, byte[] result);
 
         /// <summary>
-        /// Sets the submissions compiled with error and result.
-        /// </summary>
-        /// <param name="compilationResults">The compilation results.</param>
-        Task CompileAsync(List<KeyValuePair<(string setId, int submitId), Compilation>> compilationResults);
-
-        /// <summary>
         /// Dequeues one pending submission.
         /// </summary>
         /// <returns>The pending submission.</returns>
         Task<Submission> DequeueSubmissionAsync();
-
-        /// <summary>
-        /// Dequeues one batch of at least <paramref name="batchSize"/> pending submissions.
-        /// </summary>
-        /// <returns>The pending submissions.</returns>
-        Task<List<Submission>> DequeueSubmissionsBatchAsync(int batchSize = 10);
 
         /// <summary>
         /// Dequeues one pending report.
