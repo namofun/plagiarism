@@ -21,7 +21,7 @@ namespace Plag.Backend
 
         public async Task<PlagiarismSet> CreateSetAsync(SetCreation metadata)
         {
-            return await _database.Sets.CreateAsync(new()
+            SetEntity entity = await _database.Sets.CreateAsync(new()
             {
                 Name = metadata.Name,
                 ContestId = metadata.ContestId,
@@ -29,6 +29,9 @@ namespace Plag.Backend
                 CreateTime = DateTimeOffset.Now,
                 Id = SetGuid.New().ToString(),
             });
+
+            await _database.Metadata.CreateAsync(new ServiceGraphEntity { Id = entity.Id });
+            return entity;
         }
 
         public async Task<Report> FindReportAsync(string id)
@@ -360,6 +363,21 @@ namespace Plag.Backend
                 .IncrementProperty(s => s.SubmissionSucceeded, a)
                 .IncrementProperty(s => s.SubmissionFailed, b)
                 .ExecuteAsync();
+
+            ServiceGraphEntity.Vertex vertex = new()
+            {
+                Id = submission.Id,
+                Exclusive = submission.ExclusiveCategory,
+                Inclusive = submission.InclusiveCategory,
+                Language = submission.Language,
+                Name = submission.Name,
+            };
+
+            await _database.Metadata.GetContainer().PatchItemAsync<ServiceGraphEntity>(
+                setGuid.ToString(),
+                new PartitionKey(MetadataEntity.ServiceGraphTypeKey),
+                new[] { PatchOperation.Set("/data/" + subGuid.ToString(), vertex) },
+                new() { EnableContentResponseOnWrite = false });
         }
 
         public Task<Submission> DequeueSubmissionAsync()
@@ -549,6 +567,31 @@ namespace Plag.Backend
         public Task SaveReportsAsync(List<KeyValuePair<ReportTask, ReportFragment>> reports)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<List<KeyValuePair<Submission, Compilation>?>> GetSubmissionsAsync(List<string> submitExternalIds)
+        {
+            List<(string id, PartitionKey partitionKey)> submissionKeys = new();
+            foreach (string submitExternalId in submitExternalIds)
+            {
+                if (!SubmissionGuid.TryParse(submitExternalId, out var subGuid))
+                {
+                    throw new Exception("Unable to parse the submission ID.");
+                }
+
+                submissionKeys.Add((subGuid.ToString(), new(subGuid.GetSetId().ToString())));
+            }
+
+            Dictionary<string, SubmissionEntity> results =
+                (await _database.Submissions.GetContainer()
+                    .ReadManyItemsAsync<SubmissionEntity>(submissionKeys))
+                .ToDictionary(k => k.ExternalId);
+
+            return submitExternalIds
+                .Select(s => results.TryGetValue(s, out var sub)
+                    ? default(KeyValuePair<Submission, Compilation>?)
+                    : new(sub, new() { Error = sub.Error, Tokens = sub.Tokens }))
+                .ToList();
         }
     }
 }

@@ -9,19 +9,19 @@ using System.Threading.Tasks;
 
 namespace Plag.Backend.Worker
 {
-    public class CompilationWorker
+    public class Compile
     {
         private readonly ICosmosConnection _connection;
         private readonly SubmissionTokenizer _tokenizer;
 
-        public CompilationWorker(ICosmosConnection connection, IConvertService2 converter, ICompileService compiler)
+        public Compile(ICosmosConnection connection, IConvertService2 converter, ICompileService compiler)
         {
             _connection = connection;
             _tokenizer = new(converter, compiler);
         }
 
         [FunctionName("Compile")]
-        public async Task Compile(
+        public async Task Run(
             [QueueTrigger(Constants.CompilationQueue, Connection = "AzureWebJobsStorage")] string queueMessage,
             [Queue(Constants.CompilationQueue, Connection = "AzureWebJobsStorage")] IAsyncCollector<string> compilationContinuation,
             [Queue(Constants.ReportSchedulingQueue, Connection = "AzureWebJobsStorage")] IAsyncCollector<string> reportScheduler,

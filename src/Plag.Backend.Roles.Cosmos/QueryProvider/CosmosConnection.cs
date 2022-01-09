@@ -1,10 +1,12 @@
 ﻿#nullable enable
 
 using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Scripts;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Plag.Backend.Entities;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -82,6 +84,52 @@ namespace Plag.Backend.QueryProvider
                     _logger.LogInformation("Container {Name} created with pk '{PartitionKeyPath}' successfully.", containerName, partitionKeyPath);
                 }
             }
+
+            List<KeyValuePair<string, string>> sprocs = new()
+            {
+                new(CosmosContainerStoredProcedureExtensions.QueryServiceGraph, nameof(Metadata)),
+            };
+
+            foreach ((string name, string containerName) in sprocs)
+            {
+                string code = await GetStoredProcedureCodeAsync(name);
+                Container container = database.GetContainer(containerName);
+                await container.Scripts.CreateStoredProcedureIfNotExistsAsync(
+                    new StoredProcedureProperties()
+                    {
+                        Id = name,
+                        Body = code,
+                    });
+            }
+        }
+
+        private static async Task<string> GetStoredProcedureCodeAsync(string name)
+        {
+            string sproc = $"Plag.Backend.QueryProvider.{name}.js";
+            using Stream stream = typeof(CosmosConnection).Assembly.GetManifestResourceStream(sproc)
+                ?? throw new InvalidDataException();
+
+            using StreamReader sr = new(stream);
+            return await sr.ReadToEndAsync();
+        }
+    }
+
+    public static class CosmosContainerStoredProcedureExtensions
+    {
+        internal const string QueryServiceGraph = nameof(QueryServiceGraph);
+
+        public static Task<StoredProcedureExecuteResponse<List<ServiceGraphEntity.Vertex>>> QueryServiceGraphAsync(
+            this CosmosContainer<MetadataEntity> container,
+            SetGuid setId,
+            string language,
+            int inclusiveCategory,
+            int exclusiveCategory)
+        {
+            return container.GetContainer().Scripts.ExecuteStoredProcedureAsync<List<ServiceGraphEntity.Vertex>>(
+                QueryServiceGraph,
+                new PartitionKey(MetadataEntity.ServiceGraphTypeKey),
+                new object[] { setId.ToString(), language, inclusiveCategory, exclusiveCategory },
+                new() { EnableScriptLogging = false });
         }
     }
 }

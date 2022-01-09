@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace Plag.Backend.Worker
 {
-    public class RescueBox
+    public class Rescue
     {
         [FunctionName("Rescue")]
-        public async Task<IActionResult> Rescue(
+        public async Task<IActionResult> Run(
             [HttpTrigger("post", Route = "rescue")] HttpRequest req,
             [Queue(Constants.CompilationQueue, Connection = "AzureWebJobsStorage")] IAsyncCollector<string> submissionTokenizer,
             [Queue(Constants.ReportGeneratingQueue, Connection = "AzureWebJobsStorage")] IAsyncCollector<string> reportGenerator,

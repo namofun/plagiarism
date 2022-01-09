@@ -11,19 +11,19 @@ using System.Threading.Tasks;
 
 namespace Plag.Backend.Worker
 {
-    public class Bootstrapper
+    public class Bootstrap
     {
         private readonly ICosmosConnection _connection;
         private readonly ICompileService _compiler;
 
-        public Bootstrapper(ICosmosConnection connection, ICompileService compiler)
+        public Bootstrap(ICosmosConnection connection, ICompileService compiler)
         {
             _connection = connection;
             _compiler = compiler;
         }
 
         [FunctionName("Bootstrap")]
-        public async Task<IActionResult> Bootstrap(
+        public async Task<IActionResult> Run(
             [HttpTrigger("post", Route = "bootstrap")] HttpRequest req,
             ILogger log)
         {

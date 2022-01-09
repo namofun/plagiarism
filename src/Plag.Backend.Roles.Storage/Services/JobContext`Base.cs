@@ -29,6 +29,8 @@ namespace Plag.Backend.Services
         /// <inheritdoc cref="IJobContext.ScheduleAsync(string, int, int, int, string)" />
         public abstract Task ScheduleAsync(TKey setId, int submitId, int exclusive, int inclusive, string langId);
 
+        /// <inheritdoc cref="IJobContext.GetSubmissionsAsync(List{string})" />
+        public abstract Task<List<KeyValuePair<Submission, Compilation>?>> GetSubmissionsAsync(List<TKey> submitExternalIds);
 
         Task IJobContext.CompileAsync(Submission submission, string error, byte[] result)
         {
@@ -38,6 +40,22 @@ namespace Plag.Backend.Services
             }
 
             return CompileAsync(setid, submission.Id, submission, error, result);
+        }
+
+        Task<List<KeyValuePair<Submission, Compilation>?>> IJobContext.GetSubmissionsAsync(List<string> submitExternalIds)
+        {
+            List<TKey> extids = new();
+            foreach (var id in submitExternalIds)
+            {
+                if (!TryGetKey(id, out var guid))
+                {
+                    throw new Exception("The ID of submission is not correct.");
+                }
+
+                extids.Add(guid);
+            }
+
+            return GetSubmissionsAsync(extids);
         }
 
         Task IJobContext.SaveReportAsync(ReportTask task, ReportFragment fragment)

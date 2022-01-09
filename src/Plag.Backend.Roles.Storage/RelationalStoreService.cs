@@ -609,6 +609,23 @@ namespace Plag.Backend.Services
             if (aff == 0)
                 throw new KeyNotFoundException("The report doesn't exists.");
         }
+
+        public override async Task<List<KeyValuePair<Submission, Compilation>?>> GetSubmissionsAsync(List<Guid> submitExternalIds)
+        {
+            var files = await Files
+                .Where(s => submitExternalIds.Contains(s.SubmissionId))
+                .ToLookupAsync(k => k.SubmissionId, v => v);
+
+            var subs = await Submissions
+                .Where(s => submitExternalIds.Contains(s.ExternalId))
+                .ToDictionaryAsync(k => k.ExternalId);
+
+            return submitExternalIds
+                .Select(s => subs.TryGetValue(s, out var sub)
+                    ? default(KeyValuePair<Submission, Compilation>?)
+                    : new(sub.ToModel(files[s].ToList()), new() { Error = sub.Error, Tokens = sub.Tokens }))
+                .ToList();
+        }
     }
 
     internal static class OrderByQueryableExtensions

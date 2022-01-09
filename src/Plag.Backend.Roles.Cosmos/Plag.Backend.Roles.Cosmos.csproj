@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <Import Project="..\..\build\NugetPackage.Backend.props" />
+
+  <ItemGroup>
+    <EmbeddedResource Include="QueryProvider\*.js" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.Cosmos" Version="$(AzureCosmosSdkVersion)" />
