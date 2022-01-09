@@ -9,5 +9,8 @@ namespace Plag.Backend.Entities
 
         [JsonPropertyName("tokens")]
         public byte[] Tokens { get; set; }
+
+        [JsonPropertyName("type")]
+        public string Type { get; set; } = "submission";
     }
 }

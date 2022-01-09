@@ -56,7 +56,7 @@ namespace Plag.Backend
                       " s.exclusive_category, s.inclusive_category, " +
                       " s.max_percent, s.token_produced, s.upload_time, s.language " +
                       (includeFiles ? ", s.files" : "") +
-                " FROM Submissions s WHERE s.id = @id",
+                " FROM Submissions s WHERE s.id = @id AND s.type = \"submission\"",
                 new { id = SubmissionGuid.FromStructured(setGuid, submitId).ToString() },
                 new PartitionKey(setGuid.ToString()));
         }
@@ -84,7 +84,7 @@ namespace Plag.Backend
                     " ((r.submitid_a = @submitid) ? r.percent_a : r.percent_b) AS percent_self, " +
                     " ((r.submitid_a = @submitid) ? r.percent_b : r.percent_a) AS percent_another " +
                 " FROM Reports r " +
-                " WHERE r.submitid_a = @submitid OR r.submitid_b = @submitid",
+                " WHERE r.type = \"report\" AND (r.submitid_a = @submitid OR r.submitid_b = @submitid)",
                 new { submitid },
                 new PartitionKey(setGuid.ToString()));
 
@@ -97,7 +97,7 @@ namespace Plag.Backend
                 throw new KeyNotFoundException();
 
             return _database.Submissions.SingleOrDefaultAsync<Compilation>(
-                "SELECT s.error, s.tokens FROM Submissions s WHERE s.id = @id",
+                "SELECT s.error, s.tokens FROM Submissions s WHERE s.id = @id AND s.type = \"submission\"",
                 new { id = SubmissionGuid.FromStructured(setGuid, submitid).ToString() },
                 new PartitionKey(setGuid.ToString()));
         }
@@ -316,7 +316,7 @@ namespace Plag.Backend
 
             QuickResult<bool?> jobj =
                 await _database.Submissions.SingleOrDefaultAsync<QuickResult<bool?>>(
-                    "SELECT c.token_produced AS result FROM c WHERE c.id = @sid",
+                    "SELECT c.token_produced AS result FROM c WHERE c.id = @sid AND c.type = \"submission\"",
                     new { sid = subGuid.ToString() },
                     new PartitionKey(setGuid.ToString()));
 
@@ -365,7 +365,7 @@ namespace Plag.Backend
         public Task<Submission> DequeueSubmissionAsync()
         {
             return _database.Submissions.SingleOrDefaultAsync<Submission>(
-                "SELECT TOP 1 * FROM Submissions s WHERE s.token_produced = null",
+                "SELECT TOP 1 * FROM Submissions s WHERE s.token_produced = null AND s.type = \"submission\"",
                 default(PartitionKey?));
         }
 
@@ -377,7 +377,7 @@ namespace Plag.Backend
             {
                 QuickResult<string> topReportId =
                     await _database.Reports.SingleOrDefaultAsync<QuickResult<string>>(
-                        "SELECT TOP 1 r.id AS result FROM Reports r WHERE r.state = \"Pending\"",
+                        "SELECT TOP 1 r.id AS result FROM Reports r WHERE r.state = \"Pending\" AND r.type = \"report\"",
                         default(PartitionKey?));
 
                 if (topReportId == null) return null;
@@ -419,7 +419,7 @@ namespace Plag.Backend
                 await _database.Reports.GetListAsync<JObject>(
                     "SELECT r.setid, COUNT(1) AS report_count, " +
                           " SUM(r.state = \"Finished\" ? 1 : 0) AS report_pending " +
-                    "FROM Reports r " +
+                    "FROM Reports r WHERE r.type = \"report\" " +
                     "GROUP BY r.setid");
 
             List<JObject> submissionAggregate =
@@ -427,7 +427,7 @@ namespace Plag.Backend
                     "SELECT s.setid, COUNT(1) AS submission_count, " +
                           " SUM(s.token_produced = true ? 1 : 0) AS submission_succeeded, " +
                           " SUM(s.token_produced = false ? 1 : 0) AS submission_failed " +
-                    "FROM Submissions s " +
+                    "FROM Submissions s WHERE s.type = \"submission\" " +
                     "GROUP BY s.setid");
 
             JObject aggProps = JObject.FromObject(new
@@ -520,7 +520,7 @@ namespace Plag.Backend
             {
                 QuickResult<double?> agg =
                     await _database.Reports.SingleOrDefaultAsync<QuickResult<double?>>(
-                        "SELECT MAX(r.percent) AS result FROM Reports r WHERE (r.submitid_a = @id OR r.submitid_b = @id) AND r.justification <> \"Ignored\"",
+                        "SELECT MAX(r.percent) AS result FROM Reports r WHERE (r.submitid_a = @id OR r.submitid_b = @id) AND r.justification <> \"Ignored\" AND r.type = \"report\"",
                         new { id },
                         new PartitionKey(setGuid.ToString()));
 

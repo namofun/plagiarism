@@ -16,5 +16,8 @@ namespace Plag.Backend.Entities
 
         [JsonPropertyName("submitname_b")]
         public string NameB { get; set; }
+
+        [JsonPropertyName("type")]
+        public string Type { get; set; } = "report";
     }
 }
