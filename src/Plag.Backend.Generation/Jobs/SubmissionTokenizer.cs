@@ -33,20 +33,17 @@ namespace Plag.Backend.Jobs
 
             if (lang == null)
             {
-                await store.CompileAsync(ss.SetId, ss.Id, "Compiler not found.", null);
+                await store.CompileAsync(ss, "Compiler not found.", null);
                 ss.TokenProduced = false;
             }
             else if (_compiler.TryCompile(lang, file, ss.ExternalId, out var tokens))
             {
-                await store.CompileAsync(ss.SetId, ss.Id, "Compilation succeeded.",
-                    _converter.TokenSerialize(tokens.IL));
+                await store.CompileAsync(ss, "Compilation succeeded.", _converter.TokenSerialize(tokens.IL));
                 ss.TokenProduced = true;
             }
             else
             {
-                await store.CompileAsync(ss.SetId, ss.Id,
-                    $"ANTLR4 failed with {tokens.IL.ErrorsCount} errors.\r\n"
-                    + tokens.IL.ErrorInfo.ToString(), null);
+                await store.CompileAsync(ss, $"ANTLR4 failed with {tokens.IL.ErrorsCount} errors.\r\n{tokens.IL.ErrorInfo}", null);
                 ss.TokenProduced = false;
             }
 

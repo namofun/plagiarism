@@ -12,11 +12,10 @@ namespace Plag.Backend.Services
         /// <summary>
         /// Sets the submission compiled with error and result.
         /// </summary>
-        /// <param name="setid">The set ID.</param>
-        /// <param name="submitId">The submission ID.</param>
+        /// <param name="submission">The submission entity snapshot.</param>
         /// <param name="error">The compile error.</param>
         /// <param name="result">The compiled tokens.</param>
-        Task CompileAsync(string setid, int submitId, string error, byte[] result);
+        Task CompileAsync(Submission submission, string error, byte[] result);
 
         /// <summary>
         /// Dequeues one pending submission.

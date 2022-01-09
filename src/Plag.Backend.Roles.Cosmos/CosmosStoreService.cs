@@ -339,11 +339,11 @@ namespace Plag.Backend
                 .ExecuteAsync();
         }
 
-        public async Task CompileAsync(string setid, int submitId, string error, byte[] result)
+        public async Task CompileAsync(Submission submission, string error, byte[] result)
         {
-            if (!SetGuid.TryParse(setid, out var setGuid) || !submitId.CanBeInt24())
+            if (!SetGuid.TryParse(submission.SetId, out var setGuid) || !submission.Id.CanBeInt24())
                 throw new KeyNotFoundException();
-            SubmissionGuid subGuid = SubmissionGuid.FromStructured(setGuid, submitId);
+            SubmissionGuid subGuid = SubmissionGuid.FromStructured(setGuid, submission.Id);
 
             bool tokenProduced = result != null;
             await _database.Submissions

@@ -333,7 +333,7 @@ namespace Plag.Backend.Services
             return await reportA.Concat(reportB).ToListAsync();
         }
 
-        public override async Task CompileAsync(Guid setid, int submitId, string error, byte[] result)
+        public override async Task CompileAsync(Guid setid, int submitId, Submission ss, string error, byte[] result)
         {
             bool tokenProduced = result != null;
             await Submissions

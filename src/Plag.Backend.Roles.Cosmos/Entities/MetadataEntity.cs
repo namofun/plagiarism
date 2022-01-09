@@ -9,6 +9,7 @@ namespace Plag.Backend.Entities
         public const string SettingsTypeKey = "settings";
         public const string LanguagesMetadataKey = "languages";
         public const string SetsTypeKey = "sets";
+        public const string ServiceGraphTypeKey = "service-graph";
 
         [JsonProperty("id")]
         public string Id { get; set; }
