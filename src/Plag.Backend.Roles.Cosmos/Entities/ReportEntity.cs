@@ -19,5 +19,30 @@ namespace Plag.Backend.Entities
 
         [JsonPropertyName("type")]
         public string Type { get; set; } = "report";
+
+        public static ReportEntity Of(
+            SetGuid set,
+            (int id, string name, int excl) a,
+            (int id, string name, int excl) b)
+        {
+            if (a.id < b.id)
+            {
+                var c = a;
+                a = b;
+                b = c;
+            }
+
+            return new()
+            {
+                SetId = set.ToString(),
+                SubmissionA = a.id,
+                SubmissionB = b.id,
+                NameA = a.name,
+                NameB = b.name,
+                ExclusiveCategoryA = a.excl,
+                ExclusiveCategoryB = b.excl,
+                Id = ReportGuid.FromStructured(set, a.id, b.id).ToString(),
+            };
+        }
     }
 }

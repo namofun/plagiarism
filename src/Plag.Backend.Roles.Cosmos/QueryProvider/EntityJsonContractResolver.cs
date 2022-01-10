@@ -1,7 +1,9 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using Plag.Backend.Entities;
 using Plag.Backend.Models;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using SystemJsonIgnoreAttribute = System.Text.Json.Serialization.JsonIgnoreAttribute;
@@ -22,6 +24,19 @@ namespace Plag.Backend.QueryProvider
             { typeof(ReportEntity).GetProperty(nameof(Report.Id)), "id" },
             { typeof(LanguageInfo).GetProperty(nameof(LanguageInfo.ShortName)), "id" },
         };
+
+        protected override JsonContract CreateContract(Type objectType)
+        {
+            JsonContract contract = base.CreateContract(objectType);
+
+            if (objectType == typeof(ReportJustification)
+                || objectType == typeof(ReportState))
+            {
+                contract.Converter = new StringEnumConverter();
+            }
+
+            return contract;
+        }
 
         protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
         {

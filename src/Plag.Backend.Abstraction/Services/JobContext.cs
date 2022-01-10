@@ -38,13 +38,9 @@ namespace Plag.Backend.Services
         /// <summary>
         /// Schedules the report of this submission with other submissions.
         /// </summary>
+        /// <param name="submission">The submission.</param>
         /// <remarks>This will not send a signal for report generation service to work.</remarks>
-        /// <param name="langId">The language ID.</param>
-        /// <param name="setId">The set ID.</param>
-        /// <param name="exclusive">The exclusive category.</param>
-        /// <param name="inclusive">The inclusive category.</param>
-        /// <param name="submitId">The submission ID.</param>
-        Task ScheduleAsync(string setId, int submitId, int exclusive, int inclusive, string langId);
+        Task<int> ScheduleAsync(Submission submission);
 
         /// <summary>
         /// Gets the compilation for such submission.

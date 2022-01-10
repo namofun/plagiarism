@@ -2,10 +2,12 @@
 using Newtonsoft.Json.Linq;
 using Plag.Backend.Entities;
 using Plag.Backend.Models;
+using Plag.Backend.QueryProvider;
 using Plag.Backend.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace Plag.Backend
@@ -426,9 +428,40 @@ namespace Plag.Backend
             return reportTask;
         }
 
-        public Task ScheduleAsync(string setId, int submitId, int exclusive, int inclusive, string langId)
+        public async Task<int> ScheduleAsync(Submission u)
         {
-            throw new NotImplementedException();
+            var set = SetGuid.Parse(u.SetId);
+            var vertices = await _database.Metadata.QueryServiceGraphAsync(set, u.Language, u.InclusiveCategory, u.ExclusiveCategory);
+            if (vertices.Resource.Count == 0) return 0;
+
+            var pendingReports = vertices.Resource
+                .OrderBy(x => x.Id)
+                .Select(v => ReportEntity.Of(set, (u.Id, u.Name, u.ExclusiveCategory), (v.Id, v.Name, v.Exclusive)))
+                .ToList();
+
+            int created = 0, updated = 0;
+            Container container = _database.Reports.GetContainer();
+            foreach (var chunk in pendingReports.Chunk(50))
+            {
+                var tc = container.CreateTransactionalBatch(new PartitionKey(set.ToString()));
+                foreach (var report in chunk) tc.UpsertItem(report, new() { EnableContentResponseOnWrite = false });
+                TransactionalBatchResponse resp = await tc.ExecuteAsync();
+                if (!resp.IsSuccessStatusCode)
+                {
+                    throw new CosmosException(resp.ErrorMessage, resp.StatusCode, 0, resp.ActivityId, resp.RequestCharge);
+                }
+
+                created += resp.Count(r => r.StatusCode == HttpStatusCode.Created);
+                updated += resp.Count(r => r.StatusCode == HttpStatusCode.OK);
+            }
+
+            await _database.Sets
+                .Patch(set.ToString(), new PartitionKey(MetadataEntity.SetsTypeKey))
+                .IncrementProperty(s => s.ReportCount, created)
+                .IncrementProperty(s => s.ReportPending, created + updated)
+                .ExecuteAsync();
+
+            return pendingReports.Count;
         }
 
         public async Task RescueAsync()

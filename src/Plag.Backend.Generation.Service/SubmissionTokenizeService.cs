@@ -48,7 +48,7 @@ namespace Plag.Backend.Jobs
                 }
 
                 if (s.TokenProduced != true) continue;
-                await context.ScheduleAsync(s.SetId, s.Id, s.ExclusiveCategory, s.InclusiveCategory, s.Language);
+                await context.ScheduleAsync(s);
                 _anotherSignal.Notify();
             }
         }

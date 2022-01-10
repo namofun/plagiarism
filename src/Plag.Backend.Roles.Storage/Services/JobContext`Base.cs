@@ -26,8 +26,8 @@ namespace Plag.Backend.Services
         /// <inheritdoc cref="IJobContext.SaveReportsAsync(List{KeyValuePair{ReportTask, ReportFragment}})" />
         public abstract Task SaveReportsAsync(List<KeyValuePair<ReportTask<TKey>, ReportFragment>> reports);
 
-        /// <inheritdoc cref="IJobContext.ScheduleAsync(string, int, int, int, string)" />
-        public abstract Task ScheduleAsync(TKey setId, int submitId, int exclusive, int inclusive, string langId);
+        /// <inheritdoc cref="IJobContext.ScheduleAsync(Submission)" />
+        public abstract Task<int> ScheduleAsync(TKey setId, int submitId, int exclusive, int inclusive, string langId);
 
         /// <inheritdoc cref="IJobContext.GetSubmissionsAsync(List{string})" />
         public abstract Task<List<KeyValuePair<Submission, Compilation>?>> GetSubmissionsAsync(List<TKey> submitExternalIds);
@@ -104,14 +104,14 @@ namespace Plag.Backend.Services
             return SaveReportsAsync(reports2);
         }
 
-        Task IJobContext.ScheduleAsync(string setId, int submitId, int exclusive, int inclusive, string langId)
+        Task<int> IJobContext.ScheduleAsync(Submission s)
         {
-            if (!TryGetKey(setId, out var setid))
+            if (!TryGetKey(s.SetId, out var setid))
             {
                 throw new Exception("The ID of plagiarism set is not correct.");
             }
 
-            return ScheduleAsync(setid, submitId, exclusive, inclusive, langId);
+            return ScheduleAsync(setid, s.Id, s.ExclusiveCategory, s.InclusiveCategory, s.Language);
         }
     }
 }

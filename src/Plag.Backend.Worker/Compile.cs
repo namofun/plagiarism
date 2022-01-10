@@ -24,7 +24,7 @@ namespace Plag.Backend.Worker
         public async Task Run(
             [QueueTrigger(Constants.CompilationQueue, Connection = "AzureWebJobsStorage")] string queueMessage,
             [Queue(Constants.CompilationQueue, Connection = "AzureWebJobsStorage")] IAsyncCollector<string> compilationContinuation,
-            [Queue(Constants.ReportSchedulingQueue, Connection = "AzureWebJobsStorage")] IAsyncCollector<string> reportScheduler,
+            [Queue(Constants.ReportGeneratingQueue, Connection = "AzureWebJobsStorage")] IAsyncCollector<string> reportGenerator,
             ILogger log)
         {
             string queueStamp = queueMessage;
@@ -43,29 +43,33 @@ namespace Plag.Backend.Worker
             int scheduleCounter = 0;
             while (!cts.Token.IsCancellationRequested)
             {
-                scheduleCounter++;
                 next = await _tokenizer.DoWorkAsync(store);
                 if (next == null) break;
+                scheduleCounter++;
 
                 log.LogDebug("Compilation finished for {SubmitId}.", next.ExternalId);
 
                 if (next.TokenProduced == true)
                 {
-                    await reportScheduler.AddAsync(
-                        $"\\\\{next.SetId}" +
-                        $"\\{next.Language}" +
-                        $"\\{next.InclusiveCategory}" +
-                        $"\\{next.ExclusiveCategory}" +
-                        $"\\{next.ExternalId}");
+                    await store.ScheduleAsync(next);
+                    scheduleCounter++;
                 }
 
-                if (scheduleCounter % 10 == 0)
+                if (scheduleCounter >= 10)
                 {
-                    await reportScheduler.FlushAsync();
+                    long timestamp = DateTimeOffset.Now.ToUnixTimeSeconds();
+                    await reportGenerator.AddAsync($"schedule|{timestamp}|{next.ExternalId}%{queueStamp}");
+                    await reportGenerator.FlushAsync();
+                    scheduleCounter = 0;
                 }
             }
 
-            await reportScheduler.FlushAsync();
+            if (scheduleCounter > 0)
+            {
+                long timestamp = DateTimeOffset.Now.ToUnixTimeSeconds();
+                await reportGenerator.AddAsync($"schedule|{timestamp}|{Guid.Empty}%{queueStamp}");
+                await reportGenerator.FlushAsync();
+            }
 
             if (next != null)
             {

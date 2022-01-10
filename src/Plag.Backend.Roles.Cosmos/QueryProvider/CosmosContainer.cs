@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Plag.Backend.QueryProvider
 {
-    public class CosmosContainer<T>
+    public class CosmosContainer<T> where T : class
     {
         private readonly Container _coll;
         private readonly ILogger _logger;
@@ -120,6 +120,11 @@ namespace Plag.Backend.QueryProvider
             {
                 return null;
             }
+        }
+
+        public Task<T?> GetEntityAsync(string id, string partitionKey)
+        {
+            return GetEntityAsync<T>(id, partitionKey);
         }
     }
 }
