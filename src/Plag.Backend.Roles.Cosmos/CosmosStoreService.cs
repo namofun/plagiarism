@@ -626,5 +626,30 @@ namespace Plag.Backend
                     : new(sub, new() { Error = sub.Error, Tokens = sub.Tokens }))
                 .ToList();
         }
+
+        public async Task<List<KeyValuePair<Submission, Compilation>>> GetSubmissionsAsync(List<(string, int)> submitIds)
+        {
+            List<(string id, PartitionKey partitionKey)> submissionKeys = new();
+            foreach ((string setId, int subId) in submitIds)
+            {
+                if (!SetGuid.TryParse(setId, out var setGuid))
+                {
+                    continue;
+                }
+
+                SubmissionGuid subGuid = SubmissionGuid.FromStructured(setGuid, subId);
+                submissionKeys.Add((subGuid.ToString(), new(setId.ToString())));
+            }
+
+            FeedResponse<SubmissionEntity> results =
+                await _database.Submissions.GetContainer()
+                    .ReadManyItemsAsync<SubmissionEntity>(submissionKeys);
+
+            return results.Select(sub =>
+                new KeyValuePair<Submission, Compilation>(
+                    sub,
+                    new() { Error = sub.Error, Tokens = sub.Tokens }))
+                .ToList();
+        }
     }
 }

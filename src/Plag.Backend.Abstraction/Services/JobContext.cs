@@ -86,5 +86,12 @@ namespace Plag.Backend.Services
         /// <param name="submitExternalIds">The list of submission external IDs.</param>
         /// <returns>The submission with files.</returns>
         Task<List<KeyValuePair<Submission, Compilation>?>> GetSubmissionsAsync(List<string> submitExternalIds);
+
+        /// <summary>
+        /// Gets several submissions with its compilation in one batch.
+        /// </summary>
+        /// <param name="submitIds">The list of submission internal IDs.</param>
+        /// <returns>The submission with files.</returns>
+        Task<List<KeyValuePair<Submission, Compilation>>> GetSubmissionsAsync(List<(string, int)> submitIds);
     }
 }

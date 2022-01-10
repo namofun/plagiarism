@@ -16,10 +16,11 @@ namespace Plag.Backend.Jobs
         public ReportGenerationService(IServiceProvider serviceProvider) : base(serviceProvider)
         {
             _generator = new ReportGenerator(
-                serviceProvider.GetRequiredService<ILogger<ReportGenerationService>>(),
                 serviceProvider.GetRequiredService<ICompileService>(),
                 serviceProvider.GetRequiredService<IConvertService2>(),
                 serviceProvider.GetRequiredService<IReportService>());
+
+            _generator.SetLogger(serviceProvider.GetRequiredService<ILogger<ReportGenerationService>>());
         }
 
         protected override async Task ProcessAsync(IServiceScope scope, CancellationToken stoppingToken)

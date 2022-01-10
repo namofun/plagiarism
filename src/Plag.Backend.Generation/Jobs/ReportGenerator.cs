@@ -3,6 +3,7 @@ using Plag.Backend.Models;
 using Plag.Backend.Services;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Plag.Backend.Jobs
@@ -12,17 +13,21 @@ namespace Plag.Backend.Jobs
     /// </summary>
     public class ReportGenerator
     {
-        private readonly ILogger _logger;
         private readonly ICompileService _compiler;
         private readonly IConvertService2 _converter;
         private readonly IReportService _reporter;
+        private ILogger _logger;
 
-        public ReportGenerator(ILogger logger, ICompileService compiler, IConvertService2 converter, IReportService reporter)
+        public ReportGenerator(ICompileService compiler, IConvertService2 converter, IReportService reporter)
         {
-            _logger = logger;
             _compiler = compiler;
             _converter = converter;
             _reporter = reporter;
+        }
+
+        public void SetLogger(ILogger logger)
+        {
+            _logger = logger;
         }
 
         private async Task<(Submission, Frontend.Submission)> Load((string, int) key, IJobContext store)
@@ -35,22 +40,38 @@ namespace Plag.Backend.Jobs
             }
 
             var c = await store.GetCompilationAsync(setid, submitid);
+            Frontend.Submission fe = await GetFrontendSubmissionAsync(s, c, store);
+            return (s, fe);
+        }
+
+        private async Task<Frontend.Submission> GetFrontendSubmissionAsync(Submission s, Compilation c, IJobContext store)
+        {
             var lang = _compiler.FindLanguage(s.Language);
-            Frontend.Submission fe;
 
             if (c?.Tokens == null)
             {
-                _logger.LogWarning("Token for {SetId}\\s{SubmissionId} missing, generating at once.", s.SetId, s.Id);
-                var fs = await store.GetFilesAsync(setid, submitid);
-                fe = new Frontend.Submission(lang, new Frontend.SubmissionFileProxy(fs), s.ExternalId);
+                _logger?.LogWarning("Token for {SetId}\\s{SubmissionId} missing, generating at once.", s.SetId, s.Id);
+                var fs = s.Files ?? await store.GetFilesAsync(s.SetId, s.Id);
+                return new Frontend.Submission(lang, new Frontend.SubmissionFileProxy(fs), s.ExternalId);
             }
             else
             {
                 var tokens = _converter.TokenDeserialize(c.Tokens, lang);
-                fe = new Frontend.Submission(lang, null, s.ExternalId, tokens);
+                return new Frontend.Submission(lang, null, s.ExternalId, tokens);
+            }
+        }
+
+        private async Task<Dictionary<(string, int), (Submission, Frontend.Submission)>> LoadBatch(List<(string, int)> keys, IJobContext store)
+        {
+            var entities = await store.GetSubmissionsAsync(keys);
+            var result = new Dictionary<(string, int), (Submission, Frontend.Submission)>();
+            foreach (var (s, c) in entities)
+            {
+                Frontend.Submission fe = await GetFrontendSubmissionAsync(s, c, store);
+                result.Add((s.SetId, s.Id), (s, fe));
             }
 
-            return (s, fe);
+            return result;
         }
 
         private ReportFragment MatchReportCreate(bool swapAB, Frontend.Matching matching)
@@ -96,6 +117,13 @@ namespace Plag.Backend.Jobs
         {
             var tasks = await context.DequeueReportsBatchAsync();
             if (tasks.Count == 0) return false;
+
+            await lru.LoadBatchAsync(
+                tasks.Select(r => (r.SetId, r.SubmissionA))
+                    .Concat(tasks.Select(r => (r.SetId, r.SubmissionB)))
+                    .Distinct()
+                    .ToList(),
+                k => LoadBatch(k, context));
 
             List<KeyValuePair<ReportTask, ReportFragment>> batch = new();
             foreach (var rep in tasks)

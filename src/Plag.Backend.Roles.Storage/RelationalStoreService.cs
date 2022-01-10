@@ -366,7 +366,7 @@ namespace Plag.Backend.Services
             return s.ToModel(await GetFilesAsync(s.ExternalId));
         }
 
-        public override async Task ScheduleAsync(Guid setId, int submitId, int exclusive, int inclusive, string langId)
+        public override async Task<int> ScheduleAsync(Guid setId, int submitId, int exclusive, int inclusive, string langId)
         {
             var baseQuery = Submissions
                 .Where(s => s.SetId == setId && s.Language == langId)
@@ -389,6 +389,8 @@ namespace Plag.Backend.Services
                     ReportCount = c.ReportCount + affected,
                     ReportPending = c.ReportPending + affected,
                 });
+
+            return affected;
         }
 
         public override async Task<List<ReportTask>> DequeueReportsBatchAsync(int batchSize = 100)
@@ -624,6 +626,25 @@ namespace Plag.Backend.Services
                 .Select(s => subs.TryGetValue(s, out var sub)
                     ? default(KeyValuePair<Submission, Compilation>?)
                     : new(sub.ToModel(files[s].ToList()), new() { Error = sub.Error, Tokens = sub.Tokens }))
+                .ToList();
+        }
+
+        public override async Task<List<KeyValuePair<Submission, Compilation>>> GetSubmissionsAsync(List<(Guid, int)> submitIds)
+        {
+            var submitV2 = submitIds.Select(a => new { SetId = a.Item1, Id = a.Item2 }).ToList();
+            var subs = await Submissions
+                .Where(s => submitV2.Any(a => a.SetId == s.SetId && a.Id == s.Id))
+                .ToDictionaryAsync(k => k.ExternalId);
+
+            var submitExternalIds = subs.Values.Select(a => a.ExternalId).ToList();
+            var files = await Files
+                .Where(s => submitExternalIds.Contains(s.SubmissionId))
+                .ToLookupAsync(k => k.SubmissionId, v => v);
+
+            return subs.Values.Select(sub =>
+                new KeyValuePair<Submission, Compilation>(
+                    sub.ToModel(files[sub.ExternalId].ToList()),
+                    new() { Error = sub.Error, Tokens = sub.Tokens }))
                 .ToList();
         }
     }

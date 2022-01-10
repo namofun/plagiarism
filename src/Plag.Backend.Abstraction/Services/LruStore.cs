@@ -70,6 +70,28 @@ namespace Plag.Backend.Services
             return value;
         }
 
+        /// <remarks>NOT thread safe. Please check key is not null.</remarks>
+        public async ValueTask LoadBatchAsync(List<TKey> keys, Func<List<TKey>, Task<Dictionary<TKey, TValue>>> valueFactory)
+        {
+            List<TKey> nonexistenceKeys = new();
+            foreach (var key in keys)
+            {
+                if (!TryGet(key, out _))
+                {
+                    nonexistenceKeys.Add(key);
+                }
+            }
+
+            if (nonexistenceKeys.Count > 0)
+            {
+                var batchResults = await valueFactory(nonexistenceKeys);
+                foreach (var (key, value) in batchResults)
+                {
+                    Set(key, value);
+                }
+            }
+        }
+
         /// <remarks>NOT thread safe. Please check <paramref name="key"/> is not null.</remarks>
         public async ValueTask<TValue> GetOrLoadAsync<TContext>(TKey key, TContext context, Func<TKey, TContext, Task<TValue>> valueFactory)
         {

@@ -32,6 +32,9 @@ namespace Plag.Backend.Services
         /// <inheritdoc cref="IJobContext.GetSubmissionsAsync(List{string})" />
         public abstract Task<List<KeyValuePair<Submission, Compilation>?>> GetSubmissionsAsync(List<TKey> submitExternalIds);
 
+        /// <inheritdoc cref="IJobContext.GetSubmissionsAsync(List{ValueTuple{string,int}})" />
+        public abstract Task<List<KeyValuePair<Submission, Compilation>>> GetSubmissionsAsync(List<(TKey, int)> submitIds);
+
         Task IJobContext.CompileAsync(Submission submission, string error, byte[] result)
         {
             if (!TryGetKey(submission.SetId, out var setid))
@@ -112,6 +115,18 @@ namespace Plag.Backend.Services
             }
 
             return ScheduleAsync(setid, s.Id, s.ExclusiveCategory, s.InclusiveCategory, s.Language);
+        }
+
+        Task<List<KeyValuePair<Submission, Compilation>>> IJobContext.GetSubmissionsAsync(List<(string, int)> submitIds)
+        {
+            List<(TKey, int)> submitIds2 = new();
+            foreach ((string setId, int subId) in submitIds)
+            {
+                if (!TryGetKey(setId, out TKey setIdd)) continue;
+                submitIds2.Add((setIdd, subId));
+            }
+
+            return GetSubmissionsAsync(submitIds2);
         }
     }
 }
