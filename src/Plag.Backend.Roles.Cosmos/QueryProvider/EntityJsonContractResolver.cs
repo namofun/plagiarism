@@ -48,6 +48,7 @@ namespace Plag.Backend.QueryProvider
                 || property.DeclaringType == typeof(Submission)
                 || property.DeclaringType == typeof(SubmissionEntity)
                 || property.DeclaringType == typeof(Report)
+                || property.DeclaringType == typeof(Comparison)
                 || property.DeclaringType == typeof(ReportEntity)
                 || property.DeclaringType == typeof(LanguageInfo))
             {

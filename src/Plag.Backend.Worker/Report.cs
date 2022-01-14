@@ -38,8 +38,6 @@ namespace Plag.Backend.Worker
             using CancellationTokenSource cts = new();
             cts.CancelAfter(TimeSpan.FromMinutes(9));
 
-            var w = await _connection.Reports.GetContainer().Scripts.ExecuteStoredProcedureAsync<string>("testanddequeue", new("xx"), new[] { "x" });
-
             log.LogInformation("Report worker started on {StartTime} for '{QueueMessage}'.", DateTimeOffset.Now, reportRequest);
 
             bool shouldContinue = true;

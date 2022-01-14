@@ -136,7 +136,7 @@ namespace Plag.Backend
             var metadata = await _database.Metadata
                 .GetEntityAsync<MetadataEntity<List<LanguageInfo>>>(
                     MetadataEntity.LanguagesMetadataKey,
-                    MetadataEntity.LanguagesMetadataKey);
+                    MetadataEntity.SettingsTypeKey);
 
             return metadata.Data;
         }
@@ -146,7 +146,7 @@ namespace Plag.Backend
             return _database.Metadata.SingleOrDefaultAsync<LanguageInfo>(
                 "SELECT * FROM l in Metadata.data WHERE l.id = @id",
                 new { id = langName },
-                new PartitionKey(MetadataEntity.LanguagesMetadataKey));
+                new PartitionKey(MetadataEntity.SettingsTypeKey));
         }
 
         public async Task<Submission> SubmitAsync(SubmissionCreation submission)
@@ -464,7 +464,7 @@ namespace Plag.Backend
             List<JObject> reportAggregate =
                 await _database.Reports.GetListAsync<JObject>(
                     "SELECT r.setid, COUNT(1) AS report_count, " +
-                          " SUM(r.state = \"Finished\" ? 1 : 0) AS report_pending " +
+                          " SUM(r.state = \"Finished\" ? 0 : 1) AS report_pending " +
                     "FROM Reports r WHERE r.type = \"report\" " +
                     "GROUP BY r.setid");
 
@@ -503,8 +503,10 @@ namespace Plag.Backend
             });
         }
 
-        public Task RescueAsync()
+        public async Task RescueAsync()
         {
+            await RefreshCacheAsync();
+
             throw new NotImplementedException();
         }
 
@@ -542,7 +544,7 @@ namespace Plag.Backend
                     batch.PatchItem(
                         SubmissionGuid.FromStructured(setGuid, sid).ToString(),
                         new[] { PatchOperation.Set("/max_percent", fragment.Percent) },
-                        new() { FilterPredicate = "FROM s WHERE s.max_percent < " + fragment.Percent.ToJson() });
+                        new() { FilterPredicate = "FROM s WHERE s.max_percent < " + fragment.Percent.ToJson(), EnableContentResponseOnWrite = false });
                 });
         }
 
@@ -581,9 +583,55 @@ namespace Plag.Backend
                 .ExecuteAsync();
         }
 
-        public Task<List<ReportTask>> DequeueReportsBatchAsync(int batchSize = 100)
+        public async Task<List<ReportTask>> DequeueReportsBatchAsync(int batchSize = 100)
         {
-            throw new NotImplementedException();
+            List<ReportTask> reportTasks = new();
+            string sessionKey = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
+
+            int retry = 0;
+            while (reportTasks.Count == 0 && retry <= 2)
+            {
+                List<string> topReportIds =
+                    await _database.Reports.GetListAsync<string>(
+                        "SELECT TOP " + batchSize + " VALUE r.id FROM Reports r " +
+                        "WHERE r.state = \"Pending\" AND r.type = \"report\"");
+
+                if (topReportIds.Count == 0) return reportTasks;
+                List<ReportGuid> reportGuids =
+                    topReportIds
+                        .Select(id => ReportGuid.Parse(id))
+                        .ToList();
+
+                await _database.Reports.BatchAsync(
+                    reportGuids,
+                    r => r.GetSetId().ToString(),
+                    batchSize: 100,
+                    transactional: false,
+                    batchEntryBuilder: (task, batch) =>
+                    {
+                        batch.PatchItem(
+                            task.ToString(),
+                            new[] { PatchOperation.Set("/state", ReportState.Analyzing), PatchOperation.Set("/session_lock", sessionKey) },
+                            new() { FilterPredicate = "FROM r WHERE r.state = \"Pending\"", EnableContentResponseOnWrite = false });
+                    },
+                    postBatchResponse: (setId, tasks, resp) =>
+                    {
+                        if (tasks.Length != resp.Count)
+                        {
+                            throw new InvalidOperationException("Unknown mismatch scenario.");
+                        }
+
+                        foreach ((ReportGuid report, var result) in tasks.Zip(resp))
+                        {
+                            if (result.IsSuccessStatusCode)
+                            {
+                                reportTasks.Add(new(report.ToString(), setId, report.GetIdOfA(), report.GetIdOfB()));
+                            }
+                        }
+                    });
+            }
+
+            return reportTasks;
         }
 
         public Task SaveReportsAsync(List<KeyValuePair<ReportTask, ReportFragment>> reports)
@@ -603,7 +651,8 @@ namespace Plag.Backend
                     PatchOperation.Set(P(r => r.PercentA), fragment.PercentA),
                     PatchOperation.Set(P(r => r.PercentB), fragment.PercentB),
                     PatchOperation.Set(P(r => r.Matches), fragment.Matches),
-                });
+                },
+                new() { EnableContentResponseOnWrite = false });
             },
             async (setid, models, resp) =>
             {
@@ -630,7 +679,7 @@ namespace Plag.Backend
                         batch.PatchItem(
                             SubmissionGuid.FromStructured(setGuid, sub.Item1).ToString(),
                             new[] { PatchOperation.Set("/max_percent", sub.Item2) },
-                            new() { FilterPredicate = "FROM s WHERE s.max_percent < " + sub.Item2.ToJson() });
+                            new() { FilterPredicate = "FROM s WHERE s.max_percent < " + sub.Item2.ToJson(), EnableContentResponseOnWrite = false });
                     });
             });
         }
