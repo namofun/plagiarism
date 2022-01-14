@@ -8,6 +8,9 @@ namespace Plag.Backend.Services
     public abstract class PdsServiceBase<TKey> : PdsStoreServiceBase<TKey>, IJobContext
         where TKey : IEquatable<TKey>
     {
+        /// <inheritdoc cref="IJobContext.RefreshCacheAsync" />
+        public abstract Task RefreshCacheAsync();
+
         /// <inheritdoc cref="IJobContext.CompileAsync(Submission, string, byte[])" />
         public abstract Task CompileAsync(TKey setid, int submitId, Submission submission, string error, byte[] result);
 

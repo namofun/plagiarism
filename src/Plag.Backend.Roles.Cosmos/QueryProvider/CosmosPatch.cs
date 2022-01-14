@@ -8,16 +8,21 @@ using System.Threading.Tasks;
 
 namespace Plag.Backend.QueryProvider
 {
-    public sealed class CosmosPatch<TEntity> : CosmosQueryProvider<TEntity>
+    public sealed class CosmosPatch<TEntity>
     {
+        private readonly Container _container;
+        private readonly PartitionKey _partitionKey;
+        private readonly ILogger _logger;
         private readonly string _id;
         private readonly List<PatchOperation> _operations;
         private string _concurrencyGuard;
         private bool _ignorePreconditionFailure;
 
         public CosmosPatch(Container container, string id, PartitionKey partitionKey, ILogger logger)
-            : base(container, partitionKey, logger)
         {
+            _container = container;
+            _partitionKey = partitionKey;
+            _logger = logger;
             _id = id;
             _operations = new();
         }
@@ -26,7 +31,7 @@ namespace Plag.Backend.QueryProvider
             Expression<Func<TEntity, TProperty>> propertySelector,
             TProperty propertyValue)
         {
-            string path = "/" + ParseProperty(propertySelector);
+            string path = "/" + propertySelector.ParseProperty();
             _operations.Add(PatchOperation.Replace(path, propertyValue));
             return this;
         }
@@ -35,7 +40,7 @@ namespace Plag.Backend.QueryProvider
             Expression<Func<TEntity, int>> propertySelector,
             int propertyValue)
         {
-            string path = "/" + ParseProperty(propertySelector);
+            string path = "/" + propertySelector.ParseProperty();
             _operations.Add(PatchOperation.Increment(path, propertyValue));
             return this;
         }

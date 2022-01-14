@@ -522,7 +522,7 @@ namespace Plag.Backend.Services
                 condition: (s, c) => s.MaxPercent < c.MaxPercent);
         }
 
-        public override async Task RescueAsync()
+        public override async Task RefreshCacheAsync()
         {
             var reportAggregate = Reports
                 .GroupBy(r => r.SetId)
@@ -552,6 +552,11 @@ namespace Plag.Backend.Services
                     SubmissionSucceeded = r.Succ,
                     SubmissionFailed = r.Fail,
                 });
+        }
+
+        public override async Task RescueAsync()
+        {
+            await RefreshCacheAsync();
 
             Signal1.Notify();
             Signal2.Notify();

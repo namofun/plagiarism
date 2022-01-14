@@ -3,6 +3,7 @@
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -126,5 +127,80 @@ namespace Plag.Backend.QueryProvider
         {
             return GetEntityAsync<T>(id, partitionKey);
         }
+
+        public async Task BatchAsync<TModel>(
+            string partitionKey,
+            IEnumerable<TModel> source,
+            Action<TModel, TransactionalBatch> batchEntryBuilder,
+            Func<string, TModel[], TransactionalBatchResponse, Task>? postBatchResponse = null,
+            int batchSize = 50,
+            bool transactional = true)
+        {
+            if (batchSize > 100) throw new ArgumentOutOfRangeException(nameof(batchSize));
+            foreach (TModel[] batchModel in source.Chunk(batchSize))
+            {
+                TransactionalBatch batch = _coll.CreateTransactionalBatch(new(partitionKey));
+                foreach (TModel model in batchModel)
+                {
+                    batchEntryBuilder.Invoke(model, batch);
+                }
+
+                TransactionalBatchResponse resp = transactional
+                    ? await batch.ExecuteAsync()
+                    : await batch.ExecuteNonTransactionalAsync();
+
+                if ((transactional
+                        && !resp.IsSuccessStatusCode)
+                    || (!transactional
+                        && !resp.IsSuccessStatusCode
+                        && resp.StatusCode != HttpStatusCode.PreconditionFailed))
+                {
+                    throw new CosmosException(
+                        resp.ErrorMessage,
+                        resp.StatusCode,
+                        0,
+                        resp.ActivityId,
+                        resp.RequestCharge);
+                }
+
+                if (postBatchResponse != null)
+                {
+                    await postBatchResponse.Invoke(partitionKey, batchModel, resp);
+                }
+            }
+        }
+
+        public async Task BatchAsync<TModel>(
+            IEnumerable<TModel> source,
+            Func<TModel, string> partitionKeySelector,
+            Action<TModel, TransactionalBatch> batchEntryBuilder,
+            Func<string, TModel[], TransactionalBatchResponse, Task>? postBatchResponse = null,
+            int batchSize = 50,
+            bool transactional = true)
+        {
+            if (batchSize > 100) throw new ArgumentOutOfRangeException(nameof(batchSize));
+            foreach (IGrouping<string, TModel> partition in source.GroupBy(partitionKeySelector))
+            {
+                await BatchAsync(partition.Key, partition, batchEntryBuilder, postBatchResponse, batchSize, transactional);
+            }
+        }
+
+        public Task BatchAsync<TModel>(
+            string partitionKey,
+            IEnumerable<TModel> source,
+            Action<TModel, TransactionalBatch> batchEntryBuilder,
+            Action<string, TModel[], TransactionalBatchResponse> postBatchResponse,
+            int batchSize = 50,
+            bool transactional = true)
+            => BatchAsync(partitionKey, source, batchEntryBuilder, postBatchResponse.AsAsync(), batchSize, transactional);
+
+        public Task BatchAsync<TModel>(
+            IEnumerable<TModel> source,
+            Func<TModel, string> partitionKeySelector,
+            Action<TModel, TransactionalBatch> batchEntryBuilder,
+            Action<string, TModel[], TransactionalBatchResponse> postBatchResponse,
+            int batchSize = 50,
+            bool transactional = true)
+            => BatchAsync(source, partitionKeySelector, batchEntryBuilder, postBatchResponse.AsAsync(), batchSize, transactional);
     }
 }

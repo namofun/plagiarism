@@ -20,6 +20,10 @@ namespace Plag.Backend.Entities
         [JsonPropertyName("type")]
         public string Type { get; set; } = "report";
 
+        [JsonPropertyName("session_lock")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string SessionLock { get; set; }
+
         public static ReportEntity Of(
             SetGuid set,
             (int id, string name, int excl) a,

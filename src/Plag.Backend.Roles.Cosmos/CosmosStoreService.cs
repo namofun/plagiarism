@@ -440,20 +440,15 @@ namespace Plag.Backend
                 .ToList();
 
             int created = 0, updated = 0;
-            Container container = _database.Reports.GetContainer();
-            foreach (var chunk in pendingReports.Chunk(50))
+            await _database.Reports.BatchAsync(set.ToString(), pendingReports, (report, batch) =>
             {
-                var tc = container.CreateTransactionalBatch(new PartitionKey(set.ToString()));
-                foreach (var report in chunk) tc.UpsertItem(report, new() { EnableContentResponseOnWrite = false });
-                TransactionalBatchResponse resp = await tc.ExecuteAsync();
-                if (!resp.IsSuccessStatusCode)
-                {
-                    throw new CosmosException(resp.ErrorMessage, resp.StatusCode, 0, resp.ActivityId, resp.RequestCharge);
-                }
-
+                batch.UpsertItem(report, new() { EnableContentResponseOnWrite = false });
+            },
+            (_, _, resp) =>
+            {
                 created += resp.Count(r => r.StatusCode == HttpStatusCode.Created);
                 updated += resp.Count(r => r.StatusCode == HttpStatusCode.OK);
-            }
+            });
 
             await _database.Sets
                 .Patch(set.ToString(), new PartitionKey(MetadataEntity.SetsTypeKey))
@@ -464,7 +459,7 @@ namespace Plag.Backend
             return pendingReports.Count;
         }
 
-        public async Task RescueAsync()
+        public async Task RefreshCacheAsync()
         {
             List<JObject> reportAggregate =
                 await _database.Reports.GetListAsync<JObject>(
@@ -498,25 +493,18 @@ namespace Plag.Backend
                 patchEntries[setId].Merge(agg);
             }
 
-            Container container = _database.Sets.GetContainer();
             IEnumerable<string> keys = ((IDictionary<string, JToken>)aggProps).Keys;
-            foreach (JObject[] chunk in patchEntries.Values.Chunk(100))
+            await _database.Sets.BatchAsync(MetadataEntity.SetsTypeKey, patchEntries, (patchEntry, batch) =>
             {
-                TransactionalBatch batch =
-                    container.CreateTransactionalBatch(
-                        new PartitionKey(MetadataEntity.SetsTypeKey));
+                batch.PatchItem(
+                    patchEntry.Key,
+                    keys.Select(aggKey => PatchOperation.Replace($"/{aggKey}", (int)patchEntry.Value[aggKey])).ToList(),
+                    new TransactionalBatchPatchItemRequestOptions() { EnableContentResponseOnWrite = false });
+            });
+        }
 
-                foreach (JObject patchEntry in chunk)
-                {
-                    batch.PatchItem(
-                        (string)patchEntry["setid"],
-                        keys.Select(aggKey => PatchOperation.Replace($"/{aggKey}", (int)patchEntry[aggKey])).ToList(),
-                        new TransactionalBatchPatchItemRequestOptions() { EnableContentResponseOnWrite = false });
-                }
-
-                await batch.ExecuteAsync();
-            }
-
+        public Task RescueAsync()
+        {
             throw new NotImplementedException();
         }
 
@@ -545,16 +533,17 @@ namespace Plag.Backend
                 .IncrementProperty(s => s.ReportPending, -1)
                 .ExecuteAsync();
 
-            foreach (int sid in new[] { task.SubmissionA, task.SubmissionB })
-            {
-                await _database.Submissions
-                    .Patch(
+            await _database.Submissions.BatchAsync(
+                task.SetId,
+                new[] { task.SubmissionA, task.SubmissionB },
+                transactional: false,
+                batchEntryBuilder: (sid, batch) =>
+                {
+                    batch.PatchItem(
                         SubmissionGuid.FromStructured(setGuid, sid).ToString(),
-                        new PartitionKey(task.SetId))
-                    .SetProperty(s => s.MaxPercent, fragment.Percent)
-                    .UpdateOnCondition("FROM s WHERE s.max_percent < " + fragment.Percent.ToJson())
-                    .ExecuteAsync();
-            }
+                        new[] { PatchOperation.Set("/max_percent", fragment.Percent) },
+                        new() { FilterPredicate = "FROM s WHERE s.max_percent < " + fragment.Percent.ToJson() });
+                });
         }
 
         public async Task JustificateAsync(string reportid, ReportJustification status)
@@ -599,7 +588,51 @@ namespace Plag.Backend
 
         public Task SaveReportsAsync(List<KeyValuePair<ReportTask, ReportFragment>> reports)
         {
-            throw new NotImplementedException();
+            static string P<T>(System.Linq.Expressions.Expression<Func<ReportEntity, T>> expression)
+                => "/" + expression.ParseProperty();
+
+            return _database.Reports.BatchAsync(reports, r => r.Key.SetId, (report, batch) =>
+            {
+                (ReportTask task, ReportFragment fragment) = report;
+                batch.PatchItem(task.Id, new[]
+                {
+                    PatchOperation.Set(P(r => r.TokensMatched), fragment.TokensMatched),
+                    PatchOperation.Set(P(r => r.BiggestMatch), fragment.BiggestMatch),
+                    PatchOperation.Set(P(r => r.State), ReportState.Finished),
+                    PatchOperation.Set(P(r => r.Percent), fragment.Percent),
+                    PatchOperation.Set(P(r => r.PercentA), fragment.PercentA),
+                    PatchOperation.Set(P(r => r.PercentB), fragment.PercentB),
+                    PatchOperation.Set(P(r => r.Matches), fragment.Matches),
+                });
+            },
+            async (setid, models, resp) =>
+            {
+                await _database.Sets
+                    .Patch(setid, new PartitionKey(MetadataEntity.SetsTypeKey))
+                    .IncrementProperty(s => s.ReportPending, -models.Length)
+                    .ExecuteAsync();
+
+                SetGuid setGuid = SetGuid.Parse(setid);
+                List<(int, double)> submitPercent =
+                    Enumerable.Concat(
+                        models.Select(a => new { SubmitId = a.Key.SubmissionA, a.Value.Percent }),
+                        models.Select(a => new { SubmitId = a.Key.SubmissionB, a.Value.Percent }))
+                    .GroupBy(a => a.SubmitId)
+                    .Select(a => (a.Key, a.Select(b => b.Percent).Max()))
+                    .ToList();
+
+                await _database.Submissions.BatchAsync(
+                    setid,
+                    submitPercent,
+                    transactional: false,
+                    batchEntryBuilder: (sub, batch) =>
+                    {
+                        batch.PatchItem(
+                            SubmissionGuid.FromStructured(setGuid, sub.Item1).ToString(),
+                            new[] { PatchOperation.Set("/max_percent", sub.Item2) },
+                            new() { FilterPredicate = "FROM s WHERE s.max_percent < " + sub.Item2.ToJson() });
+                    });
+            });
         }
 
         public async Task<List<KeyValuePair<Submission, Compilation>?>> GetSubmissionsAsync(List<string> submitExternalIds)

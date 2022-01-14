@@ -37,7 +37,7 @@ namespace Plag.Backend.Worker
             using CancellationTokenSource cts = new();
             cts.CancelAfter(TimeSpan.FromMinutes(9));
 
-            log.LogInformation("Worker started on {StartTime} for '{QueueMessage}'.", DateTimeOffset.Now, queueMessage);
+            log.LogInformation("Compilation worker started on {StartTime} for '{QueueMessage}'.", DateTimeOffset.Now, queueMessage);
 
             Submission next = null;
             int scheduleCounter = 0;
@@ -81,11 +81,11 @@ namespace Plag.Backend.Worker
                 string continuationRecord = $"continuation|{timestamp}|{continuationId}%{queueStamp}";
                 await compilationContinuation.AddAsync(continuationRecord);
                 await compilationContinuation.FlushAsync();
-                log.LogInformation("Continuation emitted with '{ContinuationId}'.", continuationRecord);
+                log.LogInformation("Compilation continuation emitted with '{ContinuationId}'.", continuationRecord);
             }
             else
             {
-                log.LogInformation("Worker didn't get any submission in last iteration, stop looping.");
+                log.LogInformation("Compilation worker didn't get any submission in last iteration, stop looping.");
                 return;
             }
         }

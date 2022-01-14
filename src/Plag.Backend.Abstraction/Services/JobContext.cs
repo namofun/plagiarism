@@ -10,6 +10,11 @@ namespace Plag.Backend.Services
     public interface IJobContext
     {
         /// <summary>
+        /// Refreshes the cache fields.
+        /// </summary>
+        Task RefreshCacheAsync();
+
+        /// <summary>
         /// Sets the submission compiled with error and result.
         /// </summary>
         /// <param name="submission">The submission entity snapshot.</param>
