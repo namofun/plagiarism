@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Plag.Backend.Jobs;
 using Plag.Backend.Services;
+using SatelliteSite.Services;
 using System;
 using System.Threading.Tasks;
 using Xunit;
@@ -36,8 +36,8 @@ namespace Plag.Backend.Tests
             var services = new ServiceCollection();
             services.AddDbContext<Database>(b => b.UseInMemoryDatabase("PlagDevTests", b => b.UseBulk()), optionsLifetime: ServiceLifetime.Singleton);
             services.AddSingleton(typeof(SequentialGuidGenerator<>));
-            services.AddSingleton<ICompileService, NullCompileService>();
-            services.AddSingleton(typeof(IResettableSignal<>), typeof(NullResettableSignal<>));
+            services.AddSingleton<IConfigurationRegistry, NullConfigurationRegistry>();
+            services.AddSingleton<ISignalProvider, NullSignalProvider>();
             services.AddScoped<IPlagiarismDetectService, EntityFrameworkCoreStoreService<Database>>();
             ServiceProvider = services.BuildServiceProvider(true);
         }
