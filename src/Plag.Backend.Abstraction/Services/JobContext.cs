@@ -49,7 +49,7 @@ namespace Plag.Backend.Services
         /// Dequeues one batch of at least <paramref name="batchSize"/> pending reports.
         /// </summary>
         /// <returns>The pending reports.</returns>
-        Task<List<ReportTask>> DequeueReportsBatchAsync(int batchSize = 100);
+        Task<List<ReportTask>> DequeueReportsBatchAsync(int batchSize = 20);
 
         /// <summary>
         /// Schedules the report of this submission with other submissions.

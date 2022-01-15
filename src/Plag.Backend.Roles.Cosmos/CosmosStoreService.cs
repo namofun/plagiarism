@@ -531,6 +531,42 @@ namespace Plag.Backend
         public async Task RescueAsync()
         {
             await RefreshCacheAsync();
+
+            List<string> analyzings =
+                await _database.Reports.GetListAsync<string>(
+                    "SELECT VALUE r.id FROM Reports r " +
+                    "WHERE r.state = \"Analyzing\" AND r.type = \"report\"");
+
+            while (analyzings.Count > 0)
+            {
+                List<ReportGuid> reportGuids =
+                    analyzings.Select(a => ReportGuid.Parse(a)).ToList();
+
+                analyzings.Clear();
+                await _database.Reports.BatchAsync(
+                    reportGuids,
+                    guid => guid.GetSetId().ToString(),
+                    batchSize: 30,
+                    allowTooManyRequests: true,
+                    batchEntryBuilder: (report, batch) =>
+                    {
+                        batch.PatchItem(
+                            report.ToString(),
+                            new[] { PatchOperation.Set("/state", ReportState.Pending) },
+                            new() { EnableContentResponseOnWrite = false, FilterPredicate = "FROM r WHERE r.state = \"Analyzing\"" });
+                    },
+                    postBatchResponse: (setid, reports, resp) =>
+                    {
+                        foreach (var (reportId, reportResp) in reports.Zip(resp))
+                        {
+                            if (reportResp.StatusCode == HttpStatusCode.TooManyRequests)
+                            {
+                                analyzings.Add(reportId.ToString());
+                            }
+                        }
+                    });
+            }
+
             await _signalProvider.SendRescueSignalAsync();
         }
 
@@ -607,7 +643,7 @@ namespace Plag.Backend
                 .ExecuteAsync();
         }
 
-        public async Task<List<ReportTask>> DequeueReportsBatchAsync(int batchSize = 100)
+        public async Task<List<ReportTask>> DequeueReportsBatchAsync(int batchSize = 20)
         {
             List<ReportTask> reportTasks = new();
             string sessionKey = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
@@ -629,8 +665,9 @@ namespace Plag.Backend
                 await _database.Reports.BatchAsync(
                     reportGuids,
                     r => r.GetSetId().ToString(),
-                    batchSize: 100,
+                    batchSize: batchSize,
                     transactional: false,
+                    allowTooManyRequests: true,
                     batchEntryBuilder: (task, batch) =>
                     {
                         batch.PatchItem(

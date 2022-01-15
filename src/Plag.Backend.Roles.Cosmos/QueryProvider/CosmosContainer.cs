@@ -134,6 +134,7 @@ namespace Plag.Backend.QueryProvider
             Action<TModel, TransactionalBatch> batchEntryBuilder,
             Func<string, TModel[], TransactionalBatchResponse, Task>? postBatchResponse = null,
             int batchSize = 50,
+            bool allowTooManyRequests = false,
             bool transactional = true)
         {
             if (batchSize > 100) throw new ArgumentOutOfRangeException(nameof(batchSize));
@@ -153,7 +154,8 @@ namespace Plag.Backend.QueryProvider
                         && !resp.IsSuccessStatusCode)
                     || (!transactional
                         && !resp.IsSuccessStatusCode
-                        && resp.StatusCode != HttpStatusCode.PreconditionFailed))
+                        && resp.StatusCode != HttpStatusCode.PreconditionFailed
+                        && !(resp.StatusCode == HttpStatusCode.TooManyRequests && allowTooManyRequests)))
                 {
                     throw new CosmosException(
                         resp.ErrorMessage,
@@ -176,12 +178,13 @@ namespace Plag.Backend.QueryProvider
             Action<TModel, TransactionalBatch> batchEntryBuilder,
             Func<string, TModel[], TransactionalBatchResponse, Task>? postBatchResponse = null,
             int batchSize = 50,
+            bool allowTooManyRequests = false,
             bool transactional = true)
         {
             if (batchSize > 100) throw new ArgumentOutOfRangeException(nameof(batchSize));
             foreach (IGrouping<string, TModel> partition in source.GroupBy(partitionKeySelector))
             {
-                await BatchAsync(partition.Key, partition, batchEntryBuilder, postBatchResponse, batchSize, transactional);
+                await BatchAsync(partition.Key, partition, batchEntryBuilder, postBatchResponse, batchSize, transactional, allowTooManyRequests);
             }
         }
 
@@ -191,8 +194,9 @@ namespace Plag.Backend.QueryProvider
             Action<TModel, TransactionalBatch> batchEntryBuilder,
             Action<string, TModel[], TransactionalBatchResponse> postBatchResponse,
             int batchSize = 50,
+            bool allowTooManyRequests = false,
             bool transactional = true)
-            => BatchAsync(partitionKey, source, batchEntryBuilder, postBatchResponse.AsAsync(), batchSize, transactional);
+            => BatchAsync(partitionKey, source, batchEntryBuilder, postBatchResponse.AsAsync(), batchSize, transactional, allowTooManyRequests);
 
         public Task BatchAsync<TModel>(
             IEnumerable<TModel> source,
@@ -200,7 +204,8 @@ namespace Plag.Backend.QueryProvider
             Action<TModel, TransactionalBatch> batchEntryBuilder,
             Action<string, TModel[], TransactionalBatchResponse> postBatchResponse,
             int batchSize = 50,
+            bool allowTooManyRequests = false,
             bool transactional = true)
-            => BatchAsync(source, partitionKeySelector, batchEntryBuilder, postBatchResponse.AsAsync(), batchSize, transactional);
+            => BatchAsync(source, partitionKeySelector, batchEntryBuilder, postBatchResponse.AsAsync(), batchSize, transactional, allowTooManyRequests);
     }
 }

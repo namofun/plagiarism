@@ -56,6 +56,8 @@ namespace SatelliteSite
                     options.ConnectionString = context.GetConnectionString("CosmosDbAccount");
                     options.DatabaseName = context.GetConnectionString("CosmosDbName");
                 });
+
+                host.AddPlagBackgroundService();
             }
             else if (args.Contains("--restful"))
             {
@@ -107,6 +109,8 @@ namespace SatelliteSite
                     // In this case, we can add migrations for development use.
                     ConfigureDatabase<DevelopmentContext>();
                 }
+
+                host.AddPlagBackgroundService();
             }
 
             if (Debugger.IsAttached)
@@ -150,7 +154,11 @@ namespace SatelliteSite
                 });
             });
 
-            host.AddModule<HostModule>();
+            if (args.Contains("--spa"))
+            {
+                host.AddModule<HostModule>();
+            }
+
             return host.ConfigureSubstrateDefaultsCore();
         }
     }

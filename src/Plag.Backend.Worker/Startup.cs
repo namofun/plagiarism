@@ -14,6 +14,7 @@ namespace Plag.Backend.Worker
             builder.Services.AddPlagGenerationService();
 
             builder.Services.AddSingleton<ICosmosConnection, QueryProvider.CosmosConnection>();
+            builder.Services.AddSingleton<ISignalProvider, NullSignalProvider>();
             builder.Services.AddScoped<IJobContext, CosmosStoreService>();
             IConfiguration configuration = builder.GetContext().Configuration;
             builder.Services.Configure<PlagBackendCosmosOptions>(options =>

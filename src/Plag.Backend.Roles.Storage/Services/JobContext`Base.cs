@@ -24,7 +24,7 @@ namespace Plag.Backend.Services
         public abstract Task<ReportTask> DequeueReportAsync();
 
         /// <inheritdoc cref="IJobContext.DequeueReportsBatchAsync(int)" />
-        public abstract Task<List<ReportTask>> DequeueReportsBatchAsync(int batchSize = 100);
+        public abstract Task<List<ReportTask>> DequeueReportsBatchAsync(int batchSize = 20);
 
         /// <inheritdoc cref="IJobContext.DequeueSubmissionAsync" />
         public abstract Task<Submission> DequeueSubmissionAsync();

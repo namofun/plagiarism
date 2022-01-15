@@ -10,7 +10,9 @@ namespace Plag.Backend
         {
             services.AddOptions<PlagBackendCosmosOptions>().PostConfigure(options => options.Validate());
             services.AddSingleton<ICosmosConnection, CosmosConnection>();
-            services.AddScoped<IPlagiarismDetectService, CosmosStoreService>();
+            services.AddScoped<CosmosStoreService>();
+            services.AddScopedUpcast<IPlagiarismDetectService, CosmosStoreService>();
+            services.AddScopedUpcast<IJobContext, CosmosStoreService>();
         }
     }
 }

@@ -400,7 +400,7 @@ namespace Plag.Backend.Services
             return affected;
         }
 
-        public override async Task<List<ReportTask>> DequeueReportsBatchAsync(int batchSize = 100)
+        public override async Task<List<ReportTask>> DequeueReportsBatchAsync(int batchSize = 20)
         {
             var reports = await Reports.AsNoTracking()
                 .Where(r => r.Finished == null)
@@ -412,7 +412,7 @@ namespace Plag.Backend.Services
 
             List<Guid> extIds = reports.Select(s => s.ExternalId).ToList();
             await Reports
-                .Where(o => extIds.Contains(o.ExternalId))
+                .Where(o => extIds.Contains(o.ExternalId) && o.Finished == null)
                 .BatchUpdateAsync(r => new Report<Guid> { Finished = false });
 
             return reports
@@ -564,6 +564,11 @@ namespace Plag.Backend.Services
         public override async Task RescueAsync()
         {
             await RefreshCacheAsync();
+
+            await Reports
+                .Where(r => r.Finished == false)
+                .BatchUpdateAsync(r => new() { Finished = null });
+
             await _signalProvider.SendRescueSignalAsync();
         }
 
@@ -641,10 +646,17 @@ namespace Plag.Backend.Services
 
         public override async Task<List<KeyValuePair<Submission, Compilation>>> GetSubmissionsAsync(List<(Guid, int)> submitIds)
         {
-            var submitV2 = submitIds.Select(a => new { SetId = a.Item1, Id = a.Item2 }).ToList();
-            var subs = await Submissions
-                .Where(s => submitV2.Any(a => a.SetId == s.SetId && a.Id == s.Id))
-                .ToDictionaryAsync(k => k.ExternalId);
+            Dictionary<Guid, Submission<Guid>> subs = new();
+            foreach (var set in submitIds.GroupBy(g => g.Item1))
+            {
+                var setId = set.Key;
+                var subIds = set.Select(a => a.Item2);
+                var subss = await Submissions
+                    .Where(s => s.SetId == setId && subIds.Contains(s.Id))
+                    .ToListAsync();
+
+                subss.ForEach(s => subs.Add(s.ExternalId, s));
+            }
 
             var submitExternalIds = subs.Values.Select(a => a.ExternalId).ToList();
             var files = await Files

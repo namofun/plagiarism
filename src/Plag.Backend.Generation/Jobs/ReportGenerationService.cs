@@ -11,6 +11,7 @@ namespace Plag.Backend.Jobs
     public class ReportGenerationService : BackgroundNotifiableService<ReportGenerationService>
     {
         private readonly ReportGenerator _generator;
+        private readonly BackgroundServiceOptions _options;
 
         public ReportGenerationService(IServiceProvider serviceProvider) : base(serviceProvider)
         {
@@ -18,6 +19,8 @@ namespace Plag.Backend.Jobs
                 serviceProvider.GetRequiredService<ICompileService>(),
                 serviceProvider.GetRequiredService<IConvertService2>(),
                 serviceProvider.GetRequiredService<IReportService>());
+
+            _options = serviceProvider.GetOptions<BackgroundServiceOptions>().Value;
 
             _generator.SetLogger(serviceProvider.GetRequiredService<ILogger<ReportGenerationService>>());
         }
@@ -28,7 +31,12 @@ namespace Plag.Backend.Jobs
             var lru = new LruStore<(string, int), (Submission, Frontend.Submission)>();
             while (!stoppingToken.IsCancellationRequested)
             {
-                if (!await _generator.DoWorkAsync(context, lru)) break;
+                if (!(_options.UseBatchInReport
+                    ? await _generator.DoWorkBatchAsync(context, lru)
+                    : await _generator.DoWorkAsync(context, lru)))
+                {
+                    break;
+                }
             }
 
             lru.Clear();
