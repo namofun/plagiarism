@@ -1,9 +1,8 @@
-﻿using Jobs.Services;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Plag.Backend.Entities;
-using Plag.Backend.Jobs;
 using Plag.Backend.Models;
+using SatelliteSite.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,11 +14,13 @@ namespace Plag.Backend.Services
     public class EntityFrameworkCoreStoreService<TContext> : PdsServiceBase<Guid>
         where TContext : DbContext
     {
-        public int PageCount { get; set; } = 30;
+        private const string LanguageListConfigurationName = "pds_language_list";
+        private readonly IConfigurationRegistry _configurationRegistry;
+        private readonly ILanguageProvider _languageProvider;
+        private readonly ISignalProvider _signalProvider;
+        private readonly SequentialGuidGenerator _guidGenerator;
 
         public TContext Context { get; }
-
-        public ICompileService Compile { get; }
 
         public DbSet<PlagiarismSet<Guid>> Sets => Context.Set<PlagiarismSet<Guid>>();
 
@@ -29,25 +30,20 @@ namespace Plag.Backend.Services
 
         public DbSet<SubmissionFile<Guid>> Files => Context.Set<SubmissionFile<Guid>>();
 
-        public IResettableSignal<SubmissionTokenizeService> Signal1 { get; }
-
-        public IResettableSignal<ReportGenerationService> Signal2 { get; }
-
-        public SequentialGuidGenerator<TContext> SequentialGuidGenerator { get; }
-
         public EntityFrameworkCoreStoreService(
             TContext context,
-            ICompileService compile,
-            SequentialGuidGenerator<TContext> sequentialGuidGenerator,
-            IResettableSignal<SubmissionTokenizeService> signal1,
-            IResettableSignal<ReportGenerationService> signal2)
+            IEnumerable<ILanguageProvider> languageProvider,
+            IConfigurationRegistry configurationRegistry,
+            ISignalProvider signalProvider,
+            SequentialGuidGenerator<TContext> sequentialGuidGenerator)
         {
+            _languageProvider = languageProvider.SingleOrDefault();
+            _configurationRegistry = configurationRegistry;
+            _signalProvider = signalProvider;
+            _guidGenerator = sequentialGuidGenerator;
+
             Context = context;
-            Compile = compile;
             context.ChangeTracker.AutoDetectChangesEnabled = false;
-            SequentialGuidGenerator = sequentialGuidGenerator;
-            Signal1 = signal1;
-            Signal2 = signal2;
         }
 
         public override bool TryGetKey(string id, out Guid key)
@@ -63,7 +59,7 @@ namespace Plag.Backend.Services
                 ContestId = metadata.ContestId,
                 UserId = metadata.UserId,
                 CreateTime = DateTimeOffset.Now,
-                Id = SequentialGuidGenerator.Create(),
+                Id = _guidGenerator.Create(),
             });
 
             await Context.SaveChangesAsync();
@@ -128,22 +124,33 @@ namespace Plag.Backend.Services
                     SubmissionFailed = s.SubmissionFailed - b,
                 });
 
-            Signal1.Notify();
+            await _signalProvider.SendCompileSignalAsync();
         }
 
-        public override Task<LanguageInfo> FindLanguageAsync(string langName)
+        public override async Task<LanguageInfo> FindLanguageAsync(string langName)
         {
-            var lang = Compile.FindLanguage(langName);
-            if (lang == null) return Task.FromResult<LanguageInfo>(null);
-            return Task.FromResult(new LanguageInfo(lang.Name, lang.ShortName, lang.Suffixes));
+            if (_languageProvider != null)
+            {
+                return await _languageProvider.FindLanguageAsync(langName);
+            }
+            else
+            {
+                List<LanguageInfo> langs = await ListLanguageAsync();
+                return langs.FirstOrDefault(lang => lang.ShortName == langName);
+            }
         }
 
-        public override Task<List<LanguageInfo>> ListLanguageAsync()
+        public override async Task<List<LanguageInfo>> ListLanguageAsync()
         {
-            return Task.FromResult(
-                Compile.GetLanguages()
-                    .Select(a => new LanguageInfo(a.Name, a.ShortName, a.Suffixes))
-                    .ToList());
+            if (_languageProvider != null)
+            {
+                return await _languageProvider.ListLanguageAsync();
+            }
+            else
+            {
+                string conf = await _configurationRegistry.GetStringAsync(LanguageListConfigurationName);
+                return conf.AsJson<List<LanguageInfo>>();
+            }
         }
 
         public override Task<List<PlagiarismSet<Guid>>> ListSetsAsync(
@@ -205,7 +212,7 @@ namespace Plag.Backend.Services
 
         private EntityEntry<Submission<Guid>> AddCore(Guid setId, int id, SubmissionCreation submission)
         {
-            var extId = SequentialGuidGenerator.Create();
+            var extId = _guidGenerator.Create();
 
             var entry = Submissions.Add(new Submission<Guid>
             {
@@ -256,7 +263,7 @@ namespace Plag.Backend.Services
                     SubmissionCount = s.SubmissionCount + 1,
                 });
 
-            Signal1.Notify();
+            await _signalProvider.SendCompileSignalAsync();
             return e.Entity;
         }
 
@@ -557,16 +564,14 @@ namespace Plag.Backend.Services
         public override async Task RescueAsync()
         {
             await RefreshCacheAsync();
-
-            Signal1.Notify();
-            Signal2.Notify();
+            await _signalProvider.SendRescueSignalAsync();
         }
 
         public override ServiceVersion GetVersion()
         {
             return new ServiceVersion
             {
-                FrontendVersion = typeof(Frontend.ILanguage).Assembly.GetName().Version.ToString(),
+                FrontendVersion = _languageProvider?.FrontendVersion,
                 BackendVersion = typeof(Backend.IBackendRoleStrategy).Assembly.GetName().Version.ToString(),
                 Role = "relational_storage"
             };
@@ -655,12 +660,21 @@ namespace Plag.Backend.Services
 
         public override Task MigrateAsync()
         {
-            return Context.Database.MigrateAsync();
+            return Task.CompletedTask;
         }
 
         public override Task UpdateLanguagesAsync(List<LanguageInfo> languageSeeds)
         {
-            throw new NotImplementedException();
+            if (_languageProvider != null)
+            {
+                return _languageProvider.UpdateLanguagesAsync(languageSeeds);
+            }
+            else
+            {
+                return _configurationRegistry.UpdateAsync(
+                    LanguageListConfigurationName,
+                    languageSeeds.ToJson());
+            }
         }
     }
 

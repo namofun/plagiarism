@@ -11,9 +11,7 @@ namespace Plag.Backend.Worker
     {
         public override void Configure(IFunctionsHostBuilder builder)
         {
-            builder.Services.AddSingleton<ICompileService, AntlrCompileService>();
-            builder.Services.AddSingleton<IConvertService2, DefaultConvertService2>();
-            builder.Services.AddSingleton<IReportService, GstReportService>();
+            builder.Services.AddPlagGenerationService();
 
             builder.Services.AddSingleton<ICosmosConnection, QueryProvider.CosmosConnection>();
             builder.Services.AddScoped<IJobContext, CosmosStoreService>();

@@ -15,10 +15,17 @@ namespace Plag.Backend
     public class CosmosStoreService : IPlagiarismDetectService, IJobContext
     {
         private readonly ICosmosConnection _database;
+        private readonly ILanguageProvider _languageProvider;
+        private readonly ISignalProvider _signalProvider;
 
-        public CosmosStoreService(ICosmosConnection connection)
+        public CosmosStoreService(
+            ICosmosConnection connection,
+            IEnumerable<ILanguageProvider> languageProviders,
+            ISignalProvider signalProvider)
         {
             _database = connection;
+            _languageProvider = languageProviders.SingleOrDefault();
+            _signalProvider = signalProvider;
         }
 
         public async Task<PlagiarismSet> CreateSetAsync(SetCreation metadata)
@@ -133,20 +140,34 @@ namespace Plag.Backend
 
         public async Task<List<LanguageInfo>> ListLanguageAsync()
         {
-            var metadata = await _database.Metadata
-                .GetEntityAsync<MetadataEntity<List<LanguageInfo>>>(
-                    MetadataEntity.LanguagesMetadataKey,
-                    MetadataEntity.SettingsTypeKey);
+            if (_languageProvider != null)
+            {
+                return await _languageProvider.ListLanguageAsync();
+            }
+            else
+            {
+                var metadata = await _database.Metadata
+                    .GetEntityAsync<MetadataEntity<List<LanguageInfo>>>(
+                        MetadataEntity.LanguagesMetadataKey,
+                        MetadataEntity.SettingsTypeKey);
 
-            return metadata.Data;
+                return metadata.Data;
+            }
         }
 
         public Task<LanguageInfo> FindLanguageAsync(string langName)
         {
-            return _database.Metadata.SingleOrDefaultAsync<LanguageInfo>(
-                "SELECT * FROM l in Metadata.data WHERE l.id = @id",
-                new { id = langName },
-                new PartitionKey(MetadataEntity.SettingsTypeKey));
+            if (_languageProvider != null)
+            {
+                return _languageProvider.FindLanguageAsync(langName);
+            }
+            else
+            {
+                return _database.Metadata.SingleOrDefaultAsync<LanguageInfo>(
+                    "SELECT * FROM l in Metadata.data WHERE l.id = @id",
+                    new { id = langName },
+                    new PartitionKey(MetadataEntity.SettingsTypeKey));
+            }
         }
 
         public async Task<Submission> SubmitAsync(SubmissionCreation submission)
@@ -206,6 +227,8 @@ namespace Plag.Backend
                 .Patch(set.Id, new PartitionKey(MetadataEntity.SetsTypeKey))
                 .IncrementProperty(s => s.SubmissionCount, 1)
                 .ExecuteAsync();
+
+            await _signalProvider.SendCompileSignalAsync();
 
             return s;
         }
@@ -342,6 +365,8 @@ namespace Plag.Backend
                 .IncrementProperty(s => s.SubmissionSucceeded, -a)
                 .IncrementProperty(s => s.SubmissionFailed, -b)
                 .ExecuteAsync();
+
+            await _signalProvider.SendCompileSignalAsync();
         }
 
         public async Task CompileAsync(Submission submission, string error, byte[] result)
@@ -506,8 +531,7 @@ namespace Plag.Backend
         public async Task RescueAsync()
         {
             await RefreshCacheAsync();
-
-            throw new NotImplementedException();
+            await _signalProvider.SendRescueSignalAsync();
         }
 
         public async Task SaveReportAsync(ReportTask task, ReportFragment fragment)
@@ -741,12 +765,19 @@ namespace Plag.Backend
 
         public Task UpdateLanguagesAsync(List<LanguageInfo> languageSeeds)
         {
-            return _database.Metadata.UpsertAsync(new MetadataEntity<List<LanguageInfo>>()
+            if (_languageProvider != null)
             {
-                Id = MetadataEntity.LanguagesMetadataKey,
-                Type = MetadataEntity.SettingsTypeKey,
-                Data = languageSeeds,
-            });
+                return _languageProvider.UpdateLanguagesAsync(languageSeeds);
+            }
+            else
+            {
+                return _database.Metadata.UpsertAsync(new MetadataEntity<List<LanguageInfo>>()
+                {
+                    Id = MetadataEntity.LanguagesMetadataKey,
+                    Type = MetadataEntity.SettingsTypeKey,
+                    Data = languageSeeds,
+                });
+            }
         }
     }
 }

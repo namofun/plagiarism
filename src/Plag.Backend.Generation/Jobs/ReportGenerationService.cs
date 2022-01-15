@@ -1,5 +1,4 @@
-﻿using Jobs.Services;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Plag.Backend.Models;
 using Plag.Backend.Services;
