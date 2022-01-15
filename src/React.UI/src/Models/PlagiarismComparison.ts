@@ -27,11 +27,11 @@ export interface PlagiarismComparison {
 
   /**
    * Whether the report is generated
-   * - If true, the report is ready
-   * - If false, the report is being generated
-   * - If null, the report is pending
+   * - If Finished, the report is ready
+   * - If Analyzing, the report is being generated
+   * - If Pending, the report is pending
    */
-  finished: boolean | null;
+  state: "Pending" | "Analyzing" | "Finished";
 
   /**
    * The tokens matched
@@ -60,11 +60,11 @@ export interface PlagiarismComparison {
 
   /**
    * The justification result
-   * - If true, this two is marked problematical
-   * - If false, the report is ignored
-   * - If null, there is no justification made yet
+   * - If Claimed, this two is marked problematical
+   * - If Ignored, the report is ignored
+   * - If Unspecified, there is no justification made yet
    */
-  justification: boolean | null;
+  justification: "Unspecified" | "Ignored" | "Claimed";
 }
 
 /**

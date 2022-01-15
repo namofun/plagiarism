@@ -66,13 +66,13 @@ export default class PlagSubmitView extends React.Component<RouteComponentProps 
   }
 
   private static getStatus(model: PlagiarismComparison) : IStatusProps {
-    if (model.finished === null) {
+    if (model.state === "Pending") {
       return Statuses.Waiting;
-    } else if (!model.finished) {
+    } else if (model.state === "Analyzing") {
       return Statuses.Running;
-    } else if (model.justification === null) {
+    } else if (model.justification === "Unspecified") {
       return Statuses.Queued;
-    } else if (model.justification) {
+    } else if (model.justification === "Claimed") {
       return Statuses.Failed;
     } else {
       return Statuses.Success;
