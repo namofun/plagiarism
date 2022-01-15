@@ -11,16 +11,16 @@ namespace Plag.Backend.Worker
 {
     public class Report
     {
-        private readonly ICosmosConnection _connection;
+        private readonly IJobContext _store;
         private readonly ReportGenerator _reporter;
 
         public Report(
-            ICosmosConnection connection,
+            IJobContext store,
             IConvertService2 converter,
             ICompileService compiler,
             IReportService reporter)
         {
-            _connection = connection;
+            _store = store;
             _reporter = new(compiler, converter, reporter);
         }
 
@@ -33,7 +33,6 @@ namespace Plag.Backend.Worker
             string queueStamp = reportRequest.Split('%')[0];
 
             _reporter.SetLogger(log);
-            IJobContext store = new CosmosStoreService(_connection);
             var lru = new LruStore<(string, int), (Submission, Frontend.Submission)>();
             using CancellationTokenSource cts = new();
             cts.CancelAfter(TimeSpan.FromMinutes(9));
@@ -43,7 +42,7 @@ namespace Plag.Backend.Worker
             bool shouldContinue = true;
             while (!cts.Token.IsCancellationRequested)
             {
-                shouldContinue = await _reporter.DoWorkBatchAsync(store, lru);
+                shouldContinue = await _reporter.DoWorkBatchAsync(_store, lru);
                 if (!shouldContinue) break;
             }
 
@@ -52,6 +51,7 @@ namespace Plag.Backend.Worker
             {
                 // There is an active work item last iteration, but worker stopped here.
                 // This happens when job is running out of time.
+
                 Guid continuationId = Guid.NewGuid();
                 long timestamp = DateTimeOffset.Now.ToUnixTimeSeconds();
                 string continuationRecord = $"continuation|{timestamp}|{continuationId}%{queueStamp}";

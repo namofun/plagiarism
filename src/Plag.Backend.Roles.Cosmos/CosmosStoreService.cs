@@ -733,5 +733,20 @@ namespace Plag.Backend
                     new() { Error = sub.Error, Tokens = sub.Tokens }))
                 .ToList();
         }
+
+        public Task MigrateAsync()
+        {
+            return _database.MigrateAsync();
+        }
+
+        public Task UpdateLanguagesAsync(List<LanguageInfo> languageSeeds)
+        {
+            return _database.Metadata.UpsertAsync(new MetadataEntity<List<LanguageInfo>>()
+            {
+                Id = MetadataEntity.LanguagesMetadataKey,
+                Type = MetadataEntity.SettingsTypeKey,
+                Data = languageSeeds,
+            });
+        }
     }
 }

@@ -10,6 +10,17 @@ namespace Plag.Backend.Services
     public interface IJobContext
     {
         /// <summary>
+        /// Migrates the database schema.
+        /// </summary>
+        Task MigrateAsync();
+
+        /// <summary>
+        /// Updates the languages list.
+        /// </summary>
+        /// <param name="languageSeeds">The languages list.</param>
+        Task UpdateLanguagesAsync(List<LanguageInfo> languageSeeds);
+
+        /// <summary>
         /// Refreshes the cache fields.
         /// </summary>
         Task RefreshCacheAsync();

@@ -8,6 +8,12 @@ namespace Plag.Backend.Services
     public abstract class PdsServiceBase<TKey> : PdsStoreServiceBase<TKey>, IJobContext
         where TKey : IEquatable<TKey>
     {
+        /// <inheritdoc cref="IJobContext.MigrateAsync" />
+        public abstract Task MigrateAsync();
+
+        /// <inheritdoc cref="IJobContext.UpdateLanguagesAsync(List{LanguageInfo})" />
+        public abstract Task UpdateLanguagesAsync(List<LanguageInfo> languageSeeds);
+
         /// <inheritdoc cref="IJobContext.RefreshCacheAsync" />
         public abstract Task RefreshCacheAsync();
 

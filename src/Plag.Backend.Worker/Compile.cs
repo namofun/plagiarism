@@ -11,12 +11,12 @@ namespace Plag.Backend.Worker
 {
     public class Compile
     {
-        private readonly ICosmosConnection _connection;
+        private readonly IJobContext _store;
         private readonly SubmissionTokenizer _tokenizer;
 
-        public Compile(ICosmosConnection connection, IConvertService2 converter, ICompileService compiler)
+        public Compile(IJobContext store, IConvertService2 converter, ICompileService compiler)
         {
-            _connection = connection;
+            _store = store;
             _tokenizer = new(converter, compiler);
         }
 
@@ -33,7 +33,6 @@ namespace Plag.Backend.Worker
                 queueStamp = queueStamp.Split('%')[0];
             }
 
-            IJobContext store = new CosmosStoreService(_connection);
             using CancellationTokenSource cts = new();
             cts.CancelAfter(TimeSpan.FromMinutes(9));
 
@@ -43,7 +42,7 @@ namespace Plag.Backend.Worker
             int scheduleCounter = 0;
             while (!cts.Token.IsCancellationRequested)
             {
-                next = await _tokenizer.DoWorkAsync(store);
+                next = await _tokenizer.DoWorkAsync(_store);
                 if (next == null) break;
                 scheduleCounter++;
 
@@ -51,7 +50,7 @@ namespace Plag.Backend.Worker
 
                 if (next.TokenProduced == true)
                 {
-                    await store.ScheduleAsync(next);
+                    await _store.ScheduleAsync(next);
                     scheduleCounter++;
                 }
 

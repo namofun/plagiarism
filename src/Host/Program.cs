@@ -51,13 +51,10 @@ namespace SatelliteSite
             if (args.Contains("--cosmos"))
             {
                 host.AddModule<PlagModule.PlagModule<CosmosBackendRole>>();
-                host.ConfigureServices((context, services) =>
+                host.AddCosmos((context, options) =>
                 {
-                    services.Configure<PlagBackendCosmosOptions>(options =>
-                    {
-                        options.ConnectionString = context.GetConnectionString("CosmosDbAccount");
-                        options.DatabaseName = context.GetConnectionString("CosmosDbName");
-                    });
+                    options.ConnectionString = context.GetConnectionString("CosmosDbAccount");
+                    options.DatabaseName = context.GetConnectionString("CosmosDbName");
                 });
             }
             else if (args.Contains("--restful"))

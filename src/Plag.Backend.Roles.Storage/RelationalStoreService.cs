@@ -652,6 +652,16 @@ namespace Plag.Backend.Services
                     new() { Error = sub.Error, Tokens = sub.Tokens }))
                 .ToList();
         }
+
+        public override Task MigrateAsync()
+        {
+            return Context.Database.MigrateAsync();
+        }
+
+        public override Task UpdateLanguagesAsync(List<LanguageInfo> languageSeeds)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     internal static class OrderByQueryableExtensions

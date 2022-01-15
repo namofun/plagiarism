@@ -14,9 +14,9 @@ namespace Plag.Backend.Worker
             builder.Services.AddSingleton<ICompileService, AntlrCompileService>();
             builder.Services.AddSingleton<IConvertService2, DefaultConvertService2>();
             builder.Services.AddSingleton<IReportService, GstReportService>();
+
             builder.Services.AddSingleton<ICosmosConnection, QueryProvider.CosmosConnection>();
             builder.Services.AddScoped<IJobContext, CosmosStoreService>();
-
             IConfiguration configuration = builder.GetContext().Configuration;
             builder.Services.Configure<PlagBackendCosmosOptions>(options =>
             {

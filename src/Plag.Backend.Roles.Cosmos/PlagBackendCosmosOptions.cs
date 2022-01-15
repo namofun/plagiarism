@@ -36,6 +36,28 @@ namespace Plag.Backend
         };
 
         /// <summary>
+        /// Configure the cosmos connection with the connection string.
+        /// </summary>
+        /// <param name="connectionString">The connection string.</param>
+        /// <returns>The configured options.</returns>
+        public PlagBackendCosmosOptions WithConnectionString(string connectionString)
+        {
+            ConnectionString = connectionString;
+            return this;
+        }
+
+        /// <summary>
+        /// Configure the cosmos connection with the database name.
+        /// </summary>
+        /// <param name="databaseName">The database name.</param>
+        /// <returns>The configured options.</returns>
+        public PlagBackendCosmosOptions WithDatabaseName(string databaseName)
+        {
+            DatabaseName = databaseName;
+            return this;
+        }
+
+        /// <summary>
         /// Validates the configuration completeness.
         /// </summary>
         internal void Validate()
