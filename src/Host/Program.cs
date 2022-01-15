@@ -6,11 +6,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Plag.Backend;
+using Plag.Backend.Services;
+using SatelliteSite;
 using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+
+[assembly: ConfigurationString(30, "PDS", "pds_language_list", "[]", "Language list of PDS", IsPublic = false)]
 
 namespace SatelliteSite
 {
@@ -56,8 +60,6 @@ namespace SatelliteSite
                     options.ConnectionString = context.GetConnectionString("CosmosDbAccount");
                     options.DatabaseName = context.GetConnectionString("CosmosDbName");
                 });
-
-                host.AddPlagBackgroundService();
             }
             else if (args.Contains("--restful"))
             {
@@ -109,8 +111,21 @@ namespace SatelliteSite
                     // In this case, we can add migrations for development use.
                     ConfigureDatabase<DevelopmentContext>();
                 }
+            }
 
-                host.AddPlagBackgroundService();
+            if (!args.Contains("--restful"))
+            {
+                if (args.Contains("--foreground-only"))
+                {
+                    host.ConfigureServices(services =>
+                    {
+                        services.AddSingleton<ISignalProvider, NullSignalProvider>();
+                    });
+                }
+                else
+                {
+                    host.AddPlagBackgroundService();
+                }
             }
 
             if (Debugger.IsAttached)
@@ -159,7 +174,14 @@ namespace SatelliteSite
                 host.AddModule<HostModule>();
             }
 
-            return host.ConfigureSubstrateDefaultsCore();
+            if (args.Contains("--production"))
+            {
+                return host.ConfigureSubstrateDefaultsCore();
+            }
+            else
+            {
+                return host.ConfigureSubstrateDefaults<DevelopmentContext>();
+            }
         }
     }
 }

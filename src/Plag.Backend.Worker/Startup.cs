@@ -1,7 +1,6 @@
 ﻿using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Plag.Backend.Services;
 
 [assembly: FunctionsStartup(typeof(Plag.Backend.Worker.Startup))]
 
@@ -13,15 +12,30 @@ namespace Plag.Backend.Worker
         {
             builder.Services.AddPlagGenerationService();
 
-            builder.Services.AddSingleton<ICosmosConnection, QueryProvider.CosmosConnection>();
-            builder.Services.AddSingleton<ISignalProvider, NullSignalProvider>();
-            builder.Services.AddScoped<IJobContext, CosmosStoreService>();
             IConfiguration configuration = builder.GetContext().Configuration;
-            builder.Services.Configure<PlagBackendCosmosOptions>(options =>
+            if (configuration.GetConnectionString("Primary") == "SqlServer")
             {
-                options.ConnectionString = configuration.GetConnectionString("CosmosDbAccount");
-                options.DatabaseName = configuration.GetConnectionString("CosmosDbName");
-            });
+                builder.Services.AddRelationalForPlagWorker<WorkerContext>(options =>
+                {
+                    options.UseSqlServer(configuration.GetConnectionString("SqlServer"), b => b.UseBulk());
+                });
+            }
+            else
+            {
+                builder.Services.AddCosmosForPlagWorker(options =>
+                {
+                    options.ConnectionString = configuration.GetConnectionString("CosmosDbAccount");
+                    options.DatabaseName = configuration.GetConnectionString("CosmosDbName");
+                });
+            }
+        }
+
+        private class WorkerContext : DbContext
+        {
+            public WorkerContext(DbContextOptions<WorkerContext> options)
+                : base(options)
+            {
+            }
         }
     }
 }

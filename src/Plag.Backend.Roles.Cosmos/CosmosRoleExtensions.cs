@@ -2,6 +2,7 @@
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Plag.Backend.Services;
 using System;
 
 namespace Plag.Backend
@@ -25,6 +26,22 @@ namespace Plag.Backend
                     configureOptions.Invoke(context, options);
                 });
             });
+        }
+
+        /// <summary>
+        /// Configures the cosmos db role for functional worker.
+        /// </summary>
+        /// <param name="services">The service collection.</param>
+        /// <param name="configureOptions">The connection configurator.</param>
+        public static void AddCosmosForPlagWorker(
+            this IServiceCollection services,
+            Action<PlagBackendCosmosOptions> configureOptions)
+        {
+
+            services.AddSingleton<ICosmosConnection, QueryProvider.CosmosConnection>();
+            services.AddSingleton<ISignalProvider, NullSignalProvider>();
+            services.AddScoped<IJobContext, CosmosStoreService>();
+            services.Configure<PlagBackendCosmosOptions>(configureOptions);
         }
     }
 }

@@ -1,6 +1,6 @@
-using Jobs.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Plag.Backend.Jobs;
 using Plag.Backend.Services;
 using System;
 using System.Threading.Tasks;

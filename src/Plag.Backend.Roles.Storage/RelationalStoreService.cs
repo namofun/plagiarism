@@ -685,7 +685,7 @@ namespace Plag.Backend.Services
             {
                 return _configurationRegistry.UpdateAsync(
                     LanguageListConfigurationName,
-                    languageSeeds.ToJson());
+                    languageSeeds.ToJson().ToJson());
             }
         }
     }
