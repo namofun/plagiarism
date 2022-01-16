@@ -361,7 +361,7 @@ namespace Plag.Backend
 
             var (a, b) = tokenProduced.Value ? (1, 0) : (0, 1);
             await _database.Sets
-                .Patch(setGuid.ToString(), new PartitionKey(setGuid.ToString()))
+                .Patch(setGuid.ToString(), new PartitionKey(MetadataEntity.SetsTypeKey))
                 .IncrementProperty(s => s.SubmissionSucceeded, -a)
                 .IncrementProperty(s => s.SubmissionFailed, -b)
                 .ExecuteAsync();

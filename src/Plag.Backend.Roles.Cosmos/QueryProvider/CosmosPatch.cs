@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq.Expressions;
 using System.Net;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ namespace Plag.Backend.QueryProvider
 {
     public sealed class CosmosPatch<TEntity>
     {
+        private static readonly byte[] nullStreamSource = System.Text.Encoding.UTF8.GetBytes("null");
         private readonly Container _container;
         private readonly PartitionKey _partitionKey;
         private readonly ILogger _logger;
@@ -32,7 +34,16 @@ namespace Plag.Backend.QueryProvider
             TProperty propertyValue)
         {
             string path = "/" + propertySelector.ParseProperty();
-            _operations.Add(PatchOperation.Replace(path, propertyValue));
+
+            if (propertyValue == null)
+            {
+                _operations.Add(PatchOperation.Replace(path, new MemoryStream(nullStreamSource)));
+            }
+            else
+            {
+                _operations.Add(PatchOperation.Replace(path, propertyValue));
+            }
+
             return this;
         }
 
