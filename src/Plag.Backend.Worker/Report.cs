@@ -28,19 +28,21 @@ namespace Plag.Backend.Worker
         public async Task Run(
             [QueueTrigger(Constants.ReportGeneratingQueue, Connection = "AzureWebJobsStorage")] string reportRequest,
             [Queue(Constants.ReportGeneratingQueue, Connection = "AzureWebJobsStorage")] IAsyncCollector<string> reportContinuation,
-            ILogger log)
+            ILogger log,
+            CancellationToken cancellationToken)
         {
             string queueStamp = reportRequest.Split('%')[0];
 
             _reporter.SetLogger(log);
             var lru = new LruStore<(string, int), (Submission, Frontend.Submission)>();
             using CancellationTokenSource cts = new();
+            using CancellationTokenSource ctsV2 = CancellationTokenSource.CreateLinkedTokenSource(cts.Token, cancellationToken);
             cts.CancelAfter(TimeSpan.FromMinutes(9));
 
             log.LogInformation("Report worker started on {StartTime} for '{QueueMessage}'.", DateTimeOffset.Now, reportRequest);
 
             bool shouldContinue = true;
-            while (!cts.Token.IsCancellationRequested)
+            while (!ctsV2.Token.IsCancellationRequested)
             {
                 shouldContinue = await _reporter.DoWorkBatchAsync(_store, lru);
                 if (!shouldContinue) break;

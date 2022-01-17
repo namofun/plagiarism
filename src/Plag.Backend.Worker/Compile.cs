@@ -25,7 +25,8 @@ namespace Plag.Backend.Worker
             [QueueTrigger(Constants.CompilationQueue, Connection = "AzureWebJobsStorage")] string queueMessage,
             [Queue(Constants.CompilationQueue, Connection = "AzureWebJobsStorage")] IAsyncCollector<string> compilationContinuation,
             [Queue(Constants.ReportGeneratingQueue, Connection = "AzureWebJobsStorage")] IAsyncCollector<string> reportGenerator,
-            ILogger log)
+            ILogger log,
+            CancellationToken cancellationToken)
         {
             string queueStamp = queueMessage;
             if (queueStamp.StartsWith("continuation"))
@@ -34,13 +35,14 @@ namespace Plag.Backend.Worker
             }
 
             using CancellationTokenSource cts = new();
+            using CancellationTokenSource ctsV2 = CancellationTokenSource.CreateLinkedTokenSource(cts.Token, cancellationToken);
             cts.CancelAfter(TimeSpan.FromMinutes(9));
 
             log.LogInformation("Compilation worker started on {StartTime} for '{QueueMessage}'.", DateTimeOffset.Now, queueMessage);
 
             Submission next = null;
             int scheduleCounter = 0;
-            while (!cts.Token.IsCancellationRequested)
+            while (!ctsV2.Token.IsCancellationRequested)
             {
                 next = await _tokenizer.DoWorkAsync(_store);
                 if (next == null) break;

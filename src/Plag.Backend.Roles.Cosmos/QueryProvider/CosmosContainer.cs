@@ -132,7 +132,7 @@ namespace Plag.Backend.QueryProvider
             string partitionKey,
             IEnumerable<TModel> source,
             Action<TModel, TransactionalBatch> batchEntryBuilder,
-            Func<string, TModel[], TransactionalBatchResponse, Task>? postBatchResponse = null,
+            Func<string, TModel[], TransactionalBatchResponse, Task>? postBatchResponse,
             int batchSize = 50,
             bool allowTooManyRequests = false,
             bool transactional = true)
@@ -158,7 +158,7 @@ namespace Plag.Backend.QueryProvider
                         && !(resp.StatusCode == HttpStatusCode.TooManyRequests && allowTooManyRequests)))
                 {
                     throw new CosmosException(
-                        resp.ErrorMessage,
+                        resp.ErrorMessage ?? $"Cosmos batch query failed with status code {resp.StatusCode}.",
                         resp.StatusCode,
                         0,
                         resp.ActivityId,
@@ -176,15 +176,14 @@ namespace Plag.Backend.QueryProvider
             IEnumerable<TModel> source,
             Func<TModel, string> partitionKeySelector,
             Action<TModel, TransactionalBatch> batchEntryBuilder,
-            Func<string, TModel[], TransactionalBatchResponse, Task>? postBatchResponse = null,
+            Action<string, TModel[], TransactionalBatchResponse>? postBatchResponse = null,
             int batchSize = 50,
             bool allowTooManyRequests = false,
             bool transactional = true)
         {
-            if (batchSize > 100) throw new ArgumentOutOfRangeException(nameof(batchSize));
             foreach (IGrouping<string, TModel> partition in source.GroupBy(partitionKeySelector))
             {
-                await BatchAsync(partition.Key, partition, batchEntryBuilder, postBatchResponse, batchSize, transactional, allowTooManyRequests);
+                await BatchAsync(partition.Key, partition, batchEntryBuilder, postBatchResponse, batchSize, allowTooManyRequests, transactional);
             }
         }
 
@@ -192,20 +191,75 @@ namespace Plag.Backend.QueryProvider
             string partitionKey,
             IEnumerable<TModel> source,
             Action<TModel, TransactionalBatch> batchEntryBuilder,
-            Action<string, TModel[], TransactionalBatchResponse> postBatchResponse,
+            Action<string, TModel[], TransactionalBatchResponse>? postBatchResponse = null,
             int batchSize = 50,
             bool allowTooManyRequests = false,
             bool transactional = true)
-            => BatchAsync(partitionKey, source, batchEntryBuilder, postBatchResponse.AsAsync(), batchSize, transactional, allowTooManyRequests);
+            => BatchAsync(partitionKey, source, batchEntryBuilder, postBatchResponse.AsAsync(), batchSize, allowTooManyRequests, transactional);
 
-        public Task BatchAsync<TModel>(
+        public async Task BatchWithRetryAsync<TModel>(
             IEnumerable<TModel> source,
             Func<TModel, string> partitionKeySelector,
             Action<TModel, TransactionalBatch> batchEntryBuilder,
-            Action<string, TModel[], TransactionalBatchResponse> postBatchResponse,
-            int batchSize = 50,
-            bool allowTooManyRequests = false,
-            bool transactional = true)
-            => BatchAsync(source, partitionKeySelector, batchEntryBuilder, postBatchResponse.AsAsync(), batchSize, transactional, allowTooManyRequests);
+            Action<string, IEnumerable<(TModel, TransactionalBatchOperationResult)>>? postBatchResponse = null,
+            int batchSize = 50)
+        {
+            List<TModel> sourceV2 = source.ToList();
+            while (sourceV2.Count > 0)
+            {
+                List<TModel> staging = sourceV2.ToList();
+                sourceV2.Clear();
+
+                await BatchAsync(staging, partitionKeySelector, batchEntryBuilder, (pkey, models, resp) =>
+                {
+                    if (models.Length != resp.Count)
+                    {
+                        throw new InvalidOperationException("Batch operation must be one for one entity.");
+                    }
+
+                    sourceV2.AddRange(models.Zip(resp).Where(a => a.Second.StatusCode == HttpStatusCode.TooManyRequests).Select(a => a.First));
+                    postBatchResponse?.Invoke(pkey, models.Zip(resp).Where(a => a.Second.StatusCode != HttpStatusCode.TooManyRequests));
+                },
+                batchSize: batchSize, allowTooManyRequests: true, transactional: false);
+            }
+        }
+
+        public async Task BatchWithRetryAsync<TModel>(
+            string partitionKey,
+            IEnumerable<TModel> source,
+            Action<TModel, TransactionalBatch> batchEntryBuilder,
+            Func<string, IEnumerable<(TModel, TransactionalBatchOperationResult)>, Task>? postBatchResponse,
+            int batchSize = 50)
+        {
+            List<TModel> sourceV2 = source.ToList();
+            while (sourceV2.Count > 0)
+            {
+                List<TModel> staging = sourceV2.ToList();
+                sourceV2.Clear();
+
+                await BatchAsync(partitionKey, staging, batchEntryBuilder, async (pkey, models, resp) =>
+                {
+                    if (models.Length != resp.Count)
+                    {
+                        throw new InvalidOperationException("Batch operation must be one for one entity.");
+                    }
+
+                    sourceV2.AddRange(models.Zip(resp).Where(a => a.Second.StatusCode == HttpStatusCode.TooManyRequests).Select(a => a.First));
+                    if (postBatchResponse != null)
+                    {
+                        await postBatchResponse.Invoke(pkey, models.Zip(resp).Where(a => a.Second.StatusCode != HttpStatusCode.TooManyRequests));
+                    }
+                },
+                batchSize: batchSize, allowTooManyRequests: true, transactional: false);
+            }
+        }
+
+        public Task BatchWithRetryAsync<TModel>(
+            string partitionKey,
+            IEnumerable<TModel> source,
+            Action<TModel, TransactionalBatch> batchEntryBuilder,
+            Action<string, IEnumerable<(TModel, TransactionalBatchOperationResult)>>? postBatchResponse = null,
+            int batchSize = 50)
+            => BatchWithRetryAsync(partitionKey, source, batchEntryBuilder, postBatchResponse.AsAsync(), batchSize);
     }
 }

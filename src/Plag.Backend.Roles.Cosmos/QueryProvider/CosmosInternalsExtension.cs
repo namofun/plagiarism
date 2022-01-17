@@ -45,6 +45,11 @@ namespace Plag.Backend.QueryProvider
             }
         }
 
+        public static Func<T1, T2, Task>? AsAsync<T1, T2>(this Action<T1, T2>? action)
+        {
+            return action == null ? null : (t1, t2) => { action(t1, t2); return Task.CompletedTask; };
+        }
+
         public static Func<T1, T2, T3, Task>? AsAsync<T1, T2, T3>(this Action<T1, T2, T3>? action)
         {
             return action == null ? null : (t1, t2, t3) => { action(t1, t2, t3); return Task.CompletedTask; };

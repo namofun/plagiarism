@@ -133,6 +133,7 @@ namespace Plag.Backend
         {
             return new ServiceVersion
             {
+                FrontendVersion = _languageProvider?.FrontendVersion,
                 BackendVersion = typeof(Backend.IBackendRoleStrategy).Assembly.GetName().Version.ToString(),
                 Role = "document_storage"
             };
@@ -249,34 +250,34 @@ namespace Plag.Backend
                 throw new ArgumentOutOfRangeException(nameof(skip), "Must specify skip and limit at the same time when querying sets.");
             }
 
-            string query = "SELECT * FROM Submissions c";
+            string query =
+                "SELECT c.setid, c.submitid, c.externalid, c.upload_time, " +
+                      " c.exclusive_category, c.inclusive_category, c.language, " +
+                      " c.name, c.max_percent, c.token_produced " +
+                "FROM Submissions c WHERE c.type = \"submission\"";
             JObject param = new();
 
             if (exclusive_category.HasValue)
             {
-                query += param.Count == 0 ? " WHERE" : " AND";
-                query += " c.exclusive_category = @exclid";
+                query += " AND c.exclusive_category = @exclid";
                 param["exclid"] = exclusive_category.Value;
             }
 
             if (inclusive_category.HasValue)
             {
-                query += param.Count == 0 ? " WHERE" : " AND";
-                query += " c.inclusive_category = @inclid";
+                query += " AND c.inclusive_category = @inclid";
                 param["inclid"] = inclusive_category.Value;
             }
 
             if (!string.IsNullOrEmpty(language))
             {
-                query += param.Count == 0 ? " WHERE" : " AND";
-                query += " c.language = @langid";
+                query += " AND c.language = @langid";
                 param["langid"] = language;
             }
 
             if (min_percent.HasValue)
             {
-                query += param.Count == 0 ? " WHERE" : " AND";
-                query += " c.max_percent = @percent";
+                query += " AND c.max_percent > @percent";
                 param["percent"] = min_percent.Value;
             }
 
@@ -304,20 +305,18 @@ namespace Plag.Backend
                 throw new ArgumentOutOfRangeException(nameof(skip), "Must specify skip and limit at the same time when querying sets.");
             }
 
-            string query = "SELECT * FROM Sets c";
+            string query = "SELECT * FROM Sets c WHERE c.type = \"sets\"";
             JObject param = new();
 
             if (cid.HasValue)
             {
-                query += param.Count == 0 ? " WHERE" : " AND";
-                query += " c.related = @cid";
+                query += " AND c.related = @cid";
                 param["cid"] = cid.Value;
             }
 
             if (uid.HasValue)
             {
-                query += param.Count == 0 ? " WHERE" : " AND";
-                query += " c.creator = @uid";
+                query += " AND c.creator = @uid";
                 param["uid"] = cid.Value;
             }
 
@@ -391,20 +390,23 @@ namespace Plag.Backend
                 .IncrementProperty(s => s.SubmissionFailed, b)
                 .ExecuteAsync();
 
-            ServiceGraphEntity.Vertex vertex = new()
+            if (tokenProduced)
             {
-                Id = submission.Id,
-                Exclusive = submission.ExclusiveCategory,
-                Inclusive = submission.InclusiveCategory,
-                Language = submission.Language,
-                Name = submission.Name,
-            };
+                ServiceGraphEntity.Vertex vertex = new()
+                {
+                    Id = submission.Id,
+                    Exclusive = submission.ExclusiveCategory,
+                    Inclusive = submission.InclusiveCategory,
+                    Language = submission.Language,
+                    Name = submission.Name,
+                };
 
-            await _database.Metadata.GetContainer().PatchItemAsync<ServiceGraphEntity>(
-                setGuid.ToString(),
-                new PartitionKey(MetadataEntity.ServiceGraphTypeKey),
-                new[] { PatchOperation.Set("/data/" + subGuid.ToString(), vertex) },
-                new() { EnableContentResponseOnWrite = false });
+                await _database.Metadata.GetContainer().PatchItemAsync<ServiceGraphEntity>(
+                    setGuid.ToString(),
+                    new PartitionKey(MetadataEntity.ServiceGraphTypeKey),
+                    new[] { PatchOperation.Set("/data/" + subGuid.ToString(), vertex) },
+                    new() { EnableContentResponseOnWrite = false });
+            }
         }
 
         public Task<Submission> DequeueSubmissionAsync()
@@ -465,14 +467,25 @@ namespace Plag.Backend
                 .ToList();
 
             int created = 0, updated = 0;
-            await _database.Reports.BatchAsync(set.ToString(), pendingReports, (report, batch) =>
+            await _database.Reports.BatchWithRetryAsync(set.ToString(), pendingReports, (report, batch) =>
             {
                 batch.UpsertItem(report, new() { EnableContentResponseOnWrite = false });
             },
-            (_, _, resp) =>
+            async (_, reports) =>
             {
-                created += resp.Count(r => r.StatusCode == HttpStatusCode.Created);
-                updated += resp.Count(r => r.StatusCode == HttpStatusCode.OK);
+                created += reports.Count(a => a.Item2.StatusCode == HttpStatusCode.Created);
+                updated += reports.Count(a => a.Item2.StatusCode == HttpStatusCode.OK);
+
+                if (created + updated > 30)
+                {
+                    await _database.Sets
+                        .Patch(set.ToString(), new PartitionKey(MetadataEntity.SetsTypeKey))
+                        .IncrementProperty(s => s.ReportCount, created)
+                        .IncrementProperty(s => s.ReportPending, created + updated)
+                        .ExecuteAsync();
+
+                    created = updated = 0;
+                }
             });
 
             await _database.Sets
@@ -519,12 +532,12 @@ namespace Plag.Backend
             }
 
             IEnumerable<string> keys = ((IDictionary<string, JToken>)aggProps).Keys;
-            await _database.Sets.BatchAsync(MetadataEntity.SetsTypeKey, patchEntries, (patchEntry, batch) =>
+            await _database.Sets.BatchWithRetryAsync(MetadataEntity.SetsTypeKey, patchEntries, (patchEntry, batch) =>
             {
                 batch.PatchItem(
                     patchEntry.Key,
                     keys.Select(aggKey => PatchOperation.Replace($"/{aggKey}", (int)patchEntry.Value[aggKey])).ToList(),
-                    new TransactionalBatchPatchItemRequestOptions() { EnableContentResponseOnWrite = false });
+                    new() { EnableContentResponseOnWrite = false });
             });
         }
 
@@ -537,35 +550,17 @@ namespace Plag.Backend
                     "SELECT VALUE r.id FROM Reports r " +
                     "WHERE r.state = \"Analyzing\" AND r.type = \"report\"");
 
-            while (analyzings.Count > 0)
-            {
-                List<ReportGuid> reportGuids =
-                    analyzings.Select(a => ReportGuid.Parse(a)).ToList();
-
-                analyzings.Clear();
-                await _database.Reports.BatchAsync(
-                    reportGuids,
-                    guid => guid.GetSetId().ToString(),
-                    batchSize: 30,
-                    allowTooManyRequests: true,
-                    batchEntryBuilder: (report, batch) =>
-                    {
-                        batch.PatchItem(
-                            report.ToString(),
-                            new[] { PatchOperation.Set("/state", ReportState.Pending) },
-                            new() { EnableContentResponseOnWrite = false, FilterPredicate = "FROM r WHERE r.state = \"Analyzing\"" });
-                    },
-                    postBatchResponse: (setid, reports, resp) =>
-                    {
-                        foreach (var (reportId, reportResp) in reports.Zip(resp))
-                        {
-                            if (reportResp.StatusCode == HttpStatusCode.TooManyRequests)
-                            {
-                                analyzings.Add(reportId.ToString());
-                            }
-                        }
-                    });
-            }
+            await _database.Reports.BatchWithRetryAsync(
+                analyzings.Select(a => ReportGuid.Parse(a)),
+                guid => guid.GetSetId().ToString(),
+                batchSize: 30,
+                batchEntryBuilder: (report, batch) =>
+                {
+                    batch.PatchItem(
+                        report.ToString(),
+                        new[] { PatchOperation.Set("/state", ReportState.Pending) },
+                        new() { EnableContentResponseOnWrite = false, FilterPredicate = "FROM r WHERE r.state = \"Analyzing\"" });
+                });
 
             await _signalProvider.SendRescueSignalAsync();
         }
@@ -595,17 +590,13 @@ namespace Plag.Backend
                 .IncrementProperty(s => s.ReportPending, -1)
                 .ExecuteAsync();
 
-            await _database.Submissions.BatchAsync(
-                task.SetId,
-                new[] { task.SubmissionA, task.SubmissionB },
-                transactional: false,
-                batchEntryBuilder: (sid, batch) =>
-                {
-                    batch.PatchItem(
-                        SubmissionGuid.FromStructured(setGuid, sid).ToString(),
-                        new[] { PatchOperation.Set("/max_percent", fragment.Percent) },
-                        new() { FilterPredicate = "FROM s WHERE s.max_percent < " + fragment.Percent.ToJson(), EnableContentResponseOnWrite = false });
-                });
+            await _database.Submissions.BatchWithRetryAsync(task.SetId, new[] { task.SubmissionA, task.SubmissionB }, (sid, batch) =>
+            {
+                batch.PatchItem(
+                    SubmissionGuid.FromStructured(setGuid, sid).ToString(),
+                    new[] { PatchOperation.Set("/max_percent", fragment.Percent) },
+                    new() { FilterPredicate = "FROM s WHERE s.max_percent < " + fragment.Percent.ToJson(), EnableContentResponseOnWrite = false });
+            });
         }
 
         public async Task JustificateAsync(string reportid, ReportJustification status)
@@ -657,13 +648,8 @@ namespace Plag.Backend
                         "WHERE r.state = \"Pending\" AND r.type = \"report\"");
 
                 if (topReportIds.Count == 0) return reportTasks;
-                List<ReportGuid> reportGuids =
-                    topReportIds
-                        .Select(id => ReportGuid.Parse(id))
-                        .ToList();
-
                 await _database.Reports.BatchAsync(
-                    reportGuids,
+                    topReportIds.Select(id => ReportGuid.Parse(id)),
                     r => r.GetSetId().ToString(),
                     batchSize: batchSize,
                     transactional: false,
@@ -695,12 +681,12 @@ namespace Plag.Backend
             return reportTasks;
         }
 
-        public Task SaveReportsAsync(List<KeyValuePair<ReportTask, ReportFragment>> reports)
+        public async Task SaveReportsAsync(List<KeyValuePair<ReportTask, ReportFragment>> reports)
         {
             static string P<T>(System.Linq.Expressions.Expression<Func<ReportEntity, T>> expression)
                 => "/" + expression.ParseProperty();
 
-            return _database.Reports.BatchAsync(reports, r => r.Key.SetId, (report, batch) =>
+            await _database.Reports.BatchWithRetryAsync(reports, r => r.Key.SetId, (report, batch) =>
             {
                 (ReportTask task, ReportFragment fragment) = report;
                 batch.PatchItem(task.Id, new[]
@@ -714,34 +700,31 @@ namespace Plag.Backend
                     PatchOperation.Set(P(r => r.Matches), fragment.Matches),
                 },
                 new() { EnableContentResponseOnWrite = false });
-            },
-            async (setid, models, resp) =>
+            });
+
+            var setAgg = reports.GroupBy(a => a.Key.SetId).Select(a => new { a.Key, Count = a.Count() });
+            await _database.Sets.BatchWithRetryAsync(MetadataEntity.SetsTypeKey, setAgg, (model, batch) =>
             {
-                await _database.Sets
-                    .Patch(setid, new PartitionKey(MetadataEntity.SetsTypeKey))
-                    .IncrementProperty(s => s.ReportPending, -models.Length)
-                    .ExecuteAsync();
+                batch.PatchItem(model.Key, new[]
+                {
+                    PatchOperation.Increment("/report_pending", -model.Count)
+                },
+                new() { EnableContentResponseOnWrite = false });
+            });
 
-                SetGuid setGuid = SetGuid.Parse(setid);
-                List<(int, double)> submitPercent =
-                    Enumerable.Concat(
-                        models.Select(a => new { SubmitId = a.Key.SubmissionA, a.Value.Percent }),
-                        models.Select(a => new { SubmitId = a.Key.SubmissionB, a.Value.Percent }))
-                    .GroupBy(a => a.SubmitId)
-                    .Select(a => (a.Key, a.Select(b => b.Percent).Max()))
-                    .ToList();
+            IEnumerable<(string, string, double)> submitPercent =
+                Enumerable.Concat(
+                    reports.Select(a => new { a.Key.SetId, SubmitId = a.Key.SubmissionA, a.Value.Percent }),
+                    reports.Select(a => new { a.Key.SetId, SubmitId = a.Key.SubmissionB, a.Value.Percent }))
+                .GroupBy(a => SubmissionGuid.FromStructured(SetGuid.Parse(a.SetId), a.SubmitId))
+                .Select(a => (a.Key.GetSetId().ToString(), a.Key.ToString(), a.Select(b => b.Percent).Max()));
 
-                await _database.Submissions.BatchAsync(
-                    setid,
-                    submitPercent,
-                    transactional: false,
-                    batchEntryBuilder: (sub, batch) =>
-                    {
-                        batch.PatchItem(
-                            SubmissionGuid.FromStructured(setGuid, sub.Item1).ToString(),
-                            new[] { PatchOperation.Set("/max_percent", sub.Item2) },
-                            new() { FilterPredicate = "FROM s WHERE s.max_percent < " + sub.Item2.ToJson(), EnableContentResponseOnWrite = false });
-                    });
+            await _database.Submissions.BatchWithRetryAsync(submitPercent, a => a.Item1, (submission, batch) =>
+            {
+                batch.PatchItem(
+                    submission.Item2,
+                    new[] { PatchOperation.Set("/max_percent", submission.Item3) },
+                    new() { FilterPredicate = "FROM s WHERE s.max_percent < " + submission.Item3.ToJson(), EnableContentResponseOnWrite = false });
             });
         }
 
