@@ -32,6 +32,8 @@ namespace Plag.Backend.Entities
 
         public bool Shared { get; set; }
 
+        public string SessionKey { get; set; }
+
         public Models.Report ToModel()
         {
             return new Models.Report

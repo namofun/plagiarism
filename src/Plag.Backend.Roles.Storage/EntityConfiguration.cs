@@ -65,6 +65,10 @@ namespace Plag.Backend
             entity.Property(e => e.TokensMatched).HasDefaultValue(0);
             entity.Property(e => e.Shared).HasDefaultValue(false);
 
+            entity.Property(e => e.SessionKey)
+                .IsUnicode(false)
+                .HasMaxLength(25);
+
             entity.HasOne<PlagiarismSet<Guid>>()
                 .WithMany()
                 .HasForeignKey(e => e.SetId)

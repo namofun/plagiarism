@@ -402,23 +402,34 @@ namespace Plag.Backend.Services
 
         public override async Task<List<ReportTask>> DequeueReportsBatchAsync(int batchSize = 20)
         {
-            var reports = await Reports.AsNoTracking()
-                .Where(r => r.Finished == null)
-                .Select(r => new { r.ExternalId, r.SetId, r.SubmissionA, r.SubmissionB })
-                .Take(batchSize)
-                .ToListAsync();
+            List<ReportTask> reportTasks = new();
+            string sessionKey = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
 
-            if (reports.Count == 0) return new List<ReportTask>();
+            int retry = 0;
+            while (reportTasks.Count == 0 && retry <= 2)
+            {
+                var reports = await Reports.AsNoTracking()
+                    .Where(r => r.Finished == null)
+                    .Select(r => new { r.ExternalId, r.SetId, r.SubmissionA, r.SubmissionB })
+                    .Take(batchSize)
+                    .ToListAsync();
 
-            List<Guid> extIds = reports.Select(s => s.ExternalId).ToList();
-            await Reports
-                .Where(o => extIds.Contains(o.ExternalId) && o.Finished == null)
-                .BatchUpdateAsync(r => new Report<Guid> { Finished = false });
+                if (reports.Count == 0) return reportTasks;
 
-            return reports
-                .Select(r => ReportTask<Guid>.Of(r.ExternalId, r.SetId, r.SubmissionA, r.SubmissionB))
-                .Cast<ReportTask>()
-                .ToList();
+                List<Guid> extIds = reports.Select(s => s.ExternalId).ToList();
+                await Reports
+                    .Where(o => extIds.Contains(o.ExternalId) && o.Finished == null)
+                    .BatchUpdateAsync(r => new() { Finished = false, SessionKey = sessionKey });
+
+                reports = await Reports.AsNoTracking()
+                    .Where(r => r.Finished == false && r.SessionKey == sessionKey)
+                    .Select(r => new { r.ExternalId, r.SetId, r.SubmissionA, r.SubmissionB })
+                    .ToListAsync();
+
+                reportTasks.AddRange(reports.Select(r => ReportTask<Guid>.Of(r.ExternalId, r.SetId, r.SubmissionA, r.SubmissionB)));
+            }
+
+            return reportTasks;
         }
 
         public override async Task<ReportTask> DequeueReportAsync()
@@ -500,6 +511,7 @@ namespace Plag.Backend.Services
                     PercentA = fragment.PercentA,
                     PercentB = fragment.PercentB,
                     Matches = fragment.Matches,
+                    SessionKey = null,
                 });
 
             var flattenV1 = flatten
