@@ -1,4 +1,4 @@
-version: '1.0'
+version: '3.1'
 
 services:
     pds:
@@ -7,12 +7,13 @@ services:
             dockerfile: Dockerfile
         image: namofun/pds:latest
         container_name: pds_app
+        restart: on-failure
         links:
             - mariadb
         environment:
-            - ConnectionStrings__UserDbConnection=Server=pds_mariadb;Port=3306;Database=pds;User=pds;Password=!!your_password!!;Character Set=utf8;TreatTinyAsBoolean=true;
-            - ConnectionStrings__UserDbConnectionType=MySql
-            - TZ=Asia/Shanghai
+            ConnectionStrings__UserDbConnection: 'Server=mariadb;Port=3306;Database=pds;User=pds;Password=!!your_password!!;Character Set=utf8;TreatTinyAsBoolean=true;'
+            ConnectionStrings__UserDbConnectionType: 'MySql'
+            TZ: 'Asia/Shanghai'
         ports:
             - 49846:80
 

@@ -36,7 +36,6 @@ namespace SatelliteSite
             }
             else if (args.Contains("--production"))
             {
-                Current.EnsureCreated<ProductionContext>();
                 Current.AutoMigrate<ProductionContext>();
             }
             else
