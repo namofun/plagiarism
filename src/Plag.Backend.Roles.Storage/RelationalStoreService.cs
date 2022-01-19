@@ -408,6 +408,8 @@ namespace Plag.Backend.Services
             int retry = 0;
             while (reportTasks.Count == 0 && retry <= 2)
             {
+                retry++;
+
                 var reports = await Reports.AsNoTracking()
                     .Where(r => r.Finished == null)
                     .Select(r => new { r.ExternalId, r.SetId, r.SubmissionA, r.SubmissionB })
@@ -579,7 +581,7 @@ namespace Plag.Backend.Services
 
             await Reports
                 .Where(r => r.Finished == false)
-                .BatchUpdateAsync(r => new() { Finished = null });
+                .BatchUpdateAsync(r => new() { Finished = null, SessionKey = null });
 
             await _signalProvider.SendRescueSignalAsync();
         }

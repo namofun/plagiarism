@@ -231,6 +231,7 @@ namespace Plag.Backend
 
             await _signalProvider.SendCompileSignalAsync();
 
+            s.Files = null;
             return s;
         }
 
