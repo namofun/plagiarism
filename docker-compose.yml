@@ -2,7 +2,10 @@ version: '1.0'
 
 services:
     pds:
-        image: xylab/pds
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: namofun/pds:latest
         container_name: pds_app
         links:
             - mariadb

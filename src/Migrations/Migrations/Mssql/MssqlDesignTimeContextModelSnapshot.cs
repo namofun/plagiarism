@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SatelliteSite;
 
+#nullable disable
+
 namespace SatelliteSite.Migrations.Mssql
 {
     [DbContext(typeof(MssqlDesignTimeContext))]
@@ -15,9 +17,10 @@ namespace SatelliteSite.Migrations.Mssql
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.13")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                .HasAnnotation("ProductVersion", "6.0.0")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
             modelBuilder.Entity("Plag.Backend.Entities.PlagiarismSet<System.Guid>", b =>
                 {
@@ -58,7 +61,7 @@ namespace SatelliteSite.Migrations.Mssql
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("PlagiarismSets");
+                    b.ToTable("PlagiarismSets", (string)null);
                 });
 
             modelBuilder.Entity("Plag.Backend.Entities.Report<System.Guid>", b =>
@@ -83,6 +86,9 @@ namespace SatelliteSite.Migrations.Mssql
                     b.Property<bool?>("Finished")
                         .HasColumnType("bit");
 
+                    b.Property<bool?>("Justification")
+                        .HasColumnType("bit");
+
                     b.Property<byte[]>("Matches")
                         .HasColumnType("varbinary(max)");
 
@@ -101,6 +107,16 @@ namespace SatelliteSite.Migrations.Mssql
                         .HasColumnType("float")
                         .HasDefaultValue(0.0);
 
+                    b.Property<string>("SessionKey")
+                        .HasMaxLength(25)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(25)");
+
+                    b.Property<bool>("Shared")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
                     b.Property<int>("TokensMatched")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
@@ -112,7 +128,7 @@ namespace SatelliteSite.Migrations.Mssql
 
                     b.HasIndex("SetId", "SubmissionB");
 
-                    b.ToTable("PlagiarismReports");
+                    b.ToTable("PlagiarismReports", (string)null);
                 });
 
             modelBuilder.Entity("Plag.Backend.Entities.Submission<System.Guid>", b =>
@@ -155,7 +171,7 @@ namespace SatelliteSite.Migrations.Mssql
 
                     b.HasKey("SetId", "Id");
 
-                    b.ToTable("PlagiarismSubmissions");
+                    b.ToTable("PlagiarismSubmissions", (string)null);
                 });
 
             modelBuilder.Entity("Plag.Backend.Entities.SubmissionFile<System.Guid>", b =>
@@ -177,7 +193,7 @@ namespace SatelliteSite.Migrations.Mssql
 
                     b.HasKey("SubmissionId", "FileId");
 
-                    b.ToTable("PlagiarismFiles");
+                    b.ToTable("PlagiarismFiles", (string)null);
                 });
 
             modelBuilder.Entity("Plag.Backend.Entities.Report<System.Guid>", b =>

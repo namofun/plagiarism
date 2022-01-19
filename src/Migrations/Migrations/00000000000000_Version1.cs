@@ -4,7 +4,7 @@ using System;
 
 namespace SatelliteSite.Migrations
 {
-    [DbContext(typeof(MysqlDesignTimeContext))]
+    [DbContext(typeof(ProductionContext))]
     [Migration("00000000000000_Version1")]
     public class Version1 : Migration
     {

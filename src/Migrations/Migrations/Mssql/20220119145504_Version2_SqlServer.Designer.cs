@@ -2,37 +2,42 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SatelliteSite;
 
-namespace SatelliteSite.Migrations.Mysql
+#nullable disable
+
+namespace SatelliteSite.Migrations.Mssql
 {
-    [DbContext(typeof(MysqlDesignTimeContext))]
-    [Migration("20210316133513_Version1_Mysql")]
-    partial class Version1_Mysql
+    [DbContext(typeof(MssqlDesignTimeContext))]
+    [Migration("20220119145504_Version2_SqlServer")]
+    partial class Version2_SqlServer
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.13")
-                .HasAnnotation("Relational:MaxIdentifierLength", 64);
+                .HasAnnotation("ProductVersion", "6.0.0")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
             modelBuilder.Entity("Plag.Backend.Entities.PlagiarismSet<System.Guid>", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int?>("ContestId")
                         .HasColumnType("int");
 
                     b.Property<DateTimeOffset>("CreateTime")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Name")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("ReportCount")
                         .HasColumnType("int");
@@ -58,13 +63,13 @@ namespace SatelliteSite.Migrations.Mysql
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("PlagiarismSets");
+                    b.ToTable("PlagiarismSets", (string)null);
                 });
 
             modelBuilder.Entity("Plag.Backend.Entities.Report<System.Guid>", b =>
                 {
                     b.Property<Guid>("SetId")
-                        .HasColumnType("char(36)");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("SubmissionA")
                         .HasColumnType("int");
@@ -78,28 +83,41 @@ namespace SatelliteSite.Migrations.Mysql
                         .HasDefaultValue(0);
 
                     b.Property<Guid>("ExternalId")
-                        .HasColumnType("char(36)");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool?>("Finished")
-                        .HasColumnType("tinyint(1)");
+                        .HasColumnType("bit");
+
+                    b.Property<bool?>("Justification")
+                        .HasColumnType("bit");
 
                     b.Property<byte[]>("Matches")
-                        .HasColumnType("longblob");
+                        .HasColumnType("varbinary(max)");
 
                     b.Property<double>("Percent")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("double")
+                        .HasColumnType("float")
                         .HasDefaultValue(0.0);
 
                     b.Property<double>("PercentA")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("double")
+                        .HasColumnType("float")
                         .HasDefaultValue(0.0);
 
                     b.Property<double>("PercentB")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("double")
+                        .HasColumnType("float")
                         .HasDefaultValue(0.0);
+
+                    b.Property<string>("SessionKey")
+                        .HasMaxLength(25)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(25)");
+
+                    b.Property<bool>("Shared")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<int>("TokensMatched")
                         .ValueGeneratedOnAdd()
@@ -112,72 +130,72 @@ namespace SatelliteSite.Migrations.Mysql
 
                     b.HasIndex("SetId", "SubmissionB");
 
-                    b.ToTable("PlagiarismReports");
+                    b.ToTable("PlagiarismReports", (string)null);
                 });
 
             modelBuilder.Entity("Plag.Backend.Entities.Submission<System.Guid>", b =>
                 {
                     b.Property<Guid>("SetId")
-                        .HasColumnType("char(36)");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Id")
                         .HasColumnType("int");
 
                     b.Property<string>("Error")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("ExclusiveCategory")
                         .HasColumnType("int");
 
                     b.Property<Guid>("ExternalId")
-                        .HasColumnType("char(36)");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("InclusiveCategory")
                         .HasColumnType("int");
 
                     b.Property<string>("Language")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<double>("MaxPercent")
-                        .HasColumnType("double");
+                        .HasColumnType("float");
 
                     b.Property<string>("Name")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool?>("TokenProduced")
-                        .HasColumnType("tinyint(1)");
+                        .HasColumnType("bit");
 
                     b.Property<byte[]>("Tokens")
-                        .HasColumnType("longblob");
+                        .HasColumnType("varbinary(max)");
 
                     b.Property<DateTimeOffset>("UploadTime")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("datetimeoffset");
 
                     b.HasKey("SetId", "Id");
 
-                    b.ToTable("PlagiarismSubmissions");
+                    b.ToTable("PlagiarismSubmissions", (string)null);
                 });
 
             modelBuilder.Entity("Plag.Backend.Entities.SubmissionFile<System.Guid>", b =>
                 {
                     b.Property<Guid>("SubmissionId")
-                        .HasColumnType("char(36)");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("FileId")
                         .HasColumnType("int");
 
                     b.Property<string>("Content")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FileName")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FilePath")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("SubmissionId", "FileId");
 
-                    b.ToTable("PlagiarismFiles");
+                    b.ToTable("PlagiarismFiles", (string)null);
                 });
 
             modelBuilder.Entity("Plag.Backend.Entities.Report<System.Guid>", b =>
