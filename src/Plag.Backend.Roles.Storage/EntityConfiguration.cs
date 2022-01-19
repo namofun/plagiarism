@@ -63,6 +63,7 @@ namespace Plag.Backend
             entity.Property(e => e.PercentA).HasDefaultValue(0.0);
             entity.Property(e => e.PercentB).HasDefaultValue(0.0);
             entity.Property(e => e.TokensMatched).HasDefaultValue(0);
+            entity.Property(e => e.Shared).HasDefaultValue(false);
 
             entity.HasOne<PlagiarismSet<Guid>>()
                 .WithMany()
