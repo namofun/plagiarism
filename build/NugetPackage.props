@@ -5,7 +5,7 @@
   <PropertyGroup>
     <Authors>yang-er</Authors>
     <Description>UI kit for ASP.NET Core with moduling support. $(DescriptionAttach)</Description>
-    <PackageVersion>1.2.$(PreviewBuild)</PackageVersion>
+    <PackageVersion>1.3.$(PreviewBuild)</PackageVersion>
     <Version>$(PackageVersion)</Version>
     <AssemblyVersion>$(PackageVersion).0</AssemblyVersion>
     <FileVersion>$(PackageVersion).0</FileVersion>
