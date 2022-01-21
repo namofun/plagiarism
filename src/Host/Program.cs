@@ -173,7 +173,7 @@ namespace SatelliteSite
                 host.AddModule<HostModule>();
             }
 
-            if (args.Contains("--production") || args.Contains("--cosmos"))
+            if (args.Contains("--production") || args.Contains("--cosmos") || args.Contains("--restful"))
             {
                 return host.ConfigureSubstrateDefaultsCore();
             }

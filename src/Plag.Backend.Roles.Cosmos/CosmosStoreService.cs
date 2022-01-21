@@ -246,6 +246,11 @@ namespace Plag.Backend
             string order = "id",
             bool asc = true)
         {
+            if (!SetGuid.TryParse(setid, out var setGuid))
+            {
+                throw new KeyNotFoundException();
+            }
+
             if (skip.HasValue != limit.HasValue)
             {
                 throw new ArgumentOutOfRangeException(nameof(skip), "Must specify skip and limit at the same time when querying sets.");
@@ -291,7 +296,7 @@ namespace Plag.Backend
                 param["limit"] = limit.Value;
             }
 
-            return await _database.Submissions.GetListAsync<Submission>(query, param);
+            return await _database.Submissions.GetListAsync<Submission>(query, param, new(setGuid.ToString()));
         }
 
         public async Task<IReadOnlyList<PlagiarismSet>> ListSetsAsync(
