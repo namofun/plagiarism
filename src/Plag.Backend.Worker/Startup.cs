@@ -1,6 +1,9 @@
 ﻿using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+using Microsoft.Azure.WebJobs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Plag.Backend.Jobs;
+using System.Threading.Tasks;
 
 [assembly: FunctionsStartup(typeof(Plag.Backend.Worker.Startup))]
 
@@ -36,6 +39,22 @@ namespace Plag.Backend.Worker
                 : base(options)
             {
             }
+        }
+    }
+
+    internal class AsyncCollectorSignalBroker : ISignalBroker
+    {
+        private readonly IAsyncCollector<string> _asyncCollector;
+
+        public AsyncCollectorSignalBroker(IAsyncCollector<string> asyncCollector)
+        {
+            _asyncCollector = asyncCollector;
+        }
+
+        public async Task FireAsync(string signal)
+        {
+            await _asyncCollector.AddAsync(signal);
+            await _asyncCollector.FlushAsync();
         }
     }
 }

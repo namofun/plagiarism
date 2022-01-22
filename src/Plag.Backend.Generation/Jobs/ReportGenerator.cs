@@ -112,11 +112,11 @@ namespace Plag.Backend.Jobs
         /// </summary>
         /// <param name="context">The database context for job scheduling.</param>
         /// <param name="lru">The LRU store.</param>
-        /// <returns>Whether any report is proceeded.</returns>
-        public async Task<bool> DoWorkBatchAsync(IJobContext context, LruStore<(string, int), (Submission, Frontend.Submission)> lru)
+        /// <returns>Count of reports proceeded.</returns>
+        public async Task<int> DoWorkBatchAsync(IJobContext context, LruStore<(string, int), (Submission, Frontend.Submission)> lru)
         {
             var tasks = await context.DequeueReportsBatchAsync();
-            if (tasks.Count == 0) return false;
+            if (tasks.Count == 0) return 0;
 
             await lru.LoadBatchAsync(
                 tasks.Select(r => (r.SetId, r.SubmissionA))
@@ -137,7 +137,7 @@ namespace Plag.Backend.Jobs
             }
 
             await context.SaveReportsAsync(batch);
-            return true;
+            return batch.Count;
         }
     }
 }

@@ -32,7 +32,7 @@ namespace Plag.Backend.Jobs
             while (!stoppingToken.IsCancellationRequested)
             {
                 if (!(_options.UseBatchInReport
-                    ? await _generator.DoWorkBatchAsync(context, lru)
+                    ? 0 < await _generator.DoWorkBatchAsync(context, lru)
                     : await _generator.DoWorkAsync(context, lru)))
                 {
                     break;
