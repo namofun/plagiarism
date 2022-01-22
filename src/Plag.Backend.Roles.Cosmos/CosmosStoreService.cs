@@ -257,7 +257,7 @@ namespace Plag.Backend
             }
 
             string query =
-                "SELECT c.setid, c.submitid, c.externalid, c.upload_time, " +
+                "SELECT c.setid, c.submitid, c.id, c.upload_time, " +
                       " c.exclusive_category, c.inclusive_category, c.language, " +
                       " c.name, c.max_percent, c.token_produced " +
                 "FROM Submissions c WHERE c.type = \"submission\"";
