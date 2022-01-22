@@ -4,7 +4,7 @@
     <OutputType>Library</OutputType>
     <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>Plag.Backend</RootNamespace>
-    <DescriptionAttach>The role for relational storage backend services</DescriptionAttach>
+    <DescriptionAttach>The role for relational SQL database storage and services</DescriptionAttach>
   </PropertyGroup>
 
   <Import Project="..\..\build\NugetPackage.Backend.props" />
