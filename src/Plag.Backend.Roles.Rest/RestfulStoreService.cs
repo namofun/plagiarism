@@ -77,12 +77,12 @@ namespace Plag.Backend.Services
         public Task<PlagiarismSet> CreateSetAsync(SetCreation metadata)
             => Client.PostAsync<PlagiarismSet>(
                 "/sets",
-                Client.JsonContent(metadata));
+                RestfulClient.JsonContent(metadata));
 
         public Task<Submission> SubmitAsync(SubmissionCreation submission)
             => Client.PostAsync<Submission>(
                 $"/sets/{UrlEncoder.Default.Encode(submission.SetId)}/submissions",
-                Client.JsonContent(submission));
+                RestfulClient.JsonContent(submission));
 
         public Task RescueAsync()
             => Client.PostAsync<ServiceVersion>(

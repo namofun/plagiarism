@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Options;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
@@ -14,16 +15,21 @@ namespace Plag.Backend.Services
 
         public HttpClient Client { get; }
 
-        public JsonSerializerOptions Options { get; }
+        public PlagRestfulOptions Options { get; }
 
-        public RestfulClient(HttpClient client)
+        public RestfulClient(HttpClient client, IOptions<PlagRestfulOptions> options)
         {
             Client = client;
-            Options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            Options = options.Value;
         }
 
         private async Task<T> SendAsync<T>(HttpRequestMessage request) where T : class
         {
+            if (Options.Preprocessor != null)
+            {
+                await Options.Preprocessor.Invoke(request);
+            }
+
             using var resp = await Client.SendAsync(request);
 
             if (resp.StatusCode == HttpStatusCode.NotFound)
@@ -33,7 +39,7 @@ namespace Plag.Backend.Services
             else if (resp.StatusCode == HttpStatusCode.OK || resp.StatusCode == HttpStatusCode.Created)
             {
                 using var stream = await resp.Content.ReadAsStreamAsync();
-                return await JsonSerializer.DeserializeAsync<T>(stream, Options);
+                return await JsonSerializer.DeserializeAsync<T>(stream, Options.JsonSerializerOptions);
             }
             else if (resp.StatusCode == HttpStatusCode.BadRequest)
             {
@@ -42,6 +48,10 @@ namespace Plag.Backend.Services
             else if (resp.StatusCode == HttpStatusCode.InternalServerError)
             {
                 throw new ApplicationException();
+            }
+            else if (resp.StatusCode == HttpStatusCode.ServiceUnavailable)
+            {
+                throw new HttpRequestException();
             }
 
             throw new NotImplementedException();
@@ -67,7 +77,7 @@ namespace Plag.Backend.Services
             return SendAsync<T>(new HttpRequestMessage(new HttpMethod("PATCH"), "/api/plagiarism" + url) { Content = body });
         }
 
-        public HttpContent JsonContent<T>(T value)
+        public static HttpContent JsonContent<T>(T value)
         {
             var content = JsonSerializer.SerializeToUtf8Bytes(value);
             var body = new ByteArrayContent(content);
