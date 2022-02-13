@@ -22,7 +22,6 @@ namespace Plag.Backend
         {
             services.AddPlagGenerationService();
 
-            services.TryAddSingleton(typeof(IResettableSignal<>), typeof(SemaphoreSlimResettableSignal<>));
             services.AddHostedService<SubmissionTokenizeService>();
             services.AddHostedService<ReportGenerationService>();
             services.AddSingleton<ILanguageProvider, LocalLanguageProvider>();

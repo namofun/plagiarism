@@ -1,9 +1,16 @@
 ﻿<Project>
+
   <PropertyGroup>
     <GitRepositoryDirectory>$(MSBuildThisFileDirectory).git</GitRepositoryDirectory>
-    <SubstrateVersion>1.0.42</SubstrateVersion>
+    <SubstrateVersion>1.1.43</SubstrateVersion>
     <AspNetCoreVersion>6.0.0</AspNetCoreVersion>
-    <EFCoreBulkVersion>6.0.28</EFCoreBulkVersion>
+    <EFCoreBulkVersion>6.0.29</EFCoreBulkVersion>
     <AzureCosmosSdkVersion>3.23.0</AzureCosmosSdkVersion>
   </PropertyGroup>
+
+  <PropertyGroup>
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)build\xylab.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
 </Project>

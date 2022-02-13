@@ -15,7 +15,7 @@
     <ProjectReference Include="..\Plag.Backend.Roles.Rest\Plag.Backend.Roles.Rest.csproj" />
     <ProjectReference Include="..\Plag.Backend.Roles.Storage\Plag.Backend.Roles.Storage.csproj" />
     <PackageReference Include="SatelliteSite.HostBuilder" Version="$(SubstrateVersion)" />
-    <PackageReference Include="SatelliteSite.TelemetryModule" Version="$(SubstrateVersion)" />
+    <PackageReference Include="SatelliteSite.AzureCloud" Version="$(SubstrateVersion)" />
     <PackageReference Include="XiaoYang.EntityFrameworkCore.Bulk.SqlServer" Version="$(EFCoreBulkVersion)" />
     <PackageReference Include="XiaoYang.EntityFrameworkCore.Bulk.PostgreSql" Version="$(EFCoreBulkVersion)" />
     <PackageReference Include="XiaoYang.EntityFrameworkCore.Bulk.MySql" Version="$(EFCoreBulkVersion)" />

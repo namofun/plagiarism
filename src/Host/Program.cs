@@ -129,7 +129,7 @@ namespace SatelliteSite
 
             if (Debugger.IsAttached)
             {
-                host.AddModule<TelemetryModule.TelemetryModule>();
+                host.AddApplicationInsights();
             }
 
             if (args.Contains("--production"))
