@@ -1,3 +1,4 @@
+using Azure.Identity;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -63,6 +64,18 @@ namespace SatelliteSite
             else if (args.Contains("--restful"))
             {
                 host.AddModule<PlagModule.PlagModule<RestfulBackendRole>>();
+
+                host.ConfigureServices((context, services) =>
+                {
+                    if (context.GetConnectionString("PlagiarismBackendServer") == "https://pds.xylab.fun/")
+                    {
+                        services.AddHttpClient<RestfulClient>()
+                            .AddAzureAuthHandler(new[] { "api://pds.xylab.fun/.default" });
+
+                        services.AddOptions<DefaultAzureCredentialOptions>()
+                            .Configure(options => options.VisualStudioTenantId = "65f7f058-fc47-4803-b7f6-1dd03a071b50");
+                    }
+                });
             }
             else
             {
