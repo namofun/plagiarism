@@ -2,10 +2,10 @@
 
   <PropertyGroup>
     <GitRepositoryDirectory>$(MSBuildThisFileDirectory).git</GitRepositoryDirectory>
-    <SubstrateVersion>1.1.43</SubstrateVersion>
+    <SubstrateVersion>1.1.44</SubstrateVersion>
     <AspNetCoreVersion>6.0.0</AspNetCoreVersion>
     <EFCoreBulkVersion>6.0.29</EFCoreBulkVersion>
-    <AzureCosmosSdkVersion>3.23.0</AzureCosmosSdkVersion>
+    <AzureCosmosSdkVersion>3.24.0</AzureCosmosSdkVersion>
   </PropertyGroup>
 
   <PropertyGroup>
