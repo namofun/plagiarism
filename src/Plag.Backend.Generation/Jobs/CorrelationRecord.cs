@@ -1,7 +1,7 @@
 ﻿#nullable enable
 using System;
 
-namespace Plag.Backend.Jobs
+namespace Xylab.PlagiarismDetect.Backend.Jobs
 {
     public static class CorrelationRecord
     {

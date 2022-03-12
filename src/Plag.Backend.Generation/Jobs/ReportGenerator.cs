@@ -1,12 +1,12 @@
 ﻿using Microsoft.Extensions.Logging;
-using Plag.Backend.Models;
-using Plag.Backend.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Xylab.PlagiarismDetect.Backend.Models;
+using Xylab.PlagiarismDetect.Backend.Services;
 
-namespace Plag.Backend.Jobs
+namespace Xylab.PlagiarismDetect.Backend.Jobs
 {
     /// <summary>
     /// The report generating core logic.

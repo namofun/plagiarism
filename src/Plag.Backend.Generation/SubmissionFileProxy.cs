@@ -1,11 +1,11 @@
 ﻿using Antlr4.Runtime;
-using Plag.Backend.Models;
+using Xylab.PlagiarismDetect.Backend.Models;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Plag.Frontend
+namespace Xylab.PlagiarismDetect.Frontend
 {
     public class SubmissionFileProxy : ISubmissionFile
     {

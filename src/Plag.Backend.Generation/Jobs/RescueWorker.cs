@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
-namespace Plag.Backend.Jobs
+namespace Xylab.PlagiarismDetect.Backend.Jobs
 {
     public static class RescueWorker
     {

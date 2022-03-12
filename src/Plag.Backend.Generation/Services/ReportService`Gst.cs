@@ -1,12 +1,12 @@
-﻿using Plag.Frontend;
+﻿using Xylab.PlagiarismDetect.Frontend;
 
-namespace Plag.Backend.Services
+namespace Xylab.PlagiarismDetect.Backend.Services
 {
     public class GstReportService : IReportService
     {
         public Matching Generate(Submission subA, Submission subB)
         {
-            return GSTiling.Compare(subA, subB, subA.Language.MinimalTokenMatch);
+            return GreedyStringTiling.Compare(subA, subB, subA.Language.MinimalTokenMatch);
         }
     }
 }

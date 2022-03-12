@@ -1,9 +1,9 @@
-﻿using Plag.Frontend;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using Xylab.PlagiarismDetect.Frontend;
 
-namespace Plag.Backend.Services
+namespace Xylab.PlagiarismDetect.Backend.Services
 {
     public class DefaultConvertService2 : DefaultConvertService, IConvertService2
     {

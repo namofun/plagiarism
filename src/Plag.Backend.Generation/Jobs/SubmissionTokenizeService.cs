@@ -1,12 +1,12 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Primitives;
-using Plag.Backend.Services;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Xylab.PlagiarismDetect.Backend.Services;
 
-namespace Plag.Backend.Jobs
+namespace Xylab.PlagiarismDetect.Backend.Jobs
 {
     public class SubmissionTokenizeService : BackgroundNotifiableService<SubmissionTokenizeService>
     {

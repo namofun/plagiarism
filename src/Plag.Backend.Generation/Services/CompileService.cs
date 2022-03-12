@@ -1,8 +1,8 @@
 ﻿#nullable enable
-using Plag.Frontend;
 using System.Collections.Generic;
+using Xylab.PlagiarismDetect.Frontend;
 
-namespace Plag.Backend.Services
+namespace Xylab.PlagiarismDetect.Backend.Services
 {
     /// <summary>
     /// The backend service for compilation.

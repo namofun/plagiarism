@@ -1,4 +1,4 @@
-﻿namespace Plag.Backend.Jobs
+﻿namespace Xylab.PlagiarismDetect.Backend.Jobs
 {
     public class BackgroundServiceOptions
     {

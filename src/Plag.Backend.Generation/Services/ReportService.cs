@@ -1,6 +1,6 @@
-﻿using Plag.Frontend;
+﻿using Xylab.PlagiarismDetect.Frontend;
 
-namespace Plag.Backend.Services
+namespace Xylab.PlagiarismDetect.Backend.Services
 {
     /// <summary>
     /// The service to generate plagiarism detection report.

@@ -1,7 +1,7 @@
-﻿using Plag.Frontend;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Xylab.PlagiarismDetect.Frontend;
 
-namespace Plag.Backend.Services
+namespace Xylab.PlagiarismDetect.Backend.Services
 {
     /// <summary>
     /// Conversion between entities and runtime poco.

@@ -1,7 +1,7 @@
-﻿using Plag.Backend.Services;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Xylab.PlagiarismDetect.Backend.Services;
 
-namespace Plag.Backend.Jobs
+namespace Xylab.PlagiarismDetect.Backend.Jobs
 {
     public interface ISignalBroker
     {

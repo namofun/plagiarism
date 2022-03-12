@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Primitives;
-using Plag.Backend.Jobs;
 using System.Threading.Tasks;
+using Xylab.PlagiarismDetect.Backend.Jobs;
 
-namespace Plag.Backend.Services
+namespace Xylab.PlagiarismDetect.Backend.Services
 {
     public class BackgroundServiceSignalProvider : ISignalProvider
     {

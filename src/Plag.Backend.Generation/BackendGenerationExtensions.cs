@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
-using Plag.Backend.Jobs;
-using Plag.Backend.Services;
+using Xylab.PlagiarismDetect.Backend.Jobs;
+using Xylab.PlagiarismDetect.Backend.Services;
 
-namespace Plag.Backend
+namespace Xylab.PlagiarismDetect.Backend
 {
     public static class BackendGenerationExtensions
     {
