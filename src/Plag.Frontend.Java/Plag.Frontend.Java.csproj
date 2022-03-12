@@ -3,6 +3,8 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFramework>net6.0</TargetFramework>
+    <RootNamespace>Xylab.PlagiarismDetect.Frontend</RootNamespace>
+    <AssemblyName>Xylab.PlagiarismDetect.Frontend.Java</AssemblyName>
     <AntlrGeneratedNamespace>Antlr4.Grammar.Java</AntlrGeneratedNamespace>
     <DescriptionAttach>The Java 9 Frontend</DescriptionAttach>
   </PropertyGroup>

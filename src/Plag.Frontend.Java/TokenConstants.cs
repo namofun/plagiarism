@@ -1,4 +1,4 @@
-﻿namespace Plag.Frontend.Java
+﻿namespace Xylab.PlagiarismDetect.Frontend.Java
 {
     public enum TokenConstants : int
     {

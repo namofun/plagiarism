@@ -4,7 +4,7 @@ using Antlr4.Runtime.Tree;
 using System.Runtime.CompilerServices;
 using static Antlr4.Grammar.Java.Java9Parser;
 
-namespace Plag.Frontend.Java
+namespace Xylab.PlagiarismDetect.Frontend.Java
 {
     public class JplagListener : Java9BaseListener
     {
