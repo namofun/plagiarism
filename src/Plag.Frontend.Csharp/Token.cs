@@ -1,8 +1,8 @@
 ﻿using Antlr4.Runtime;
 
-namespace Plag.Frontend.Csharp
+namespace Xylab.PlagiarismDetect.Frontend.Csharp
 {
-	public class Token : Plag.Frontend.Token
+	public class Token : Frontend.Token
 	{
 		public Token(TokenConstants type, int line, int start, int end, int fid) :
 			base((int)type, line, start, end - start + 1, fid) { }

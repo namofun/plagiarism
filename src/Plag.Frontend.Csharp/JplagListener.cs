@@ -4,7 +4,7 @@ using Antlr4.Runtime.Tree;
 using System.Runtime.CompilerServices;
 using static Antlr4.Grammar.Csharp.CSharpParser;
 
-namespace Plag.Frontend.Csharp
+namespace Xylab.PlagiarismDetect.Frontend.Csharp
 {
     public class JplagListener : CSharpParserBaseListener
     {

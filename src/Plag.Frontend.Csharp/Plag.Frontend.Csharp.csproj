@@ -3,6 +3,8 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFramework>net6.0</TargetFramework>
+    <RootNamespace>Xylab.PlagiarismDetect.Frontend</RootNamespace>
+    <AssemblyName>Xylab.PlagiarismDetect.Frontend.Csharp</AssemblyName>
     <AntlrGeneratedNamespace>Antlr4.Grammar.Csharp</AntlrGeneratedNamespace>
     <DescriptionAttach>The C# 8.0 Frontend</DescriptionAttach>
   </PropertyGroup>

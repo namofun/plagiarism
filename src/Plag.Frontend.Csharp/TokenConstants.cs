@@ -1,4 +1,4 @@
-﻿namespace Plag.Frontend.Csharp
+﻿namespace Xylab.PlagiarismDetect.Frontend.Csharp
 {
     public enum TokenConstants : int
     {
