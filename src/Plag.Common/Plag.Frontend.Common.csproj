@@ -3,7 +3,8 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFramework>net6.0</TargetFramework>
-    <RootNamespace>Plag.Frontend</RootNamespace>
+    <RootNamespace>Xylab.PlagiarismDetect.Frontend</RootNamespace>
+    <AssemblyName>Xylab.PlagiarismDetect.Frontend.Common</AssemblyName>
     <DescriptionAttach>The common libraries between algorithms and frontends</DescriptionAttach>
   </PropertyGroup>
 

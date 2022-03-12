@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Plag.Frontend
+namespace Xylab.PlagiarismDetect.Frontend
 {
     /// <summary>
     /// Hash table implemented by JPlag

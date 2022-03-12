@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Plag.Frontend
+namespace Xylab.PlagiarismDetect.Frontend
 {
     public class SubmissionComposite : List<ISubmissionFile>, ISubmissionFile
     {

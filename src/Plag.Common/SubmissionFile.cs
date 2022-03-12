@@ -1,7 +1,7 @@
 ﻿using Antlr4.Runtime;
 using System.Collections.Generic;
 
-namespace Plag.Frontend
+namespace Xylab.PlagiarismDetect.Frontend
 {
     public interface ISubmissionFile : IEnumerable<ISubmissionFile>
     {

@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO.Compression;
 
-namespace Plag.Frontend
+namespace Xylab.PlagiarismDetect.Frontend
 {
     public class SubmissionZipArchiveEntry : ISubmissionFile
     {
