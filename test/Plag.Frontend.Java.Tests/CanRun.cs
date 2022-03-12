@@ -1,8 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.IO;
-using System.Text;
 
-namespace Plag.Frontend.Java.Tests
+namespace Xylab.PlagiarismDetect.Frontend.Java.Tests
 {
     [TestClass]
     public class CanRun

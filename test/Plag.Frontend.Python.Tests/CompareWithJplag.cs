@@ -1,8 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.IO;
-using System.Text;
 
-namespace Plag.Frontend.Python.Tests
+namespace Xylab.PlagiarismDetect.Frontend.Python.Tests
 {
     [TestClass]
     public class CompareWithJplag

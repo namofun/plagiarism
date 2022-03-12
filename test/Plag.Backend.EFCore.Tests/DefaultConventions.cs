@@ -1,12 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Plag.Backend.Services;
 using SatelliteSite.Services;
 using System;
 using System.Threading.Tasks;
 using Xunit;
+using Xylab.PlagiarismDetect.Backend.Services;
 
-namespace Plag.Backend.Tests
+namespace Xylab.PlagiarismDetect.Backend.Tests
 {
     public class Database : DbContext
     {

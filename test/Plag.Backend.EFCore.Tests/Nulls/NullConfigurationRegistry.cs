@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Plag.Backend.Tests
+namespace Xylab.PlagiarismDetect.Backend.Tests
 {
     internal class NullConfigurationRegistry : IConfigurationRegistry
     {

@@ -1,8 +1,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Plag.Frontend;
 using System;
+using Xylab.PlagiarismDetect.Frontend;
 
-namespace Plag.Integration.Tests
+namespace Xylab.PlagiarismDetect.Integration.Tests
 {
     [TestClass]
     public class CompareAndMatch
@@ -164,7 +164,7 @@ int main()
 -2
 4 2 -2
 */",
-            typeof(Plag.Frontend.Cpp.Language))]
+            typeof(Frontend.Cpp.Language))]
 
         [DataRow(
             @"#include<iostream>
@@ -321,7 +321,7 @@ int main()
     e = NULL,w=NULL,root=NULL;
 	return 0;
 }",
-            typeof(Plag.Frontend.Cpp.Language))]
+            typeof(Frontend.Cpp.Language))]
 
         [DataRow(
             @"using System;
@@ -372,7 +372,7 @@ namespace Problem_1
     }
 }
 ",
-            typeof(Plag.Frontend.Csharp.Language))]
+            typeof(Frontend.Csharp.Language))]
 
         [TestMethod]
         public void DefaultCompare(string submit1, string submit2, Type language)
@@ -380,7 +380,7 @@ namespace Problem_1
             var lang = (ILanguage)Activator.CreateInstance(language);
             var sub1 = new Submission(lang, new SubmissionString("A.cpp", submit1));
             var sub2 = new Submission(lang, new SubmissionString("B.cpp", submit2));
-            var compareResult = GSTiling.Compare(sub1, sub2, lang.MinimalTokenMatch);
+            var compareResult = GreedyStringTiling.Compare(sub1, sub2, lang.MinimalTokenMatch);
         }
     }
 }

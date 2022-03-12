@@ -1,7 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Runtime.InteropServices;
 
-namespace Plag.Frontend.Csharp.Tests
+namespace Xylab.PlagiarismDetect.Frontend.Csharp.Tests
 {
     [TestClass]
     public class CanRun

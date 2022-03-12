@@ -1,8 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.IO;
-using System.Text;
 
-namespace Plag.Frontend.Cpp.Tests
+namespace Xylab.PlagiarismDetect.Frontend.Cpp.Tests
 {
     [TestClass]
     public class CompareWithJPlag

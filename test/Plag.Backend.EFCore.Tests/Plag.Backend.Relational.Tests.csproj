@@ -3,6 +3,8 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <IsPackable>false</IsPackable>
+    <RootNamespace>Xylab.PlagiarismDetect.$(MSBuildProjectName.Substring(5))</RootNamespace>
+    <AssemblyName>Xylab.PlagiarismDetect.$(MSBuildProjectName.Substring(5))</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
