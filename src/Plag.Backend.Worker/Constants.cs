@@ -1,4 +1,4 @@
-﻿namespace Plag.Backend.Worker
+﻿namespace Xylab.PlagiarismDetect.Backend.Worker
 {
     internal class Constants
     {

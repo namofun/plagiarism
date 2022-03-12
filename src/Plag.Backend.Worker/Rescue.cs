@@ -4,7 +4,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
-namespace Plag.Backend.Worker
+namespace Xylab.PlagiarismDetect.Backend.Worker
 {
     public class Rescue
     {

@@ -2,12 +2,12 @@
 using Microsoft.Azure.WebJobs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Plag.Backend.Jobs;
+using Xylab.PlagiarismDetect.Backend.Jobs;
 using System.Threading.Tasks;
 
-[assembly: FunctionsStartup(typeof(Plag.Backend.Worker.Startup))]
+[assembly: FunctionsStartup(typeof(Xylab.PlagiarismDetect.Backend.Worker.Startup))]
 
-namespace Plag.Backend.Worker
+namespace Xylab.PlagiarismDetect.Backend.Worker
 {
     internal class Startup : FunctionsStartup
     {

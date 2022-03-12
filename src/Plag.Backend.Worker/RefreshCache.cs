@@ -2,10 +2,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
-using Plag.Backend.Services;
 using System.Threading.Tasks;
+using Xylab.PlagiarismDetect.Backend.Services;
 
-namespace Plag.Backend.Worker
+namespace Xylab.PlagiarismDetect.Backend.Worker
 {
     public class RefreshCache
     {
