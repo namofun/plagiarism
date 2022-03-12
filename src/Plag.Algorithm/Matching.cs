@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Plag.Frontend
+namespace Xylab.PlagiarismDetect.Frontend
 {
     public class Matching : IEnumerable<MatchPair>
     {

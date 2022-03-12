@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Plag.Frontend
+namespace Xylab.PlagiarismDetect.Frontend
 {
     public class Submission
     {

@@ -1,4 +1,4 @@
-﻿namespace Plag.Frontend
+﻿namespace Xylab.PlagiarismDetect.Frontend
 {
     public struct MatchPair
     {

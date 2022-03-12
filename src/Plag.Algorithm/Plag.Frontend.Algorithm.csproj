@@ -3,7 +3,8 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFramework>net6.0</TargetFramework>
-    <RootNamespace>Plag.Frontend</RootNamespace>
+    <RootNamespace>Xylab.PlagiarismDetect.Frontend</RootNamespace>
+    <AssemblyName>Xylab.PlagiarismDetect.Frontend.Algorithm</AssemblyName>
     <DescriptionAttach>The algorithm to calculate the similarity</DescriptionAttach>
   </PropertyGroup>
 

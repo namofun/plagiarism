@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace Plag.Frontend
+namespace Xylab.PlagiarismDetect.Frontend
 {
-    public static class GSTiling
+    public static class GreedyStringTiling
     {
         /// <summary>
         /// creating hashes.
