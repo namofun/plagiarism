@@ -3,6 +3,8 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFramework>net6.0</TargetFramework>
+    <RootNamespace>Xylab.PlagiarismDetect.Frontend</RootNamespace>
+    <AssemblyName>Xylab.PlagiarismDetect.Frontend.Cpp</AssemblyName>
     <AntlrGeneratedNamespace>Antlr4.Grammar.Cpp</AntlrGeneratedNamespace>
     <DescriptionAttach>The C++ 14 Frontend</DescriptionAttach>
   </PropertyGroup>

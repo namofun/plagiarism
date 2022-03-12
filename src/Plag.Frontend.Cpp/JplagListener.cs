@@ -3,7 +3,7 @@ using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 using System.Runtime.CompilerServices;
 
-namespace Plag.Frontend.Cpp
+namespace Xylab.PlagiarismDetect.Frontend.Cpp
 {
     public class JplagListener : CPP14BaseListener
     {

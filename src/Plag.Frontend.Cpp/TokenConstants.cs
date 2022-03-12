@@ -1,4 +1,4 @@
-﻿namespace Plag.Frontend.Cpp
+﻿namespace Xylab.PlagiarismDetect.Frontend.Cpp
 {
     public enum TokenConstants : int
     {
