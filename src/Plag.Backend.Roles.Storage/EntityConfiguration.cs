@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Plag.Backend.Entities;
 using System;
+using Xylab.PlagiarismDetect.Backend.Entities;
 
-namespace Plag.Backend
+namespace Xylab.PlagiarismDetect.Backend
 {
     public class PlagEntityConfiguration<TContext> :
         EntityTypeConfigurationSupplier<TContext>,

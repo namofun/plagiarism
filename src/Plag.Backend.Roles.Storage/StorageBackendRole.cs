@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Plag.Backend.Services;
+using Xylab.PlagiarismDetect.Backend.Services;
 
-namespace Plag.Backend
+namespace Xylab.PlagiarismDetect.Backend
 {
     public class StorageBackendRole<TContext> : IBackendRoleStrategy
         where TContext : DbContext

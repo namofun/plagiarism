@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Plag.Backend.Entities
+namespace Xylab.PlagiarismDetect.Backend.Entities
 {
     public class PlagiarismSet<TKey> where TKey : IEquatable<TKey>
     {

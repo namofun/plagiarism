@@ -1,15 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Plag.Backend.Entities;
-using Plag.Backend.Models;
 using SatelliteSite.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Xylab.PlagiarismDetect.Backend.Entities;
+using Xylab.PlagiarismDetect.Backend.Models;
 
-namespace Plag.Backend.Services
+namespace Xylab.PlagiarismDetect.Backend.Services
 {
     public class EntityFrameworkCoreStoreService<TContext> : PdsServiceBase<Guid>
         where TContext : DbContext

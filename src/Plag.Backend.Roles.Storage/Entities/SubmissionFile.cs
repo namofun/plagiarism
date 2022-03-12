@@ -1,8 +1,8 @@
-﻿using Plag.Backend.Models;
-using System;
+﻿using System;
 using System.Text.Json.Serialization;
+using Xylab.PlagiarismDetect.Backend.Models;
 
-namespace Plag.Backend.Entities
+namespace Xylab.PlagiarismDetect.Backend.Entities
 {
     public class SubmissionFile<TKey> : SubmissionFile where TKey : IEquatable<TKey>
     {

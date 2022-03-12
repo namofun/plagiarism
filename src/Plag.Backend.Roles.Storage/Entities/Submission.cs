@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
-namespace Plag.Backend.Entities
+namespace Xylab.PlagiarismDetect.Backend.Entities
 {
     public class Submission<TKey> where TKey : IEquatable<TKey>
     {

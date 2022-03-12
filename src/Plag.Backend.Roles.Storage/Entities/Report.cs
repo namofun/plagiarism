@@ -1,8 +1,8 @@
 ﻿using System;
-using ReportJustification = Plag.Backend.Models.ReportJustification;
-using ReportState = Plag.Backend.Models.ReportState;
+using ReportJustification = Xylab.PlagiarismDetect.Backend.Models.ReportJustification;
+using ReportState = Xylab.PlagiarismDetect.Backend.Models.ReportState;
 
-namespace Plag.Backend.Entities
+namespace Xylab.PlagiarismDetect.Backend.Entities
 {
     public class Report<TKey> where TKey : IEquatable<TKey>
     {

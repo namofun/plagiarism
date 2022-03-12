@@ -1,11 +1,11 @@
-﻿using Plag.Backend.Entities;
-using Plag.Backend.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Xylab.PlagiarismDetect.Backend.Entities;
+using Xylab.PlagiarismDetect.Backend.Models;
 
-namespace Plag.Backend.Services
+namespace Xylab.PlagiarismDetect.Backend.Services
 {
     public abstract class PdsStoreServiceBase<TKey> : IPlagiarismDetectService
         where TKey : IEquatable<TKey>

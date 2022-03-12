@@ -3,15 +3,15 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Plag.Backend.Services;
 using SatelliteSite.Entities;
 using SatelliteSite.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Xylab.PlagiarismDetect.Backend.Services;
 
-namespace Plag.Backend
+namespace Xylab.PlagiarismDetect.Backend
 {
     public static class RelationalRoleExtensions
     {
