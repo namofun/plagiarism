@@ -3,7 +3,8 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFramework>net6.0</TargetFramework>
-    <RootNamespace>Plag.Backend</RootNamespace>
+    <RootNamespace>Xylab.PlagiarismDetect.Backend</RootNamespace>
+    <AssemblyName>Xylab.PlagiarismDetect.Backend.Roles.Restful</AssemblyName>
     <DescriptionAttach>The role for restful backend services</DescriptionAttach>
   </PropertyGroup>
 

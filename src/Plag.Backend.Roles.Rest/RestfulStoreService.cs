@@ -1,12 +1,12 @@
-﻿using Plag.Backend.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+using Xylab.PlagiarismDetect.Backend.Models;
 
-namespace Plag.Backend.Services
+namespace Xylab.PlagiarismDetect.Backend.Services
 {
     public class RestfulStoreService : IPlagiarismDetectService
     {
