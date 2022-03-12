@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Plag.Backend.Services
+namespace Xylab.PlagiarismDetect.Backend.Services
 {
     /// <summary>
     /// The provider for sending out signals.

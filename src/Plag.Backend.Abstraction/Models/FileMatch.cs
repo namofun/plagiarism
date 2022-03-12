@@ -1,4 +1,4 @@
-﻿namespace Plag.Backend.Models
+﻿namespace Xylab.PlagiarismDetect.Backend.Models
 {
     public class FileMatch
     {

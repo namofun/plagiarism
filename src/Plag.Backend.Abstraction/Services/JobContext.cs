@@ -1,8 +1,8 @@
-﻿using Plag.Backend.Models;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Xylab.PlagiarismDetect.Backend.Models;
 
-namespace Plag.Backend.Services
+namespace Xylab.PlagiarismDetect.Backend.Services
 {
     /// <summary>
     /// The contract for finishing jobs.

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace Plag.Backend
+namespace Xylab.PlagiarismDetect.Backend
 {
     /// <summary>
     /// Configurator for backend services.

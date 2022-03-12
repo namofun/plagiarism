@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace Plag.Backend.Models
+namespace Xylab.PlagiarismDetect.Backend.Models
 {
     public class Submission
     {
