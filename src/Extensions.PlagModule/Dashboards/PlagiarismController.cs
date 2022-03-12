@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Plag.Backend.Models;
-using Plag.Backend.Services;
 using SatelliteSite.PlagModule.Models;
 using System;
 using System.Collections.Generic;
@@ -11,6 +9,8 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Xylab.PlagiarismDetect.Backend.Models;
+using Xylab.PlagiarismDetect.Backend.Services;
 
 namespace SatelliteSite.PlagModule.Dashboards
 {

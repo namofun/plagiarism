@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Plag.Backend.Services;
 using SatelliteSite.PlagModule.Models;
 using System.Threading.Tasks;
+using Xylab.PlagiarismDetect.Backend.Services;
 
 namespace SatelliteSite.PlagModule.Controllers
 {

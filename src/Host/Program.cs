@@ -6,14 +6,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Plag.Backend;
-using Plag.Backend.Services;
 using SatelliteSite;
 using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Xylab.PlagiarismDetect.Backend;
+using Xylab.PlagiarismDetect.Backend.Services;
 
 [assembly: ConfigurationString(30, "PDS", "pds_language_list", "[]", "Language list of PDS", IsPublic = false)]
 

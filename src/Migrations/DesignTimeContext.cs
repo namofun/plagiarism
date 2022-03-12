@@ -35,7 +35,7 @@ namespace SatelliteSite
     {
         public void Customize(ModelBuilder modelBuilder, DbContext context)
         {
-            new Plag.Backend.PlagEntityConfiguration<T>().Configure(modelBuilder, (T)context);
+            new Xylab.PlagiarismDetect.Backend.PlagEntityConfiguration<T>().Configure(modelBuilder, (T)context);
         }
     }
 

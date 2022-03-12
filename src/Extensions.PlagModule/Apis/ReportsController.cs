@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Plag.Backend.Models;
-using Plag.Backend.Services;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
+using Xylab.PlagiarismDetect.Backend.Models;
+using Xylab.PlagiarismDetect.Backend.Services;
 
 namespace SatelliteSite.PlagModule.Apis
 {

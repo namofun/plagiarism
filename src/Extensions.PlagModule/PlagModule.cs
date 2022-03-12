@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Plag.Backend;
-using Plag.Backend.Services;
+using Xylab.PlagiarismDetect.Backend;
+using Xylab.PlagiarismDetect.Backend.Services;
 
 [assembly: SatelliteSite.RoleDefinition(37, "PlagUser", "plaguser", "Plagiarism Detect User")]
 

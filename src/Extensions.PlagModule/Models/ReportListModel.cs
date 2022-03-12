@@ -1,5 +1,5 @@
-﻿using Plag.Backend.Models;
-using System;
+﻿using System;
+using Xylab.PlagiarismDetect.Backend.Models;
 
 namespace SatelliteSite.PlagModule.Models
 {

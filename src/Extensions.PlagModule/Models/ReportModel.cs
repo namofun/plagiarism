@@ -1,4 +1,4 @@
-﻿using Plag.Backend.Models;
+﻿using Xylab.PlagiarismDetect.Backend.Models;
 
 namespace SatelliteSite.PlagModule.Models
 {
