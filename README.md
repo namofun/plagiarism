@@ -10,22 +10,22 @@ All rewritten in C# and ANTLR4.
 
 Role based design. Storage is for EFCore version and Rest is for Remote API server.
 
-- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fapi%2Fpackage%2FPlag.Backend.Abstraction%2Fshields-io.json)](https://nuget.xylab.fun/packages/Plag.Backend.Abstraction)
-- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fapi%2Fpackage%2FPlag.Backend.Generation%2Fshields-io.json)](https://nuget.xylab.fun/packages/Plag.Backend.Generation)
-- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fapi%2Fpackage%2FPlag.Backend.Roles.Rest%2Fshields-io.json)](https://nuget.xylab.fun/packages/Plag.Backend.Roles.Rest)
-- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fapi%2Fpackage%2FPlag.Backend.Roles.Storage%2Fshields-io.json)](https://nuget.xylab.fun/packages/Plag.Backend.Roles.Storage)
-- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fapi%2Fpackage%2FPlag.Backend.Roles.Cosmos%2Fshields-io.json)](https://nuget.xylab.fun/packages/Plag.Backend.Roles.Cosmos)
+- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fapi%2Fpackage%2FXylab.PlagiarismDetect.Backend.Abstraction%2Fshields-io.json)](https://nuget.xylab.fun/packages/Xylab.PlagiarismDetect.Backend.Abstraction)
+- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fapi%2Fpackage%2FXylab.PlagiarismDetect.Backend.Generation%2Fshields-io.json)](https://nuget.xylab.fun/packages/Xylab.PlagiarismDetect.Backend.Generation)
+- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fapi%2Fpackage%2FXylab.PlagiarismDetect.Backend.Roles.Restful%2Fshields-io.json)](https://nuget.xylab.fun/packages/Xylab.PlagiarismDetect.Backend.Roles.Restful)
+- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fapi%2Fpackage%2FXylab.PlagiarismDetect.Backend.Roles.Relational%2Fshields-io.json)](https://nuget.xylab.fun/packages/Xylab.PlagiarismDetect.Backend.Roles.Relational)
+- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fapi%2Fpackage%2FXylab.PlagiarismDetect.Backend.Roles.Cosmos%2Fshields-io.json)](https://nuget.xylab.fun/packages/Xylab.PlagiarismDetect.Backend.Roles.Cosmos)
 
 ### Frontend
 
 ANTLR language parser and algorithms.
 
-- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fapi%2Fpackage%2FPlag.Frontend.Algorithm%2Fshields-io.json)](https://nuget.xylab.fun/packages/Plag.Frontend.Algorithm)
-- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fapi%2Fpackage%2FPlag.Frontend.Common%2Fshields-io.json)](https://nuget.xylab.fun/packages/Plag.Frontend.Common)
-- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fapi%2Fpackage%2FPlag.Frontend.Cpp%2Fshields-io.json)](https://nuget.xylab.fun/packages/Plag.Frontend.Cpp)
-- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fapi%2Fpackage%2FPlag.Frontend.Csharp%2Fshields-io.json)](https://nuget.xylab.fun/packages/Plag.Frontend.Csharp)
-- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fapi%2Fpackage%2FPlag.Frontend.Java%2Fshields-io.json)](https://nuget.xylab.fun/packages/Plag.Frontend.Java)
-- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fapi%2Fpackage%2FPlag.Frontend.Python%2Fshields-io.json)](https://nuget.xylab.fun/packages/Plag.Frontend.Python)
+- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fapi%2Fpackage%2FXylab.PlagiarismDetect.Frontend.Algorithm%2Fshields-io.json)](https://nuget.xylab.fun/packages/Xylab.PlagiarismDetect.Frontend.Algorithm)
+- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fapi%2Fpackage%2FXylab.PlagiarismDetect.Frontend.Common%2Fshields-io.json)](https://nuget.xylab.fun/packages/Xylab.PlagiarismDetect.Frontend.Common)
+- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fapi%2Fpackage%2FXylab.PlagiarismDetect.Frontend.Cpp%2Fshields-io.json)](https://nuget.xylab.fun/packages/Xylab.PlagiarismDetect.Frontend.Cpp)
+- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fapi%2Fpackage%2FXylab.PlagiarismDetect.Frontend.Csharp%2Fshields-io.json)](https://nuget.xylab.fun/packages/Xylab.PlagiarismDetect.Frontend.Csharp)
+- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fapi%2Fpackage%2FXylab.PlagiarismDetect.Frontend.Java%2Fshields-io.json)](https://nuget.xylab.fun/packages/Xylab.PlagiarismDetect.Frontend.Java)
+- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fapi%2Fpackage%2FXylab.PlagiarismDetect.Frontend.Python%2Fshields-io.json)](https://nuget.xylab.fun/packages/Xylab.PlagiarismDetect.Frontend.Python)
 
 ### Module
 
