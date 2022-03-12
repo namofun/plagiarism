@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace Plag.Frontend.Python
+namespace Xylab.PlagiarismDetect.Frontend.Python
 {
     public class Language : ILanguage
     {
@@ -69,7 +69,7 @@ namespace Plag.Frontend.Python
 
         public string TypeName(int type) => Token.TypeToString((TokenConstants)type);
 
-        public Plag.Frontend.Token CreateToken(int type, int line, int column, int length, int fileId)
+        public Frontend.Token CreateToken(int type, int line, int column, int length, int fileId)
         {
             return new Token((TokenConstants)type, line, column, column + length - 1, fileId);
         }

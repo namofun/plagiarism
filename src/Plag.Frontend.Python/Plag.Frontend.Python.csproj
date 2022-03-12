@@ -3,6 +3,8 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFramework>net6.0</TargetFramework>
+    <RootNamespace>Xylab.PlagiarismDetect.Frontend</RootNamespace>
+    <AssemblyName>Xylab.PlagiarismDetect.Frontend.Python</AssemblyName>
     <AntlrGeneratedNamespace>Antlr4.Grammar.Python</AntlrGeneratedNamespace>
     <DescriptionAttach>The Python 3 Frontend</DescriptionAttach>
   </PropertyGroup>

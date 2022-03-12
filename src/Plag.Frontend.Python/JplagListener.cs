@@ -4,7 +4,7 @@ using Antlr4.Runtime.Tree;
 using System.Runtime.CompilerServices;
 using static Antlr4.Grammar.Python.Python3Parser;
 
-namespace Plag.Frontend.Python
+namespace Xylab.PlagiarismDetect.Frontend.Python
 {
     public class JplagListener : Python3BaseListener
     {

@@ -1,4 +1,4 @@
-﻿namespace Plag.Frontend.Python
+﻿namespace Xylab.PlagiarismDetect.Frontend.Python
 {
     public enum TokenConstants : int
     {
