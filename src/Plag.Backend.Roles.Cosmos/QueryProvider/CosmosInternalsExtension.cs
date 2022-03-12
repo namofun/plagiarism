@@ -9,7 +9,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Plag.Backend.QueryProvider
+namespace Xylab.PlagiarismDetect.Backend.QueryProvider
 {
     internal static class CosmosInternalsExtension
     {

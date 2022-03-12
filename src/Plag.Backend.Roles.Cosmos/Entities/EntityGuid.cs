@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Security.Cryptography;
 
-namespace Plag.Backend
+namespace Xylab.PlagiarismDetect.Backend
 {
     public readonly struct SetGuid : IEquatable<SetGuid>
     {

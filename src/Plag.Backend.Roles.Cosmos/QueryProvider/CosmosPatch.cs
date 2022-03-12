@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace Plag.Backend.QueryProvider
+namespace Xylab.PlagiarismDetect.Backend.QueryProvider
 {
     public sealed class CosmosPatch<TEntity>
     {

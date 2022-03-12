@@ -1,16 +1,16 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
-using Plag.Backend.Entities;
-using Plag.Backend.Models;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Xylab.PlagiarismDetect.Backend.Entities;
+using Xylab.PlagiarismDetect.Backend.Models;
 using SystemJsonIgnoreAttribute = System.Text.Json.Serialization.JsonIgnoreAttribute;
 using SystemJsonIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition;
 using SystemJsonPropertyNameAttribute = System.Text.Json.Serialization.JsonPropertyNameAttribute;
 
-namespace Plag.Backend.QueryProvider
+namespace Xylab.PlagiarismDetect.Backend.QueryProvider
 {
     internal class EntityJsonContractResolver : CamelCasePropertyNamesContractResolver
     {

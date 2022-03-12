@@ -1,7 +1,7 @@
-﻿using Plag.Backend.Models;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
+using Xylab.PlagiarismDetect.Backend.Models;
 
-namespace Plag.Backend.Entities
+namespace Xylab.PlagiarismDetect.Backend.Entities
 {
     public class ReportEntity : Report
     {

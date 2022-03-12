@@ -1,11 +1,10 @@
 ﻿#nullable enable
-
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Plag.Backend.Services;
 using System;
+using Xylab.PlagiarismDetect.Backend.Services;
 
-namespace Plag.Backend
+namespace Xylab.PlagiarismDetect.Backend
 {
     public static class CosmosRoleExtensions
     {

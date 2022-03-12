@@ -1,9 +1,9 @@
 ﻿using Microsoft.Azure.Cosmos;
-using Plag.Backend.Entities;
-using Plag.Backend.QueryProvider;
+using Xylab.PlagiarismDetect.Backend.Entities;
+using Xylab.PlagiarismDetect.Backend.QueryProvider;
 using System.Threading.Tasks;
 
-namespace Plag.Backend
+namespace Xylab.PlagiarismDetect.Backend
 {
     public interface ICosmosConnection
     {

@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Plag.Backend.QueryProvider;
-using Plag.Backend.Services;
+using Xylab.PlagiarismDetect.Backend.QueryProvider;
+using Xylab.PlagiarismDetect.Backend.Services;
 
-namespace Plag.Backend
+namespace Xylab.PlagiarismDetect.Backend
 {
     public class CosmosBackendRole : IBackendRoleStrategy
     {

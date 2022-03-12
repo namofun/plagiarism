@@ -1,16 +1,16 @@
 ﻿using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json.Linq;
-using Plag.Backend.Entities;
-using Plag.Backend.Models;
-using Plag.Backend.QueryProvider;
-using Plag.Backend.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Xylab.PlagiarismDetect.Backend.Entities;
+using Xylab.PlagiarismDetect.Backend.Models;
+using Xylab.PlagiarismDetect.Backend.QueryProvider;
+using Xylab.PlagiarismDetect.Backend.Services;
 
-namespace Plag.Backend
+namespace Xylab.PlagiarismDetect.Backend
 {
     public class CosmosStoreService : IPlagiarismDetectService, IJobContext
     {

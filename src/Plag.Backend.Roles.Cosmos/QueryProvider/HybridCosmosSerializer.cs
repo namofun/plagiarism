@@ -4,7 +4,7 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace Plag.Backend.QueryProvider
+namespace Xylab.PlagiarismDetect.Backend.QueryProvider
 {
     internal class HybridCosmosSerializer : CosmosSerializer
     {

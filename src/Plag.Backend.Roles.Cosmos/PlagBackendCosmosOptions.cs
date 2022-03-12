@@ -1,9 +1,9 @@
 ﻿using Newtonsoft.Json;
-using Plag.Backend.Models;
 using System;
 using System.Collections.Generic;
+using Xylab.PlagiarismDetect.Backend.Models;
 
-namespace Plag.Backend
+namespace Xylab.PlagiarismDetect.Backend
 {
     /// <summary>
     /// Options class for Azure Cosmos DB in plagiarism detection service.

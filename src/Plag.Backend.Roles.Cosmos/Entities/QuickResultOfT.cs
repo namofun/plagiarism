@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Plag.Backend
+namespace Xylab.PlagiarismDetect.Backend
 {
     internal class QuickResult<TResult>
     {

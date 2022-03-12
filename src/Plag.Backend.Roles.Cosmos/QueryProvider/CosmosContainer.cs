@@ -11,7 +11,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Plag.Backend.QueryProvider
+namespace Xylab.PlagiarismDetect.Backend.QueryProvider
 {
     public class CosmosContainer<T> where T : class
     {

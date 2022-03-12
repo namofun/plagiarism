@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
 
-namespace Plag.Backend.Entities
+namespace Xylab.PlagiarismDetect.Backend.Entities
 {
     public class ServiceGraphEntity : MetadataEntity<Dictionary<string, ServiceGraphEntity.Vertex>>
     {

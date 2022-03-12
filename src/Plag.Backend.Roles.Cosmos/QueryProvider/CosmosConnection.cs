@@ -1,16 +1,15 @@
 ﻿#nullable enable
-
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Scripts;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Plag.Backend.Entities;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
+using Xylab.PlagiarismDetect.Backend.Entities;
 
-namespace Plag.Backend.QueryProvider
+namespace Xylab.PlagiarismDetect.Backend.QueryProvider
 {
     public class CosmosConnection : ICosmosConnection
     {
@@ -105,7 +104,7 @@ namespace Plag.Backend.QueryProvider
 
         private static async Task<string> GetStoredProcedureCodeAsync(string name)
         {
-            string sproc = $"Plag.Backend.QueryProvider.{name}.js";
+            string sproc = $"Xylab.PlagiarismDetect.Backend.QueryProvider.{name}.js";
             using Stream stream = typeof(CosmosConnection).Assembly.GetManifestResourceStream(sproc)
                 ?? throw new InvalidDataException();
 
