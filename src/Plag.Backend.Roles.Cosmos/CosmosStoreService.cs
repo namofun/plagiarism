@@ -381,13 +381,22 @@ namespace Xylab.PlagiarismDetect.Backend
             SubmissionGuid subGuid = SubmissionGuid.FromStructured(setGuid, submission.Id);
 
             bool tokenProduced = result != null;
-            await _database.Submissions
-                .Patch(subGuid.ToString(), new PartitionKey(setGuid.ToString()))
-                .SetProperty(s => s.Error, error)
-                .SetProperty(s => s.Tokens, result)
-                .SetProperty(s => s.TokenProduced, tokenProduced)
-                .ConcurrencyGuard("FROM c WHERE c.token_produced = null")
-                .ExecuteAsync();
+            try
+            {
+                await _database.Submissions
+                    .Patch(subGuid.ToString(), new PartitionKey(setGuid.ToString()))
+                    .SetProperty(s => s.Error, error)
+                    .SetProperty(s => s.Tokens, result)
+                    .SetProperty(s => s.TokenProduced, tokenProduced)
+                    .ConcurrencyGuard("FROM c WHERE c.token_produced = null")
+                    .ExecuteAsync();
+            }
+            catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.PreconditionFailed)
+            {
+                throw new InvalidOperationException(
+                    "Concurrent operation conflict. The target has been processed by another process.",
+                    ex);
+            }
 
             var (a, b) = tokenProduced ? (1, 0) : (0, 1);
             await _database.Sets
