@@ -14,9 +14,9 @@ namespace Xylab.PlagiarismDetect.Backend.Entities
 
         public string Name { get; set; }
 
-        public int ReportCount { get; set; }
+        public long ReportCount { get; set; }
 
-        public int ReportPending { get; set; }
+        public long ReportPending { get; set; }
 
         public int SubmissionCount { get; set; }
 

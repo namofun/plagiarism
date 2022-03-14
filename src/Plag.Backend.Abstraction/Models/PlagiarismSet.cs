@@ -21,10 +21,10 @@ namespace Xylab.PlagiarismDetect.Backend.Models
         public string Name { get; set; }
 
         [JsonPropertyName("report_count")]
-        public int ReportCount { get; set; }
+        public long ReportCount { get; set; }
 
         [JsonPropertyName("report_pending")]
-        public int ReportPending { get; set; }
+        public long ReportPending { get; set; }
 
         [JsonPropertyName("submission_count")]
         public int SubmissionCount { get; set; }

@@ -10,9 +10,9 @@ namespace SatelliteSite.PlagModule.Models
 
         public DateTimeOffset CreateTime { get; set; }
 
-        public int TotalReports { get; set; }
+        public long TotalReports { get; set; }
 
-        public int PendingReports { get; set; }
+        public long PendingReports { get; set; }
 
         public int TotalSubmissions { get; set; }
 

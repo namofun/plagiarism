@@ -56,6 +56,15 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
             return this;
         }
 
+        public CosmosPatch<TEntity> IncrementProperty(
+            Expression<Func<TEntity, long>> propertySelector,
+            long propertyValue)
+        {
+            string path = "/" + propertySelector.ParseProperty();
+            _operations.Add(PatchOperation.Increment(path, propertyValue));
+            return this;
+        }
+
         public CosmosPatch<TEntity> ConcurrencyGuard(string conditionWithWhere)
         {
             _concurrencyGuard = conditionWithWhere;

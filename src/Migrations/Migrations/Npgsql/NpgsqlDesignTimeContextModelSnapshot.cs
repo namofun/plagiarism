@@ -22,7 +22,7 @@ namespace SatelliteSite.Migrations.Npgsql
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Plag.Backend.Entities.PlagiarismSet<System.Guid>", b =>
+            modelBuilder.Entity("Xylab.PlagiarismDetect.Backend.Entities.PlagiarismSet<System.Guid>", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -37,11 +37,11 @@ namespace SatelliteSite.Migrations.Npgsql
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
-                    b.Property<int>("ReportCount")
-                        .HasColumnType("integer");
+                    b.Property<long>("ReportCount")
+                        .HasColumnType("bigint");
 
-                    b.Property<int>("ReportPending")
-                        .HasColumnType("integer");
+                    b.Property<long>("ReportPending")
+                        .HasColumnType("bigint");
 
                     b.Property<int>("SubmissionCount")
                         .HasColumnType("integer");
@@ -64,7 +64,7 @@ namespace SatelliteSite.Migrations.Npgsql
                     b.ToTable("PlagiarismSets", (string)null);
                 });
 
-            modelBuilder.Entity("Plag.Backend.Entities.Report<System.Guid>", b =>
+            modelBuilder.Entity("Xylab.PlagiarismDetect.Backend.Entities.Report<System.Guid>", b =>
                 {
                     b.Property<Guid>("SetId")
                         .HasColumnType("uuid");
@@ -131,7 +131,7 @@ namespace SatelliteSite.Migrations.Npgsql
                     b.ToTable("PlagiarismReports", (string)null);
                 });
 
-            modelBuilder.Entity("Plag.Backend.Entities.Submission<System.Guid>", b =>
+            modelBuilder.Entity("Xylab.PlagiarismDetect.Backend.Entities.Submission<System.Guid>", b =>
                 {
                     b.Property<Guid>("SetId")
                         .HasColumnType("uuid");
@@ -174,7 +174,7 @@ namespace SatelliteSite.Migrations.Npgsql
                     b.ToTable("PlagiarismSubmissions", (string)null);
                 });
 
-            modelBuilder.Entity("Plag.Backend.Entities.SubmissionFile<System.Guid>", b =>
+            modelBuilder.Entity("Xylab.PlagiarismDetect.Backend.Entities.SubmissionFile<System.Guid>", b =>
                 {
                     b.Property<Guid>("SubmissionId")
                         .HasColumnType("uuid");
@@ -196,39 +196,39 @@ namespace SatelliteSite.Migrations.Npgsql
                     b.ToTable("PlagiarismFiles", (string)null);
                 });
 
-            modelBuilder.Entity("Plag.Backend.Entities.Report<System.Guid>", b =>
+            modelBuilder.Entity("Xylab.PlagiarismDetect.Backend.Entities.Report<System.Guid>", b =>
                 {
-                    b.HasOne("Plag.Backend.Entities.PlagiarismSet<System.Guid>", null)
+                    b.HasOne("Xylab.PlagiarismDetect.Backend.Entities.PlagiarismSet<System.Guid>", null)
                         .WithMany()
                         .HasForeignKey("SetId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Plag.Backend.Entities.Submission<System.Guid>", null)
+                    b.HasOne("Xylab.PlagiarismDetect.Backend.Entities.Submission<System.Guid>", null)
                         .WithMany()
                         .HasForeignKey("SetId", "SubmissionA")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Plag.Backend.Entities.Submission<System.Guid>", null)
+                    b.HasOne("Xylab.PlagiarismDetect.Backend.Entities.Submission<System.Guid>", null)
                         .WithMany()
                         .HasForeignKey("SetId", "SubmissionB")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Plag.Backend.Entities.Submission<System.Guid>", b =>
+            modelBuilder.Entity("Xylab.PlagiarismDetect.Backend.Entities.Submission<System.Guid>", b =>
                 {
-                    b.HasOne("Plag.Backend.Entities.PlagiarismSet<System.Guid>", null)
+                    b.HasOne("Xylab.PlagiarismDetect.Backend.Entities.PlagiarismSet<System.Guid>", null)
                         .WithMany()
                         .HasForeignKey("SetId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Plag.Backend.Entities.SubmissionFile<System.Guid>", b =>
+            modelBuilder.Entity("Xylab.PlagiarismDetect.Backend.Entities.SubmissionFile<System.Guid>", b =>
                 {
-                    b.HasOne("Plag.Backend.Entities.Submission<System.Guid>", null)
+                    b.HasOne("Xylab.PlagiarismDetect.Backend.Entities.Submission<System.Guid>", null)
                         .WithMany()
                         .HasForeignKey("SubmissionId")
                         .HasPrincipalKey("ExternalId")

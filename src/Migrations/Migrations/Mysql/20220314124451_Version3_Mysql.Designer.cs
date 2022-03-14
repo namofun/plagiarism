@@ -4,58 +4,55 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SatelliteSite;
 
 #nullable disable
 
-namespace SatelliteSite.Migrations.Npgsql
+namespace SatelliteSite.Migrations.Mysql
 {
-    [DbContext(typeof(NpgsqlDesignTimeContext))]
-    [Migration("20220119145639_Version2_Npgsql")]
-    partial class Version2_Npgsql
+    [DbContext(typeof(MysqlDesignTimeContext))]
+    [Migration("20220314124451_Version3_Mysql")]
+    partial class Version3_Mysql
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "6.0.0")
-                .HasAnnotation("Relational:MaxIdentifierLength", 63);
+                .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
-            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("Plag.Backend.Entities.PlagiarismSet<System.Guid>", b =>
+            modelBuilder.Entity("Xylab.PlagiarismDetect.Backend.Entities.PlagiarismSet<System.Guid>", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("char(36)");
 
                     b.Property<int?>("ContestId")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<DateTimeOffset>("CreateTime")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime");
 
                     b.Property<string>("Name")
-                        .HasColumnType("text");
+                        .HasColumnType("longtext");
 
-                    b.Property<int>("ReportCount")
-                        .HasColumnType("integer");
+                    b.Property<long>("ReportCount")
+                        .HasColumnType("bigint");
 
-                    b.Property<int>("ReportPending")
-                        .HasColumnType("integer");
+                    b.Property<long>("ReportPending")
+                        .HasColumnType("bigint");
 
                     b.Property<int>("SubmissionCount")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<int>("SubmissionFailed")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<int>("SubmissionSucceeded")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<int?>("UserId")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -66,62 +63,62 @@ namespace SatelliteSite.Migrations.Npgsql
                     b.ToTable("PlagiarismSets", (string)null);
                 });
 
-            modelBuilder.Entity("Plag.Backend.Entities.Report<System.Guid>", b =>
+            modelBuilder.Entity("Xylab.PlagiarismDetect.Backend.Entities.Report<System.Guid>", b =>
                 {
                     b.Property<Guid>("SetId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("char(36)");
 
                     b.Property<int>("SubmissionA")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<int>("SubmissionB")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<int>("BiggestMatch")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasDefaultValue(0);
 
                     b.Property<Guid>("ExternalId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("char(36)");
 
                     b.Property<bool?>("Finished")
-                        .HasColumnType("boolean");
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<bool?>("Justification")
-                        .HasColumnType("boolean");
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<byte[]>("Matches")
-                        .HasColumnType("bytea");
+                        .HasColumnType("longblob");
 
                     b.Property<double>("Percent")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("double precision")
+                        .HasColumnType("double")
                         .HasDefaultValue(0.0);
 
                     b.Property<double>("PercentA")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("double precision")
+                        .HasColumnType("double")
                         .HasDefaultValue(0.0);
 
                     b.Property<double>("PercentB")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("double precision")
+                        .HasColumnType("double")
                         .HasDefaultValue(0.0);
 
                     b.Property<string>("SessionKey")
                         .HasMaxLength(25)
                         .IsUnicode(false)
-                        .HasColumnType("character varying(25)");
+                        .HasColumnType("varchar(25)");
 
                     b.Property<bool>("Shared")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
+                        .HasColumnType("tinyint(1)")
                         .HasDefaultValue(false);
 
                     b.Property<int>("TokensMatched")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasDefaultValue(0);
 
                     b.HasKey("SetId", "SubmissionA", "SubmissionB");
@@ -133,104 +130,104 @@ namespace SatelliteSite.Migrations.Npgsql
                     b.ToTable("PlagiarismReports", (string)null);
                 });
 
-            modelBuilder.Entity("Plag.Backend.Entities.Submission<System.Guid>", b =>
+            modelBuilder.Entity("Xylab.PlagiarismDetect.Backend.Entities.Submission<System.Guid>", b =>
                 {
                     b.Property<Guid>("SetId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("char(36)");
 
                     b.Property<int>("Id")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<string>("Error")
-                        .HasColumnType("text");
+                        .HasColumnType("longtext");
 
                     b.Property<int>("ExclusiveCategory")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<Guid>("ExternalId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("char(36)");
 
                     b.Property<int>("InclusiveCategory")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<string>("Language")
-                        .HasColumnType("text");
+                        .HasColumnType("longtext");
 
                     b.Property<double>("MaxPercent")
-                        .HasColumnType("double precision");
+                        .HasColumnType("double");
 
                     b.Property<string>("Name")
-                        .HasColumnType("text");
+                        .HasColumnType("longtext");
 
                     b.Property<bool?>("TokenProduced")
-                        .HasColumnType("boolean");
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<byte[]>("Tokens")
-                        .HasColumnType("bytea");
+                        .HasColumnType("longblob");
 
                     b.Property<DateTimeOffset>("UploadTime")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime");
 
                     b.HasKey("SetId", "Id");
 
                     b.ToTable("PlagiarismSubmissions", (string)null);
                 });
 
-            modelBuilder.Entity("Plag.Backend.Entities.SubmissionFile<System.Guid>", b =>
+            modelBuilder.Entity("Xylab.PlagiarismDetect.Backend.Entities.SubmissionFile<System.Guid>", b =>
                 {
                     b.Property<Guid>("SubmissionId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("char(36)");
 
                     b.Property<int>("FileId")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<string>("Content")
-                        .HasColumnType("text");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("FileName")
-                        .HasColumnType("text");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("FilePath")
-                        .HasColumnType("text");
+                        .HasColumnType("longtext");
 
                     b.HasKey("SubmissionId", "FileId");
 
                     b.ToTable("PlagiarismFiles", (string)null);
                 });
 
-            modelBuilder.Entity("Plag.Backend.Entities.Report<System.Guid>", b =>
+            modelBuilder.Entity("Xylab.PlagiarismDetect.Backend.Entities.Report<System.Guid>", b =>
                 {
-                    b.HasOne("Plag.Backend.Entities.PlagiarismSet<System.Guid>", null)
+                    b.HasOne("Xylab.PlagiarismDetect.Backend.Entities.PlagiarismSet<System.Guid>", null)
                         .WithMany()
                         .HasForeignKey("SetId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Plag.Backend.Entities.Submission<System.Guid>", null)
+                    b.HasOne("Xylab.PlagiarismDetect.Backend.Entities.Submission<System.Guid>", null)
                         .WithMany()
                         .HasForeignKey("SetId", "SubmissionA")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Plag.Backend.Entities.Submission<System.Guid>", null)
+                    b.HasOne("Xylab.PlagiarismDetect.Backend.Entities.Submission<System.Guid>", null)
                         .WithMany()
                         .HasForeignKey("SetId", "SubmissionB")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Plag.Backend.Entities.Submission<System.Guid>", b =>
+            modelBuilder.Entity("Xylab.PlagiarismDetect.Backend.Entities.Submission<System.Guid>", b =>
                 {
-                    b.HasOne("Plag.Backend.Entities.PlagiarismSet<System.Guid>", null)
+                    b.HasOne("Xylab.PlagiarismDetect.Backend.Entities.PlagiarismSet<System.Guid>", null)
                         .WithMany()
                         .HasForeignKey("SetId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Plag.Backend.Entities.SubmissionFile<System.Guid>", b =>
+            modelBuilder.Entity("Xylab.PlagiarismDetect.Backend.Entities.SubmissionFile<System.Guid>", b =>
                 {
-                    b.HasOne("Plag.Backend.Entities.Submission<System.Guid>", null)
+                    b.HasOne("Xylab.PlagiarismDetect.Backend.Entities.Submission<System.Guid>", null)
                         .WithMany()
                         .HasForeignKey("SubmissionId")
                         .HasPrincipalKey("ExternalId")
