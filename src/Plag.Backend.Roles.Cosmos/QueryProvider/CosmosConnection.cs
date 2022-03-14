@@ -117,14 +117,14 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
     {
         internal const string QueryServiceGraph = nameof(QueryServiceGraph);
 
-        public static Task<StoredProcedureExecuteResponse<List<ServiceGraphEntity.Vertex>>> QueryServiceGraphAsync(
+        public static Task<StoredProcedureExecuteResponse<List<Models.ServiceVertex>>> QueryServiceGraphAsync(
             this CosmosContainer<MetadataEntity> container,
             SetGuid setId,
             string language,
             int inclusiveCategory,
             int exclusiveCategory)
         {
-            return container.GetContainer().Scripts.ExecuteStoredProcedureAsync<List<ServiceGraphEntity.Vertex>>(
+            return container.GetContainer().Scripts.ExecuteStoredProcedureAsync<List<Models.ServiceVertex>>(
                 QueryServiceGraph,
                 new PartitionKey(MetadataEntity.ServiceGraphTypeKey),
                 new object[] { setId.ToString(), language, inclusiveCategory, exclusiveCategory },

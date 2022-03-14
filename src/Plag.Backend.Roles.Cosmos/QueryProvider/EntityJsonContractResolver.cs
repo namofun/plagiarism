@@ -45,6 +45,8 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
 
             if (property.DeclaringType == typeof(PlagiarismSet)
                 || property.DeclaringType == typeof(SetEntity)
+                || property.DeclaringType == typeof(ServiceVertex)
+                || property.DeclaringType == typeof(ServiceEdge)
                 || property.DeclaringType == typeof(Submission)
                 || property.DeclaringType == typeof(SubmissionEntity)
                 || property.DeclaringType == typeof(Report)

@@ -10,6 +10,11 @@ namespace Xylab.PlagiarismDetect.Backend.Services
     public interface IJobContext
     {
         /// <summary>
+        /// Gets a value indicating whether service graph is supported.
+        /// </summary>
+        bool SupportServiceGraph { get; }
+
+        /// <summary>
         /// Migrates the database schema.
         /// </summary>
         Task MigrateAsync();
@@ -109,5 +114,32 @@ namespace Xylab.PlagiarismDetect.Backend.Services
         /// <param name="submitIds">The list of submission internal IDs.</param>
         /// <returns>The submission with files.</returns>
         Task<List<KeyValuePair<Submission, Compilation>>> GetSubmissionsAsync(List<(string, int)> submitIds);
+    }
+
+    /// <summary>
+    /// The contract for service graph.
+    /// </summary>
+    public interface IServiceGraphContext
+    {
+        /// <summary>
+        /// Finds a plagiarism set.
+        /// </summary>
+        /// <param name="id">The id of plagiarism set.</param>
+        /// <returns>The found entity.</returns>
+        Task<PlagiarismSet> FindSetAsync(string id);
+
+        /// <summary>
+        /// Gets the vertices from service graph.
+        /// </summary>
+        /// <param name="setId">The set ID.</param>
+        /// <returns>The list of vertices.</returns>
+        Task<List<ServiceVertex>> GetVerticesAsync(string setId);
+
+        /// <summary>
+        /// Gets the edges from service graph.
+        /// </summary>
+        /// <param name="setId">The set ID.</param>
+        /// <returns>The list of edges.</returns>
+        Task<List<ServiceEdge>> GetEdgesAsync(string setId);
     }
 }

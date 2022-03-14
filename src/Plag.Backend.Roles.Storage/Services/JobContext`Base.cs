@@ -8,6 +8,8 @@ namespace Xylab.PlagiarismDetect.Backend.Services
     public abstract class PdsServiceBase<TKey> : PdsStoreServiceBase<TKey>, IJobContext
         where TKey : IEquatable<TKey>
     {
+        public bool SupportServiceGraph => false;
+
         /// <inheritdoc cref="IJobContext.MigrateAsync" />
         public abstract Task MigrateAsync();
 

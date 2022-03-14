@@ -1,32 +1,14 @@
-﻿using Newtonsoft.Json;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Xylab.PlagiarismDetect.Backend.Models;
 
 namespace Xylab.PlagiarismDetect.Backend.Entities
 {
-    public class ServiceGraphEntity : MetadataEntity<Dictionary<string, ServiceGraphEntity.Vertex>>
+    public class ServiceGraphEntity : MetadataEntity<Dictionary<string, ServiceVertex>>
     {
         public ServiceGraphEntity()
         {
             Type = ServiceGraphTypeKey;
             Data = new();
-        }
-
-        public class Vertex
-        {
-            [JsonProperty("id")]
-            public int Id { get; set; }
-
-            [JsonProperty("name")]
-            public string Name { get; set; }
-
-            [JsonProperty("incl")]
-            public int Inclusive { get; set; }
-
-            [JsonProperty("excl")]
-            public int Exclusive { get; set; }
-
-            [JsonProperty("lang")]
-            public string Language { get; set; }
         }
     }
 }

@@ -12,11 +12,13 @@ using Xylab.PlagiarismDetect.Backend.Services;
 
 namespace Xylab.PlagiarismDetect.Backend
 {
-    public class CosmosStoreService : IPlagiarismDetectService, IJobContext
+    public class CosmosStoreService : IPlagiarismDetectService, IJobContext, IServiceGraphContext
     {
         private readonly ICosmosConnection _database;
         private readonly ILanguageProvider _languageProvider;
         private readonly ISignalProvider _signalProvider;
+
+        public bool SupportServiceGraph => true;
 
         public CosmosStoreService(
             ICosmosConnection connection,
@@ -407,7 +409,7 @@ namespace Xylab.PlagiarismDetect.Backend
 
             if (tokenProduced)
             {
-                ServiceGraphEntity.Vertex vertex = new()
+                ServiceVertex vertex = new()
                 {
                     Id = submission.Id,
                     Exclusive = submission.ExclusiveCategory,
@@ -813,6 +815,32 @@ namespace Xylab.PlagiarismDetect.Backend
                     Data = languageSeeds,
                 });
             }
+        }
+
+        public async Task<List<ServiceVertex>> GetVerticesAsync(string setId)
+        {
+            if (!SetGuid.TryParse(setId, out var setGuid))
+                throw new KeyNotFoundException();
+
+            ServiceGraphEntity graph =
+                await _database.Metadata.GetEntityAsync<ServiceGraphEntity>(
+                    setGuid.ToString(),
+                    MetadataEntity.ServiceGraphTypeKey);
+
+            if (graph == null)
+                throw new KeyNotFoundException("Unknown set, no service graph found.");
+
+            return graph.Data.Values.ToList();
+        }
+
+        public Task<List<ServiceEdge>> GetEdgesAsync(string setId)
+        {
+            if (!SetGuid.TryParse(setId, out var setGuid))
+                throw new KeyNotFoundException();
+
+            return _database.Reports.GetListAsync<ServiceEdge>(
+                "SELECT c.submitid_a AS u, c.submitid_b AS v FROM c",
+                new PartitionKey(setGuid.ToString()));
         }
     }
 }
