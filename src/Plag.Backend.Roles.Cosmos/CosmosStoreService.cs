@@ -862,21 +862,11 @@ namespace Xylab.PlagiarismDetect.Backend
                 ServiceVertex u = edge.Item1.Id < edge.Item2.Id ? edge.Item2 : edge.Item1;
                 ServiceVertex v = edge.Item1.Id < edge.Item2.Id ? edge.Item1 : edge.Item2;
                 batch.UpsertItem(ReportEntity.Of(setGuid, (u.Id, u.Name, u.Exclusive), (v.Id, v.Name, v.Exclusive)));
-            }, async (setId, results) =>
+            },
+            (setId, results) =>
             {
                 created += results.Count(a => a.Item2.StatusCode == HttpStatusCode.Created);
                 updated += results.Count(a => a.Item2.StatusCode == HttpStatusCode.OK);
-
-                if (created + updated > 30)
-                {
-                    await _database.Sets
-                        .Patch(setId, new PartitionKey(MetadataEntity.SetsTypeKey))
-                        .IncrementProperty(s => s.ReportCount, created)
-                        .IncrementProperty(s => s.ReportPending, created + updated)
-                        .ExecuteAsync();
-
-                    created = updated = 0;
-                }
             });
 
             await _database.Sets
