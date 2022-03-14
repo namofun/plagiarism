@@ -131,15 +131,22 @@ namespace Xylab.PlagiarismDetect.Backend.Services
         /// <summary>
         /// Gets the vertices from service graph.
         /// </summary>
-        /// <param name="setId">The set ID.</param>
+        /// <param name="set">The set.</param>
         /// <returns>The list of vertices.</returns>
-        Task<List<ServiceVertex>> GetVerticesAsync(string setId);
+        Task<List<ServiceVertex>> GetVerticesAsync(PlagiarismSet set);
 
         /// <summary>
         /// Gets the edges from service graph.
         /// </summary>
-        /// <param name="setId">The set ID.</param>
+        /// <param name="set">The set.</param>
         /// <returns>The list of edges.</returns>
-        Task<List<ServiceEdge>> GetEdgesAsync(string setId);
+        Task<List<ServiceEdge>> GetEdgesAsync(PlagiarismSet set);
+
+        /// <summary>
+        /// Add the lost edges to the graph.
+        /// </summary>
+        /// <param name="set">The set.</param>
+        /// <param name="edges">The list of edges.</param>
+        Task FixEdgesAsync(PlagiarismSet set, List<(ServiceVertex, ServiceVertex)> edges);
     }
 }

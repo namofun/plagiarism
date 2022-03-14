@@ -817,9 +817,9 @@ namespace Xylab.PlagiarismDetect.Backend
             }
         }
 
-        public async Task<List<ServiceVertex>> GetVerticesAsync(string setId)
+        public async Task<List<ServiceVertex>> GetVerticesAsync(PlagiarismSet set)
         {
-            if (!SetGuid.TryParse(setId, out var setGuid))
+            if (!SetGuid.TryParse(set.Id, out var setGuid))
                 throw new KeyNotFoundException();
 
             ServiceGraphEntity graph =
@@ -833,14 +833,57 @@ namespace Xylab.PlagiarismDetect.Backend
             return graph.Data.Values.ToList();
         }
 
-        public Task<List<ServiceEdge>> GetEdgesAsync(string setId)
+        public Task<List<ServiceEdge>> GetEdgesAsync(PlagiarismSet set)
         {
-            if (!SetGuid.TryParse(setId, out var setGuid))
+            if (!SetGuid.TryParse(set.Id, out var setGuid))
                 throw new KeyNotFoundException();
 
             return _database.Reports.GetListAsync<ServiceEdge>(
                 "SELECT c.submitid_a AS u, c.submitid_b AS v FROM c",
                 new PartitionKey(setGuid.ToString()));
+        }
+
+        public async Task FixEdgesAsync(PlagiarismSet set, List<(ServiceVertex, ServiceVertex)> edges)
+        {
+            if (!SetGuid.TryParse(set.Id, out var setGuid))
+                throw new KeyNotFoundException();
+
+            foreach ((ServiceVertex u, ServiceVertex v) in edges)
+            {
+                if (!u.Id.CanBeInt24() || !v.Id.CanBeInt24())
+                {
+                    throw new InvalidOperationException($"Unknown edge ({u.Id}, {v.Id}) provided.");
+                }
+            }
+
+            int created = 0, updated = 0;
+            await _database.Reports.BatchWithRetryAsync(set.Id, edges, (edge, batch) =>
+            {
+                ServiceVertex u = edge.Item1.Id < edge.Item2.Id ? edge.Item2 : edge.Item1;
+                ServiceVertex v = edge.Item1.Id < edge.Item2.Id ? edge.Item1 : edge.Item2;
+                batch.UpsertItem(ReportEntity.Of(setGuid, (u.Id, u.Name, u.Exclusive), (v.Id, v.Name, v.Exclusive)));
+            }, async (setId, results) =>
+            {
+                created += results.Count(a => a.Item2.StatusCode == HttpStatusCode.Created);
+                updated += results.Count(a => a.Item2.StatusCode == HttpStatusCode.OK);
+
+                if (created + updated > 30)
+                {
+                    await _database.Sets
+                        .Patch(setId, new PartitionKey(MetadataEntity.SetsTypeKey))
+                        .IncrementProperty(s => s.ReportCount, created)
+                        .IncrementProperty(s => s.ReportPending, created + updated)
+                        .ExecuteAsync();
+
+                    created = updated = 0;
+                }
+            });
+
+            await _database.Sets
+                .Patch(setGuid.ToString(), new PartitionKey(MetadataEntity.SetsTypeKey))
+                .IncrementProperty(s => s.ReportCount, created)
+                .IncrementProperty(s => s.ReportPending, created + updated)
+                .ExecuteAsync();
         }
     }
 }
