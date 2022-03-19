@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -395,7 +396,7 @@ namespace Xylab.PlagiarismDetect.Backend
             }
             catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.PreconditionFailed)
             {
-                throw new InvalidOperationException(
+                throw new DBConcurrencyException(
                     "Concurrent operation conflict. The target has been processed by another process.",
                     ex);
             }
@@ -418,11 +419,10 @@ namespace Xylab.PlagiarismDetect.Backend
                     Name = submission.Name,
                 };
 
-                await _database.Metadata.GetContainer().PatchItemAsync<ServiceGraphEntity>(
-                    setGuid.ToString(),
-                    new PartitionKey(MetadataEntity.ServiceGraphTypeKey),
-                    new[] { PatchOperation.Set("/data/" + subGuid.ToString(), vertex) },
-                    new() { EnableContentResponseOnWrite = false });
+                await _database.Metadata.AsType<ServiceGraphEntity>()
+                    .Patch(setGuid.ToString(), new(MetadataEntity.ServiceGraphTypeKey))
+                    .SetProperty(g => g.Data, subGuid.ToString(), vertex)
+                    .ExecuteAsync();
             }
         }
 
@@ -759,8 +759,7 @@ namespace Xylab.PlagiarismDetect.Backend
             }
 
             Dictionary<string, SubmissionEntity> results =
-                (await _database.Submissions.GetContainer()
-                    .ReadManyItemsAsync<SubmissionEntity>(submissionKeys))
+                (await _database.Submissions.ReadManyItemsAsync(submissionKeys))
                 .ToDictionary(k => k.ExternalId);
 
             return submitExternalIds
@@ -785,8 +784,7 @@ namespace Xylab.PlagiarismDetect.Backend
             }
 
             FeedResponse<SubmissionEntity> results =
-                await _database.Submissions.GetContainer()
-                    .ReadManyItemsAsync<SubmissionEntity>(submissionKeys);
+                await _database.Submissions.ReadManyItemsAsync(submissionKeys);
 
             return results.Select(sub =>
                 new KeyValuePair<Submission, Compilation>(

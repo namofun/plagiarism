@@ -1,6 +1,6 @@
 ﻿#nullable enable
-
 using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Scripts;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using System;
@@ -24,9 +24,23 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
             _logger = logger;
         }
 
-        public Container GetContainer()
+        public CosmosContainer<TEntity> AsType<TEntity>()
+            where TEntity : class, T
         {
-            return _coll;
+            return new(_coll, _logger);
+        }
+
+        public Task<StoredProcedureExecuteResponse<TOutput>> ExecuteStoredProcedureAsync<TOutput>(
+            string storedProcedureId,
+            PartitionKey partitionKey,
+            dynamic[] parameters,
+            StoredProcedureRequestOptions? requestOptions = null)
+        {
+            return _coll.Scripts.ExecuteStoredProcedureAsync<TOutput>(
+                storedProcedureId,
+                partitionKey,
+                parameters,
+                requestOptions);
         }
 
         public Task UpsertAsync(T entity)
@@ -126,6 +140,11 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
         public Task<T?> GetEntityAsync(string id, string partitionKey)
         {
             return GetEntityAsync<T>(id, partitionKey);
+        }
+
+        public Task<FeedResponse<T>> ReadManyItemsAsync(IReadOnlyList<(string id, PartitionKey partitionKey)> keys)
+        {
+            return _coll.ReadManyItemsAsync<T>(keys);
         }
 
         public async Task BatchAsync<TModel>(

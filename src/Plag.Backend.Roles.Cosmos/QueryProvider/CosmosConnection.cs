@@ -124,7 +124,7 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
             int inclusiveCategory,
             int exclusiveCategory)
         {
-            return container.GetContainer().Scripts.ExecuteStoredProcedureAsync<List<Models.ServiceVertex>>(
+            return container.ExecuteStoredProcedureAsync<List<Models.ServiceVertex>>(
                 QueryServiceGraph,
                 new PartitionKey(MetadataEntity.ServiceGraphTypeKey),
                 new object[] { setId.ToString(), language, inclusiveCategory, exclusiveCategory },

@@ -1,5 +1,4 @@
 ﻿#nullable enable
-
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Scripts;
 using System;
@@ -67,20 +66,31 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
             if (propertySelector.Body is not MemberExpression memberAccess
                 || memberAccess.Expression != propertySelector.Parameters[0])
             {
-                throw new ArgumentException("Invalid property selector, must be direct member access.");
+                throw new ArgumentException("Invalid property selector, must be direct member access or dictionary access.");
             }
 
-            if (!EntityJsonContractResolver.SpecialConfiguration.TryGetValue(
+            if (EntityJsonContractResolver.SpecialConfiguration.TryGetValue(
                 memberAccess.Member,
                 out string? propertyName))
             {
-                propertyName = memberAccess.Member
-                    .GetCustomAttribute<System.Text.Json.Serialization.JsonPropertyNameAttribute>()
-                    ?.Name
-                    ?? throw new ArgumentException("Invalid property, must be marked with [JsonPropertyName]");
+                return propertyName;
             }
-
-            return propertyName;
+            else if (memberAccess.Member
+                .GetCustomAttribute<System.Text.Json.Serialization.JsonPropertyNameAttribute>()
+                ?.Name is string systemJsonPropertyName)
+            {
+                return systemJsonPropertyName;
+            }
+            else if (memberAccess.Member
+                .GetCustomAttribute<Newtonsoft.Json.JsonPropertyAttribute>()
+                ?.PropertyName is string newtonsoftJsonPropertyName)
+            {
+                return newtonsoftJsonPropertyName;
+            }
+            else
+            {
+                throw new ArgumentException("Invalid property, must be marked with [JsonPropertyName]");
+            }
         }
     }
 }

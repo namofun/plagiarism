@@ -47,6 +47,25 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
             return this;
         }
 
+        public CosmosPatch<TEntity> SetProperty<TProperty>(
+            Expression<Func<TEntity, Dictionary<string, TProperty>>> dictPropSelector,
+            string dictionaryKey,
+            TProperty propertyValue)
+        {
+            string path = "/" + dictPropSelector.ParseProperty() + "/" + dictionaryKey;
+
+            if (propertyValue == null)
+            {
+                _operations.Add(PatchOperation.Set(path, new MemoryStream(nullStreamSource)));
+            }
+            else
+            {
+                _operations.Add(PatchOperation.Set(path, propertyValue));
+            }
+
+            return this;
+        }
+
         public CosmosPatch<TEntity> IncrementProperty(
             Expression<Func<TEntity, int>> propertySelector,
             int propertyValue)
