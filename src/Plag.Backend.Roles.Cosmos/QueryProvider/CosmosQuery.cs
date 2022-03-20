@@ -185,6 +185,7 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
             TransactionalBatch transactionalBatch,
             TransactionalBatchRequestOptions options,
             bool transactional,
+            string queryDescription,
             CancellationToken cancellationToken)
         {
             options ??= new();
@@ -196,7 +197,7 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
                     "Azure DocumentDB",
                     _container.Database.Client.Endpoint.Host,
                     $"BATCH {_container.Database.Id}/{_container.Id}");
-            dependencyTracker.Data = transactional ? "TRANSACTION BATCH" : "NON-TRANSACTION BATCH";
+            dependencyTracker.Data = queryDescription;
 
             try
             {
@@ -235,7 +236,7 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
 
         public CosmosBatch<TEntity> CreateBatch<TEntity>(PartitionKey partitionKey)
         {
-            return new(_container.CreateTransactionalBatch(partitionKey), this);
+            return new(_container.CreateTransactionalBatch(partitionKey), this, partitionKey);
         }
     }
 }

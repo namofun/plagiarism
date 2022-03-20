@@ -609,7 +609,7 @@ namespace Xylab.PlagiarismDetect.Backend
                 (sid, batch) => batch
                     .Patch()
                     .Set(s => s.MaxPercent, fragment.Percent)
-                    .When("FROM s WHERE s.max_percent < " + fragment.Percent.ToJson())
+                    .When("FROM s WHERE s.max_percent < @param1", fragment.Percent)
                     .OnItem(SubmissionGuid.FromStructured(setGuid, sid).ToString()));
         }
 
@@ -732,7 +732,7 @@ namespace Xylab.PlagiarismDetect.Backend
                 (submission, batch) => batch
                     .Patch()
                     .Set(s => s.MaxPercent, submission.Item3)
-                    .When("FROM s WHERE s.max_percent < " + submission.Item3.ToJson())
+                    .When("FROM s WHERE s.max_percent < @param1", submission.Item3)
                     .OnItem(submission.Item2));
         }
 

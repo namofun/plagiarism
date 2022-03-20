@@ -135,7 +135,7 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
             {
                 await _container.Query<TEntity, ItemResponse<TEntity>>(
                     "PATCH",
-                    $"PATCH {string.Join(", ", _operations.Select(o => $"{o.OperationType}(\"{o.Path}\")"))}\r\nOVER {_partitionKey}",
+                    $"PATCH {string.Join(", ", _operations.Select(o => $"{o.OperationType}(\"{o.Path}\")"))} OVER {_partitionKey}" + (_concurrencyGuard == null ? "" : "\r\n" + _concurrencyGuard),
                     coll => coll.PatchItemAsync<TEntity>(
                         _id,
                         _partitionKey,
