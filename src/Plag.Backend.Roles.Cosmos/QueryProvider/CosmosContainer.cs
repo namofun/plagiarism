@@ -1,11 +1,11 @@
 ﻿#nullable enable
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Scripts;
+using Microsoft.Extensions.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading;
@@ -15,83 +15,62 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
 {
     public class CosmosContainer<T> where T : class
     {
-        private readonly Container _coll;
-        private readonly ILogger _logger;
+        private readonly CosmosQuery _coll;
 
-        public CosmosContainer(Container container, ILogger logger)
+        public CosmosContainer(Container container, ILogger logger, ITelemetryClient telemetryClient)
+            : this(new CosmosQuery(telemetryClient, logger, container))
         {
-            _coll = container;
-            _logger = logger;
+        }
+
+        internal CosmosContainer(CosmosQuery query)
+        {
+            _coll = query;
         }
 
         public CosmosContainer<TEntity> AsType<TEntity>()
             where TEntity : class, T
         {
-            return new(_coll, _logger);
+            return new CosmosContainer<TEntity>(_coll);
         }
 
-        public async Task<TOutput> ExecuteStoredProcedureAsync<TOutput>(
+        public Task<TOutput> ExecuteStoredProcedureAsync<TOutput>(
             string storedProcedureId,
             PartitionKey partitionKey,
             dynamic[] parameters,
             StoredProcedureRequestOptions? requestOptions = null)
         {
-            return await _coll.Scripts.ExecuteStoredProcedureAsync<TOutput>(
-                storedProcedureId,
-                partitionKey,
-                parameters,
-                requestOptions);
+            return _coll.Query<TOutput, StoredProcedureExecuteResponse<TOutput>>(
+                "SPROC",
+                $"EXEC {storedProcedureId} ({string.Join(", ", parameters.Select((a, i) => "@p" + i))}) OVER {partitionKey}",
+                coll => coll.Scripts.ExecuteStoredProcedureAsync<TOutput>(
+                    storedProcedureId,
+                    partitionKey,
+                    parameters,
+                    requestOptions));
         }
 
         public Task UpsertAsync(T entity, PartitionKey partitionKey)
         {
-            return _coll.UpsertItemAsync(
-                entity,
-                partitionKey,
-                new ItemRequestOptions { EnableContentResponseOnWrite = false });
+            return _coll.Query<T, ItemResponse<T>>(
+                "UPSERT",
+                $"UPSERT OVER {partitionKey}",
+                coll => coll.UpsertItemAsync(
+                    entity,
+                    partitionKey,
+                    new ItemRequestOptions { EnableContentResponseOnWrite = false }));
         }
 
-        public Task<ItemResponse<T>> CreateAsync(T entity, PartitionKey partitionKey)
+        public Task<T> CreateAsync(T entity, PartitionKey partitionKey)
         {
-            return _coll.CreateItemAsync(entity, partitionKey);
+            return _coll.Query<T, ItemResponse<T>>(
+                "CREATE",
+                $"CREATE OVER {partitionKey}",
+                coll => coll.CreateItemAsync(entity, partitionKey));
         }
 
         public CosmosPatch<T> Patch(string id, PartitionKey partitionKey)
         {
             return new(_coll, id, partitionKey);
-        }
-
-        private async Task<List<TEntity>> GetListInternalAsync<TEntity>(QueryDefinition sql, PartitionKey? partitionKey, CancellationToken cancellationToken)
-        {
-            Stopwatch timer = Stopwatch.StartNew();
-            EventId eventId = new(10060, "CosmosDbQuery");
-            List<TEntity> result = new();
-            QueryRequestOptions options = new() { PartitionKey = partitionKey };
-            try
-            {
-                using FeedIterator<TEntity> iterator = _coll.GetItemQueryIterator<TEntity>(sql, requestOptions: options);
-                while (iterator.HasMoreResults)
-                {
-                    foreach (TEntity item in await iterator.ReadNextAsync(cancellationToken).ConfigureAwait(false))
-                    {
-                        result.Add(item);
-                    }
-                }
-            }
-            catch (CosmosException ex)
-            {
-                timer.Stop();
-                _logger.LogError(eventId, ex,
-                    "Failed to query from [{ContainerName}] within {ElapsedTime}ms.\r\n{QueryText}",
-                    _coll.Id + (partitionKey == null ? "" : "(pk=" + partitionKey + ")"), timer.ElapsedMilliseconds, sql.QueryText);
-                throw;
-            }
-
-            timer.Stop();
-            _logger.LogInformation(eventId,
-                "Queried from [{ContainerName}] within {ElapsedTime}ms, {Count} results.\r\n{QueryText}",
-                _coll.Id + (partitionKey == null ? "" : "(pk=" + partitionKey + ")"), timer.ElapsedMilliseconds, result.Count, sql.QueryText);
-            return result;
         }
 
         public async Task<TEntity?> SingleOrDefaultAsync<TEntity>(string sql, PartitionKey? partitionKey) where TEntity : class
@@ -106,12 +85,12 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
 
         public Task<List<TEntity>> GetListAsync<TEntity>(QueryDefinition sql, PartitionKey? partitionKey = default, CancellationToken cancellationToken = default) where TEntity : class
         {
-            return GetListInternalAsync<TEntity>(sql, partitionKey, cancellationToken);
+            return _coll.Query<TEntity>(sql, partitionKey, cancellationToken);
         }
 
         public Task<List<TEntity>> GetListAsync<TEntity>(string sql, PartitionKey? partitionKey = default, CancellationToken cancellationToken = default) where TEntity : class
         {
-            return GetListInternalAsync<TEntity>(new QueryDefinition(sql), partitionKey, cancellationToken);
+            return _coll.Query<TEntity>(new QueryDefinition(sql), partitionKey, cancellationToken);
         }
 
         public Task<List<TEntity>> GetListAsync<TEntity>(string sql, object param, PartitionKey? partitionKey = default, CancellationToken cancellationToken = default) where TEntity : class
@@ -122,14 +101,18 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
                 queryDefinition.WithParameter("@" + paramName, paramValue);
             }
 
-            return GetListInternalAsync<TEntity>(queryDefinition, partitionKey, cancellationToken);
+            return _coll.Query<TEntity>(queryDefinition, partitionKey, cancellationToken);
         }
 
         public async Task<TEntity?> GetEntityAsync<TEntity>(string id, string partitionKey) where TEntity : class
         {
+            PartitionKey partitionKey1 = new(partitionKey);
             try
             {
-                return await _coll.ReadItemAsync<TEntity>(id, new PartitionKey(partitionKey));
+                return await _coll.Query<TEntity, ItemResponse<TEntity>>(
+                    "READ",
+                    $"READ FOR @id OVER {partitionKey1}",
+                    coll => coll.ReadItemAsync<TEntity>(id, partitionKey1));
             }
             catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
             {
@@ -142,9 +125,12 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
             return GetEntityAsync<T>(id, partitionKey);
         }
 
-        public Task<FeedResponse<T>> ReadManyItemsAsync(IReadOnlyList<(string id, PartitionKey partitionKey)> keys)
+        public Task<IEnumerable<T>> ReadManyItemsAsync(IReadOnlyList<(string id, PartitionKey partitionKey)> keys)
         {
-            return _coll.ReadManyItemsAsync<T>(keys);
+            return _coll.Query<IEnumerable<T>, FeedResponse<T>>(
+                "READ",
+                $"READ FOR({keys.Count}) @id OVER @partitionKey",
+                coll => coll.ReadManyItemsAsync<T>(keys));
         }
 
         public async Task BatchAsync<TModel>(
@@ -159,7 +145,7 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
             if (batchSize > 100) throw new ArgumentOutOfRangeException(nameof(batchSize));
             foreach (TModel[] batchModel in source.Chunk(batchSize))
             {
-                CosmosBatch<T> batch = new(_coll.CreateTransactionalBatch(new(partitionKey)));
+                CosmosBatch<T> batch = _coll.CreateBatch<T>(new PartitionKey(partitionKey));
                 foreach (TModel model in batchModel)
                 {
                     batchEntryBuilder.Invoke(model, batch);

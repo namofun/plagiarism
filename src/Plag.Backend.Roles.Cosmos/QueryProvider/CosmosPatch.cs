@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
 using System.Threading.Tasks;
@@ -66,14 +67,14 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
 
     public sealed class CosmosPatch<TEntity>
     {
-        private readonly Container _container;
+        private readonly CosmosQuery _container;
         private readonly PartitionKey _partitionKey;
         private readonly string _id;
         private readonly List<PatchOperation> _operations;
         private string _concurrencyGuard;
         private bool _ignorePreconditionFailure;
 
-        internal CosmosPatch(Container container, string id, PartitionKey partitionKey)
+        internal CosmosPatch(CosmosQuery container, string id, PartitionKey partitionKey)
         {
             _container = container;
             _partitionKey = partitionKey;
@@ -132,15 +133,18 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
         {
             try
             {
-                await _container.PatchItemAsync<TEntity>(
-                    _id,
-                    _partitionKey,
-                    _operations,
-                    new PatchItemRequestOptions()
-                    {
-                        EnableContentResponseOnWrite = false,
-                        FilterPredicate = _concurrencyGuard,
-                    });
+                await _container.Query<TEntity, ItemResponse<TEntity>>(
+                    "PATCH",
+                    $"PATCH {string.Join(", ", _operations.Select(o => $"{o.OperationType}(\"{o.Path}\")"))}\r\nOVER {_partitionKey}",
+                    coll => coll.PatchItemAsync<TEntity>(
+                        _id,
+                        _partitionKey,
+                        _operations,
+                        new PatchItemRequestOptions()
+                        {
+                            EnableContentResponseOnWrite = false,
+                            FilterPredicate = _concurrencyGuard,
+                        }));
             }
             catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
             {

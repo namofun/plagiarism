@@ -10,10 +10,12 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
     public class CosmosBatch<TEntity>
     {
         private readonly TransactionalBatch _batch;
+        private readonly CosmosQuery _query;
 
-        public CosmosBatch(TransactionalBatch batch)
+        internal CosmosBatch(TransactionalBatch batch, CosmosQuery query)
         {
             _batch = batch;
+            _query = query;
         }
 
         public void CreateItem(TEntity item)
@@ -51,12 +53,12 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
 
         public Task<TransactionalBatchResponse> ExecuteAsync(CancellationToken cancellationToken = default)
         {
-            return _batch.ExecuteAsync(cancellationToken);
+            return _query.Query(_batch, null, true, cancellationToken);
         }
 
         public Task<TransactionalBatchResponse> ExecuteNonTransactionalAsync(CancellationToken cancellationToken = default)
         {
-            return _batch.ExecuteNonTransactionalAsync(cancellationToken);
+            return _query.Query(_batch, null, false, cancellationToken);
         }
 
         public sealed class PatchBuilder

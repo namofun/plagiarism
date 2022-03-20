@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Scripts;
+using Microsoft.Extensions.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
@@ -17,16 +18,21 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
         private readonly CosmosClient _client;
         private readonly ILogger<CosmosConnection> _logger;
         private readonly Database _database;
+        private readonly ITelemetryClient _telemetryClient;
 
         public CosmosContainer<SetEntity> Sets { get; }
         public CosmosContainer<SubmissionEntity> Submissions { get; }
         public CosmosContainer<ReportEntity> Reports { get; }
         public CosmosContainer<MetadataEntity> Metadata { get; }
 
-        public CosmosConnection(IOptions<PlagBackendCosmosOptions> options, ILogger<CosmosConnection> logger)
+        public CosmosConnection(
+            IOptions<PlagBackendCosmosOptions> options,
+            ILogger<CosmosConnection> logger,
+            ITelemetryClient telemetryClient)
         {
             _options = options.Value;
             _logger = logger;
+            _telemetryClient = telemetryClient;
 
             _client = new CosmosClient(
                 _options.ConnectionString,
@@ -37,13 +43,18 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
                 });
 
             _database = _client.GetDatabase(_options.DatabaseName);
-            Sets = new(_database.GetContainer(nameof(Metadata)), logger);
-            Submissions = new(_database.GetContainer(nameof(Submissions)), logger);
-            Reports = new(_database.GetContainer(nameof(Reports)), logger);
-            Metadata = new(_database.GetContainer(nameof(Metadata)), logger);
+            Sets = new(_database.GetContainer(nameof(Metadata)), logger, _telemetryClient);
+            Submissions = new(_database.GetContainer(nameof(Submissions)), logger, _telemetryClient);
+            Reports = new(_database.GetContainer(nameof(Reports)), logger, _telemetryClient);
+            Metadata = new(_database.GetContainer(nameof(Metadata)), logger, _telemetryClient);
         }
 
-        public async Task MigrateAsync()
+        public Task MigrateAsync()
+        {
+            return _telemetryClient.TrackScope("Cosmos.Migration", MigrateAsyncCore);
+        }
+
+        private async Task MigrateAsyncCore()
         {
             DatabaseResponse databaseResponse = await _client
                 .CreateDatabaseIfNotExistsAsync(_options.DatabaseName)
@@ -88,12 +99,18 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
             {
                 string code = await GetStoredProcedureCodeAsync(name);
                 Container container = database.GetContainer(containerName);
-                await container.Scripts.CreateStoredProcedureIfNotExistsAsync(
-                    new StoredProcedureProperties()
-                    {
-                        Id = name,
-                        Body = code,
-                    });
+                try
+                {
+                    await container.Scripts.CreateStoredProcedureAsync(
+                        new StoredProcedureProperties()
+                        {
+                            Id = name,
+                            Body = code,
+                        });
+                }
+                catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.Conflict)
+                {
+                }
             }
         }
 
