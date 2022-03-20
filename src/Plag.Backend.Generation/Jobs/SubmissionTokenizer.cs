@@ -39,7 +39,7 @@ namespace Xylab.PlagiarismDetect.Backend.Jobs
             var file = new SubmissionFileProxy(ss.Files);
             var lang = _compiler.FindLanguage(ss.Language);
             var result = await _telemetryClient.TrackScope(
-                "Antlr4",
+                "Compile.Antlr4",
                 () => Task.FromResult(Compile(lang, file, ss.ExternalId)));
 
             try

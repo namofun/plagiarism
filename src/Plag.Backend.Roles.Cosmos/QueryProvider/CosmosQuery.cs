@@ -47,6 +47,11 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
             dependencyTracker.ResultCode = ((int)response.StatusCode).ToString();
             dependencyTracker.Metrics["RequestCharge"] = response.RequestCharge;
             dependencyTracker.Properties["ActivityId"] = response.ActivityId;
+
+            if (response is FeedResponse<T> feedResponse)
+            {
+                dependencyTracker.Metrics["ItemCount"] = feedResponse.Count;
+            }
         }
 
         private static void InjectFailure(IDependencyTracker dependencyTracker, CosmosException cosmosException)
@@ -207,6 +212,7 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
                 dependencyTracker.Success = true;
                 dependencyTracker.ResultCode = ((int)response.StatusCode).ToString();
                 dependencyTracker.Metrics["RequestCharge"] = response.RequestCharge;
+                dependencyTracker.Metrics["ItemCount"] = response.Count;
                 dependencyTracker.Properties["ActivityId"] = response.ActivityId;
                 _logger.LogInformation(EventId,
                     "Executed from [{ContainerName}] within {ElapsedTime}ms.\r\n{QueryText}",

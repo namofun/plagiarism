@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Diagnostics;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,6 +18,7 @@ namespace Xylab.PlagiarismDetect.Backend.Jobs
             IReportService reporter,
             ILogger log,
             ISignalBroker reportContinuation,
+            ITelemetryClient telemetryClient,
             CancellationToken cancellationToken)
         {
             string queueStamp = CorrelationRecord.Parent(signal);
@@ -33,7 +35,7 @@ namespace Xylab.PlagiarismDetect.Backend.Jobs
             int lastBatch = 0;
             while (!ctsV2.Token.IsCancellationRequested)
             {
-                lastBatch = await gen.DoWorkBatchAsync(store, lru);
+                lastBatch = await telemetryClient.TrackScope("Report.Batch", () => gen.DoWorkBatchAsync(store, lru));
                 if (lastBatch == 0) break;
                 log.LogDebug("{count} reports are finished and saved.", lastBatch);
             }

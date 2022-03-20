@@ -34,7 +34,7 @@ namespace Xylab.PlagiarismDetect.Backend.Jobs
             int scheduleCounter = 0;
             while (!ctsV2.Token.IsCancellationRequested)
             {
-                next = await tokenizer.DoWorkAsync(store);
+                next = await telemetryClient.TrackScope("Compile.Peek", () => tokenizer.DoWorkAsync(store));
                 if (next == null) break;
                 scheduleCounter++;
 
@@ -42,7 +42,7 @@ namespace Xylab.PlagiarismDetect.Backend.Jobs
 
                 if (next.TokenProduced == true)
                 {
-                    await store.ScheduleAsync(next);
+                    await telemetryClient.TrackScope("Compile.Schedule", () => store.ScheduleAsync(next));
                     scheduleCounter++;
                 }
 
