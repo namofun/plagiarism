@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Diagnostics;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,10 +18,11 @@ namespace Xylab.PlagiarismDetect.Backend.Jobs
             ILogger log,
             ISignalBroker compilationContinuation,
             ISignalBroker reportGenerator,
+            ITelemetryClient telemetryClient,
             CancellationToken cancellationToken)
         {
             string queueStamp = CorrelationRecord.Parent(queueMessage);
-            SubmissionTokenizer tokenizer = new(converter, compiler);
+            SubmissionTokenizer tokenizer = new(converter, compiler, telemetryClient);
 
             using CancellationTokenSource cts = new();
             using CancellationTokenSource ctsV2 = CancellationTokenSource.CreateLinkedTokenSource(cts.Token, cancellationToken);

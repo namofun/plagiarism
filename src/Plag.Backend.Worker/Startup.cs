@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Xylab.PlagiarismDetect.Backend.Jobs;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics;
 
 [assembly: FunctionsStartup(typeof(Xylab.PlagiarismDetect.Backend.Worker.Startup))]
 
@@ -14,6 +16,7 @@ namespace Xylab.PlagiarismDetect.Backend.Worker
         public override void Configure(IFunctionsHostBuilder builder)
         {
             builder.Services.AddPlagGenerationService();
+            builder.Services.AddSingleton<ITelemetryClient, FunctionsTelemetryClient>();
 
             IConfiguration configuration = builder.GetContext().Configuration;
             if (configuration.GetConnectionString("Primary") == "SqlServer")

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Primitives;
 using System;
@@ -19,7 +20,8 @@ namespace Xylab.PlagiarismDetect.Backend.Jobs
         {
             _tokenizer = new SubmissionTokenizer(
                 serviceProvider.GetRequiredService<IConvertService2>(),
-                serviceProvider.GetRequiredService<ICompileService>());
+                serviceProvider.GetRequiredService<ICompileService>(),
+                serviceProvider.GetRequiredService<ITelemetryClient>());
 
             _anotherSignal = serviceProvider.GetRequiredService<IResettableSignal<ReportGenerationService>>();
 
