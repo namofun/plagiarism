@@ -19,11 +19,11 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
 
             if (propertyValue == null)
             {
-                patch.Add(PatchOperation.Replace(path, JValue.CreateNull()));
+                patch.Add(PatchOperation.Set(path, JValue.CreateNull()));
             }
             else
             {
-                patch.Add(PatchOperation.Replace(path, propertyValue));
+                patch.Add(PatchOperation.Set(path, propertyValue));
             }
         }
 

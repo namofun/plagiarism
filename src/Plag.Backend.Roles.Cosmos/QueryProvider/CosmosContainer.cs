@@ -150,7 +150,7 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
         public async Task BatchAsync<TModel>(
             string partitionKey,
             IEnumerable<TModel> source,
-            Action<TModel, TransactionalBatch> batchEntryBuilder,
+            Action<TModel, CosmosBatch<T>> batchEntryBuilder,
             Func<string, TModel[], TransactionalBatchResponse, Task>? postBatchResponse,
             int batchSize = 50,
             bool allowTooManyRequests = false,
@@ -159,7 +159,7 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
             if (batchSize > 100) throw new ArgumentOutOfRangeException(nameof(batchSize));
             foreach (TModel[] batchModel in source.Chunk(batchSize))
             {
-                TransactionalBatch batch = _coll.CreateTransactionalBatch(new(partitionKey));
+                CosmosBatch<T> batch = new(_coll.CreateTransactionalBatch(new(partitionKey)));
                 foreach (TModel model in batchModel)
                 {
                     batchEntryBuilder.Invoke(model, batch);
@@ -194,7 +194,7 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
         public async Task BatchAsync<TModel>(
             IEnumerable<TModel> source,
             Func<TModel, string> partitionKeySelector,
-            Action<TModel, TransactionalBatch> batchEntryBuilder,
+            Action<TModel, CosmosBatch<T>> batchEntryBuilder,
             Action<string, TModel[], TransactionalBatchResponse>? postBatchResponse = null,
             int batchSize = 50,
             bool allowTooManyRequests = false,
@@ -209,7 +209,7 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
         public Task BatchAsync<TModel>(
             string partitionKey,
             IEnumerable<TModel> source,
-            Action<TModel, TransactionalBatch> batchEntryBuilder,
+            Action<TModel, CosmosBatch<T>> batchEntryBuilder,
             Action<string, TModel[], TransactionalBatchResponse>? postBatchResponse = null,
             int batchSize = 50,
             bool allowTooManyRequests = false,
@@ -219,7 +219,7 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
         public async Task BatchWithRetryAsync<TModel>(
             IEnumerable<TModel> source,
             Func<TModel, string> partitionKeySelector,
-            Action<TModel, TransactionalBatch> batchEntryBuilder,
+            Action<TModel, CosmosBatch<T>> batchEntryBuilder,
             Action<string, IEnumerable<(TModel, TransactionalBatchOperationResult)>>? postBatchResponse = null,
             int batchSize = 50)
         {
@@ -246,7 +246,7 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
         public async Task BatchWithRetryAsync<TModel>(
             string partitionKey,
             IEnumerable<TModel> source,
-            Action<TModel, TransactionalBatch> batchEntryBuilder,
+            Action<TModel, CosmosBatch<T>> batchEntryBuilder,
             Func<string, IEnumerable<(TModel, TransactionalBatchOperationResult)>, Task>? postBatchResponse,
             int batchSize = 50)
         {
@@ -276,7 +276,7 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
         public Task BatchWithRetryAsync<TModel>(
             string partitionKey,
             IEnumerable<TModel> source,
-            Action<TModel, TransactionalBatch> batchEntryBuilder,
+            Action<TModel, CosmosBatch<T>> batchEntryBuilder,
             Action<string, IEnumerable<(TModel, TransactionalBatchOperationResult)>>? postBatchResponse = null,
             int batchSize = 50)
             => BatchWithRetryAsync(partitionKey, source, batchEntryBuilder, postBatchResponse.AsAsync(), batchSize);

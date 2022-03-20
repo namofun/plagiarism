@@ -491,7 +491,7 @@ namespace Xylab.PlagiarismDetect.Backend
             int created = 0, updated = 0;
             await _database.Reports.BatchWithRetryAsync(set.ToString(), pendingReports, (report, batch) =>
             {
-                batch.UpsertItem(report, new() { EnableContentResponseOnWrite = false });
+                batch.UpsertItem(report);
             },
             async (_, reports) =>
             {
@@ -521,46 +521,39 @@ namespace Xylab.PlagiarismDetect.Backend
 
         public async Task RefreshCacheAsync()
         {
-            List<JObject> reportAggregate =
-                await _database.Reports.GetListAsync<JObject>(
+            List<SetStatistics> reportAggregate =
+                await _database.Reports.GetListAsync<SetStatistics>(
                     "SELECT r.setid, COUNT(1) AS report_count, " +
                           " SUM(r.state = \"Finished\" ? 0 : 1) AS report_pending " +
                     "FROM Reports r WHERE r.type = \"report\" " +
                     "GROUP BY r.setid");
 
-            List<JObject> submissionAggregate =
-                await _database.Submissions.GetListAsync<JObject>(
+            List<SetStatistics> submissionAggregate =
+                await _database.Submissions.GetListAsync<SetStatistics>(
                     "SELECT s.setid, COUNT(1) AS submission_count, " +
                           " SUM(s.token_produced = true ? 1 : 0) AS submission_succeeded, " +
                           " SUM(s.token_produced = false ? 1 : 0) AS submission_failed " +
                     "FROM Submissions s WHERE s.type = \"submission\" " +
                     "GROUP BY s.setid");
 
-            JObject aggProps = JObject.FromObject(new
+            Dictionary<string, SetStatistics> patchEntries = new();
+            foreach (SetStatistics agg in submissionAggregate.Concat(reportAggregate))
             {
-                report_count = 0,
-                report_pending = 0,
-                submission_count = 0,
-                submission_succeeded = 0,
-                submission_failed = 0,
-            });
-
-            Dictionary<string, JObject> patchEntries = new();
-            foreach (JObject agg in submissionAggregate.Concat(reportAggregate))
-            {
-                string setId = (string)agg["setid"];
-                if (!patchEntries.ContainsKey(setId)) patchEntries.Add(setId, new JObject(aggProps));
-                patchEntries[setId].Merge(agg);
+                if (!patchEntries.ContainsKey(agg.Id)) patchEntries.Add(agg.Id, new() { Id = agg.Id });
+                patchEntries[agg.Id].Merge(agg);
             }
 
-            IEnumerable<string> keys = ((IDictionary<string, JToken>)aggProps).Keys;
-            await _database.Sets.BatchWithRetryAsync(MetadataEntity.SetsTypeKey, patchEntries, (patchEntry, batch) =>
-            {
-                batch.PatchItem(
-                    patchEntry.Key,
-                    keys.Select(aggKey => PatchOperation.Replace($"/{aggKey}", (int)patchEntry.Value[aggKey])).ToList(),
-                    new() { EnableContentResponseOnWrite = false });
-            });
+            await _database.Sets.BatchWithRetryAsync(
+                MetadataEntity.SetsTypeKey,
+                patchEntries.Values,
+                (patchEntry, batch) => batch
+                    .Patch()
+                    .Set(s => s.SubmissionCount, patchEntry.SubmissionCount)
+                    .Set(s => s.SubmissionFailed, patchEntry.SubmissionFailed)
+                    .Set(s => s.SubmissionSucceeded, patchEntry.SubmissionSucceeded)
+                    .Set(s => s.ReportCount, patchEntry.ReportCount)
+                    .Set(s => s.ReportPending, patchEntry.ReportPending)
+                    .OnItem(patchEntry.Id));
         }
 
         public async Task RescueAsync()
@@ -576,13 +569,11 @@ namespace Xylab.PlagiarismDetect.Backend
                 analyzings.Select(a => ReportGuid.Parse(a)),
                 guid => guid.GetSetId().ToString(),
                 batchSize: 30,
-                batchEntryBuilder: (report, batch) =>
-                {
-                    batch.PatchItem(
-                        report.ToString(),
-                        new[] { PatchOperation.Set("/state", ReportState.Pending) },
-                        new() { EnableContentResponseOnWrite = false, FilterPredicate = "FROM r WHERE r.state = \"Analyzing\"" });
-                });
+                batchEntryBuilder: (report, batch) => batch
+                    .Patch()
+                    .Set(r => r.State, ReportState.Pending)
+                    .When("FROM r WHERE r.state = \"Analyzing\"")
+                    .OnItem(report.ToString()));
 
             await _signalProvider.SendRescueSignalAsync();
         }
@@ -612,13 +603,14 @@ namespace Xylab.PlagiarismDetect.Backend
                 .IncrementProperty(s => s.ReportPending, -1)
                 .ExecuteAsync();
 
-            await _database.Submissions.BatchWithRetryAsync(task.SetId, new[] { task.SubmissionA, task.SubmissionB }, (sid, batch) =>
-            {
-                batch.PatchItem(
-                    SubmissionGuid.FromStructured(setGuid, sid).ToString(),
-                    new[] { PatchOperation.Set("/max_percent", fragment.Percent) },
-                    new() { FilterPredicate = "FROM s WHERE s.max_percent < " + fragment.Percent.ToJson(), EnableContentResponseOnWrite = false });
-            });
+            await _database.Submissions.BatchWithRetryAsync(
+                task.SetId,
+                new[] { task.SubmissionA, task.SubmissionB },
+                (sid, batch) => batch
+                    .Patch()
+                    .Set(s => s.MaxPercent, fragment.Percent)
+                    .When("FROM s WHERE s.max_percent < " + fragment.Percent.ToJson())
+                    .OnItem(SubmissionGuid.FromStructured(setGuid, sid).ToString()));
         }
 
         public async Task JustificateAsync(string reportid, ReportJustification status)
@@ -676,13 +668,12 @@ namespace Xylab.PlagiarismDetect.Backend
                     batchSize: batchSize,
                     transactional: false,
                     allowTooManyRequests: true,
-                    batchEntryBuilder: (task, batch) =>
-                    {
-                        batch.PatchItem(
-                            task.ToString(),
-                            new[] { PatchOperation.Set("/state", ReportState.Analyzing), PatchOperation.Set("/session_lock", sessionKey) },
-                            new() { FilterPredicate = "FROM r WHERE r.state = \"Pending\"", EnableContentResponseOnWrite = false });
-                    },
+                    batchEntryBuilder: (task, batch) => batch
+                        .Patch()
+                        .Set(s => s.State, ReportState.Analyzing)
+                        .Set(s => s.SessionLock, sessionKey)
+                        .When("FROM r WHERE r.state = \"Pending\"")
+                        .OnItem(task.ToString()),
                     postBatchResponse: (setId, tasks, resp) =>
                     {
                         if (tasks.Length != resp.Count)
@@ -705,34 +696,28 @@ namespace Xylab.PlagiarismDetect.Backend
 
         public async Task SaveReportsAsync(List<KeyValuePair<ReportTask, ReportFragment>> reports)
         {
-            static string P<T>(System.Linq.Expressions.Expression<Func<ReportEntity, T>> expression)
-                => "/" + expression.ParseProperty();
-
-            await _database.Reports.BatchWithRetryAsync(reports, r => r.Key.SetId, (report, batch) =>
-            {
-                (ReportTask task, ReportFragment fragment) = report;
-                batch.PatchItem(task.Id, new[]
-                {
-                    PatchOperation.Set(P(r => r.TokensMatched), fragment.TokensMatched),
-                    PatchOperation.Set(P(r => r.BiggestMatch), fragment.BiggestMatch),
-                    PatchOperation.Set(P(r => r.State), ReportState.Finished),
-                    PatchOperation.Set(P(r => r.Percent), fragment.Percent),
-                    PatchOperation.Set(P(r => r.PercentA), fragment.PercentA),
-                    PatchOperation.Set(P(r => r.PercentB), fragment.PercentB),
-                    PatchOperation.Set(P(r => r.Matches), fragment.Matches),
-                },
-                new() { EnableContentResponseOnWrite = false });
-            });
+            await _database.Reports.BatchWithRetryAsync(
+                reports,
+                r => r.Key.SetId,
+                (report, batch) => batch
+                    .Patch()
+                    .Set(r => r.TokensMatched, report.Value.TokensMatched)
+                    .Set(r => r.BiggestMatch, report.Value.BiggestMatch)
+                    .Set(r => r.State, ReportState.Finished)
+                    .Set(r => r.Percent, report.Value.Percent)
+                    .Set(r => r.PercentA, report.Value.PercentA)
+                    .Set(r => r.PercentB, report.Value.PercentB)
+                    .Set(r => r.Matches, report.Value.Matches)
+                    .OnItem(report.Key.Id));
 
             var setAgg = reports.GroupBy(a => a.Key.SetId).Select(a => new { a.Key, Count = a.Count() });
-            await _database.Sets.BatchWithRetryAsync(MetadataEntity.SetsTypeKey, setAgg, (model, batch) =>
-            {
-                batch.PatchItem(model.Key, new[]
-                {
-                    PatchOperation.Increment("/report_pending", -model.Count)
-                },
-                new() { EnableContentResponseOnWrite = false });
-            });
+            await _database.Sets.BatchWithRetryAsync(
+                MetadataEntity.SetsTypeKey,
+                setAgg,
+                (model, batch) => batch
+                    .Patch()
+                    .Increment(s => s.ReportPending, -model.Count)
+                    .OnItem(model.Key));
 
             IEnumerable<(string, string, double)> submitPercent =
                 Enumerable.Concat(
@@ -741,13 +726,14 @@ namespace Xylab.PlagiarismDetect.Backend
                 .GroupBy(a => SubmissionGuid.FromStructured(SetGuid.Parse(a.SetId), a.SubmitId))
                 .Select(a => (a.Key.GetSetId().ToString(), a.Key.ToString(), a.Select(b => b.Percent).Max()));
 
-            await _database.Submissions.BatchWithRetryAsync(submitPercent, a => a.Item1, (submission, batch) =>
-            {
-                batch.PatchItem(
-                    submission.Item2,
-                    new[] { PatchOperation.Set("/max_percent", submission.Item3) },
-                    new() { FilterPredicate = "FROM s WHERE s.max_percent < " + submission.Item3.ToJson(), EnableContentResponseOnWrite = false });
-            });
+            await _database.Submissions.BatchWithRetryAsync(
+                submitPercent,
+                a => a.Item1,
+                (submission, batch) => batch
+                    .Patch()
+                    .Set(s => s.MaxPercent, submission.Item3)
+                    .When("FROM s WHERE s.max_percent < " + submission.Item3.ToJson())
+                    .OnItem(submission.Item2));
         }
 
         public async Task<List<KeyValuePair<Submission, Compilation>?>> GetSubmissionsAsync(List<string> submitExternalIds)
