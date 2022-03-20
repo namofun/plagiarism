@@ -30,35 +30,35 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
             return new(_coll, _logger);
         }
 
-        public Task<StoredProcedureExecuteResponse<TOutput>> ExecuteStoredProcedureAsync<TOutput>(
+        public async Task<TOutput> ExecuteStoredProcedureAsync<TOutput>(
             string storedProcedureId,
             PartitionKey partitionKey,
             dynamic[] parameters,
             StoredProcedureRequestOptions? requestOptions = null)
         {
-            return _coll.Scripts.ExecuteStoredProcedureAsync<TOutput>(
+            return await _coll.Scripts.ExecuteStoredProcedureAsync<TOutput>(
                 storedProcedureId,
                 partitionKey,
                 parameters,
                 requestOptions);
         }
 
-        public Task UpsertAsync(T entity)
+        public Task UpsertAsync(T entity, PartitionKey partitionKey)
         {
             return _coll.UpsertItemAsync(
                 entity,
-                default(PartitionKey?),
+                partitionKey,
                 new ItemRequestOptions { EnableContentResponseOnWrite = false });
         }
 
-        public Task<ItemResponse<T>> CreateAsync(T entity)
+        public Task<ItemResponse<T>> CreateAsync(T entity, PartitionKey partitionKey)
         {
-            return _coll.CreateItemAsync(entity);
+            return _coll.CreateItemAsync(entity, partitionKey);
         }
 
         public CosmosPatch<T> Patch(string id, PartitionKey partitionKey)
         {
-            return new(_coll, id, partitionKey, _logger);
+            return new(_coll, id, partitionKey);
         }
 
         private async Task<List<TEntity>> GetListInternalAsync<TEntity>(QueryDefinition sql, PartitionKey? partitionKey, CancellationToken cancellationToken)

@@ -61,6 +61,29 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
             return batch.ExecuteAsync(options, cancellationToken);
         }
 
+        public static async Task ExecuteWithRetryAsync<T>(this CosmosPatch<T> patch)
+        {
+            for (int tries = 0; ; tries++)
+            {
+                try
+                {
+                    await patch.ExecuteAsync();
+                    return;
+                }
+                catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.TooManyRequests)
+                {
+                    if (ex.RetryAfter.HasValue)
+                    {
+                        await Task.Delay(ex.RetryAfter.Value);
+                    }
+                    else if (tries >= 2)
+                    {
+                        throw;
+                    }
+                }
+            }
+        }
+
         public static string ParseProperty<TEntity, TProperty>(this Expression<Func<TEntity, TProperty>> propertySelector)
         {
             if (propertySelector.Body is not MemberExpression memberAccess

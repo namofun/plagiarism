@@ -1,35 +1,17 @@
 ﻿using Microsoft.Azure.Cosmos;
-using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq.Expressions;
 using System.Net;
 using System.Threading.Tasks;
 
 namespace Xylab.PlagiarismDetect.Backend.QueryProvider
 {
-    public sealed class CosmosPatch<TEntity>
+    internal static class CosmosPatchBuilderExtensions
     {
-        private static readonly byte[] nullStreamSource = System.Text.Encoding.UTF8.GetBytes("null");
-        private readonly Container _container;
-        private readonly PartitionKey _partitionKey;
-        private readonly ILogger _logger;
-        private readonly string _id;
-        private readonly List<PatchOperation> _operations;
-        private string _concurrencyGuard;
-        private bool _ignorePreconditionFailure;
-
-        public CosmosPatch(Container container, string id, PartitionKey partitionKey, ILogger logger)
-        {
-            _container = container;
-            _partitionKey = partitionKey;
-            _logger = logger;
-            _id = id;
-            _operations = new();
-        }
-
-        public CosmosPatch<TEntity> SetProperty<TProperty>(
+        public static void SetProperty<TEntity, TProperty>(
+            this List<PatchOperation> patch,
             Expression<Func<TEntity, TProperty>> propertySelector,
             TProperty propertyValue)
         {
@@ -37,17 +19,16 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
 
             if (propertyValue == null)
             {
-                _operations.Add(PatchOperation.Replace(path, new MemoryStream(nullStreamSource)));
+                patch.Add(PatchOperation.Replace(path, JValue.CreateNull()));
             }
             else
             {
-                _operations.Add(PatchOperation.Replace(path, propertyValue));
+                patch.Add(PatchOperation.Replace(path, propertyValue));
             }
-
-            return this;
         }
 
-        public CosmosPatch<TEntity> SetProperty<TProperty>(
+        public static void SetProperty<TEntity, TProperty>(
+            this List<PatchOperation> patch,
             Expression<Func<TEntity, Dictionary<string, TProperty>>> dictPropSelector,
             string dictionaryKey,
             TProperty propertyValue)
@@ -56,13 +37,64 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
 
             if (propertyValue == null)
             {
-                _operations.Add(PatchOperation.Set(path, new MemoryStream(nullStreamSource)));
+                patch.Add(PatchOperation.Set(path, JValue.CreateNull()));
             }
             else
             {
-                _operations.Add(PatchOperation.Set(path, propertyValue));
+                patch.Add(PatchOperation.Set(path, propertyValue));
             }
+        }
 
+        public static void IncrementProperty<TEntity>(
+            this List<PatchOperation> patch,
+            Expression<Func<TEntity, int>> propertySelector,
+            int propertyValue)
+        {
+            string path = "/" + propertySelector.ParseProperty();
+            patch.Add(PatchOperation.Increment(path, propertyValue));
+        }
+
+        public static void IncrementProperty<TEntity>(
+            this List<PatchOperation> patch,
+            Expression<Func<TEntity, long>> propertySelector,
+            long propertyValue)
+        {
+            string path = "/" + propertySelector.ParseProperty();
+            patch.Add(PatchOperation.Increment(path, propertyValue));
+        }
+    }
+
+    public sealed class CosmosPatch<TEntity>
+    {
+        private readonly Container _container;
+        private readonly PartitionKey _partitionKey;
+        private readonly string _id;
+        private readonly List<PatchOperation> _operations;
+        private string _concurrencyGuard;
+        private bool _ignorePreconditionFailure;
+
+        internal CosmosPatch(Container container, string id, PartitionKey partitionKey)
+        {
+            _container = container;
+            _partitionKey = partitionKey;
+            _id = id;
+            _operations = new();
+        }
+
+        public CosmosPatch<TEntity> SetProperty<TProperty>(
+            Expression<Func<TEntity, TProperty>> propertySelector,
+            TProperty propertyValue)
+        {
+            _operations.SetProperty(propertySelector, propertyValue);
+            return this;
+        }
+
+        public CosmosPatch<TEntity> SetProperty<TProperty>(
+            Expression<Func<TEntity, Dictionary<string, TProperty>>> dictPropSelector,
+            string dictionaryKey,
+            TProperty propertyValue)
+        {
+            _operations.SetProperty(dictPropSelector, dictionaryKey, propertyValue);
             return this;
         }
 
@@ -70,8 +102,7 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
             Expression<Func<TEntity, int>> propertySelector,
             int propertyValue)
         {
-            string path = "/" + propertySelector.ParseProperty();
-            _operations.Add(PatchOperation.Increment(path, propertyValue));
+            _operations.IncrementProperty(propertySelector, propertyValue);
             return this;
         }
 
@@ -79,8 +110,7 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
             Expression<Func<TEntity, long>> propertySelector,
             long propertyValue)
         {
-            string path = "/" + propertySelector.ParseProperty();
-            _operations.Add(PatchOperation.Increment(path, propertyValue));
+            _operations.IncrementProperty(propertySelector, propertyValue);
             return this;
         }
 

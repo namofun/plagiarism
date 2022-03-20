@@ -11,8 +11,6 @@ namespace Xylab.PlagiarismDetect.Backend
         CosmosContainer<SubmissionEntity> Submissions { get; }
         CosmosContainer<ReportEntity> Reports { get; }
         CosmosContainer<MetadataEntity> Metadata { get; }
-
-        Database GetDatabase();
         Task MigrateAsync();
     }
 }

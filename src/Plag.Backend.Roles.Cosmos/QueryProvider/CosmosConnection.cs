@@ -43,11 +43,6 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
             Metadata = new(_database.GetContainer(nameof(Metadata)), logger);
         }
 
-        public Database GetDatabase()
-        {
-            return _database;
-        }
-
         public async Task MigrateAsync()
         {
             DatabaseResponse databaseResponse = await _client
@@ -117,7 +112,7 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
     {
         internal const string QueryServiceGraph = nameof(QueryServiceGraph);
 
-        public static Task<StoredProcedureExecuteResponse<List<Models.ServiceVertex>>> QueryServiceGraphAsync(
+        public static Task<List<Models.ServiceVertex>> QueryServiceGraphAsync(
             this CosmosContainer<MetadataEntity> container,
             SetGuid setId,
             string language,

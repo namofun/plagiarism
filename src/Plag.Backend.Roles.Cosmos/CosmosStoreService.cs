@@ -40,9 +40,13 @@ namespace Xylab.PlagiarismDetect.Backend
                 UserId = metadata.UserId,
                 CreateTime = DateTimeOffset.Now,
                 Id = SetGuid.New().ToString(),
-            });
+            },
+            new PartitionKey(MetadataEntity.SetsTypeKey));
 
-            await _database.Metadata.CreateAsync(new ServiceGraphEntity { Id = entity.Id });
+            await _database.Metadata.CreateAsync(
+                new ServiceGraphEntity { Id = entity.Id },
+                new PartitionKey(MetadataEntity.ServiceGraphTypeKey));
+
             return entity;
         }
 
@@ -225,7 +229,8 @@ namespace Xylab.PlagiarismDetect.Backend
                 Name = submission.Name,
                 UploadTime = DateTimeOffset.Now,
                 Files = submission.Files.Select((i, j) => new SubmissionFile(j + 1, i)).ToList(),
-            });
+            },
+            new PartitionKey(set.Id));
 
             await _database.Sets
                 .Patch(set.Id, new PartitionKey(MetadataEntity.SetsTypeKey))
@@ -476,9 +481,9 @@ namespace Xylab.PlagiarismDetect.Backend
         {
             var set = SetGuid.Parse(u.SetId);
             var vertices = await _database.Metadata.QueryServiceGraphAsync(set, u.Language, u.InclusiveCategory, u.ExclusiveCategory);
-            if (vertices.Resource.Count == 0) return 0;
+            if (vertices.Count == 0) return 0;
 
-            var pendingReports = vertices.Resource
+            var pendingReports = vertices
                 .OrderBy(x => x.Id)
                 .Select(v => ReportEntity.Of(set, (u.Id, u.Name, u.ExclusiveCategory), (v.Id, v.Name, v.Exclusive)))
                 .ToList();
@@ -783,7 +788,7 @@ namespace Xylab.PlagiarismDetect.Backend
                 submissionKeys.Add((subGuid.ToString(), new(setId.ToString())));
             }
 
-            FeedResponse<SubmissionEntity> results =
+            IEnumerable<SubmissionEntity> results =
                 await _database.Submissions.ReadManyItemsAsync(submissionKeys);
 
             return results.Select(sub =>
@@ -811,7 +816,8 @@ namespace Xylab.PlagiarismDetect.Backend
                     Id = MetadataEntity.LanguagesMetadataKey,
                     Type = MetadataEntity.SettingsTypeKey,
                     Data = languageSeeds,
-                });
+                },
+                new PartitionKey(MetadataEntity.SettingsTypeKey));
             }
         }
 
