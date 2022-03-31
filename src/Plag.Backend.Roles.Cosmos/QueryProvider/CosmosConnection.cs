@@ -4,6 +4,7 @@ using Microsoft.Azure.Cosmos.Scripts;
 using Microsoft.Extensions.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -74,16 +75,38 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
                 [nameof(Reports)] = "/setid",
             };
 
+            Dictionary<string, Action<IndexingPolicy>> indexPolicies = new()
+            {
+                [nameof(Submissions)] = ip =>
+                {
+                    ip.ExcludedPaths.Add(new() { Path = "/error/?" });
+                    ip.ExcludedPaths.Add(new() { Path = "/tokens/?" });
+                    ip.ExcludedPaths.Add(new() { Path = "/files/?" });
+                },
+
+                [nameof(Reports)] = ip =>
+                {
+                    ip.ExcludedPaths.Add(new() { Path = "/matches/?" });
+                    ip.ExcludedPaths.Add(new() { Path = "/biggest_match/?" });
+                    ip.ExcludedPaths.Add(new() { Path = "/tokens_matched/?" });
+                },
+            };
+
             foreach ((string containerName, string partitionKeyPath) in pkeyPathMap)
             {
-                ContainerResponse containerResponse = await database
-                    .CreateContainerIfNotExistsAsync(
-                        new ContainerProperties()
-                        {
-                            Id = containerName,
-                            PartitionKeyPath = partitionKeyPath,
-                        });
+                ContainerProperties props = new()
+                {
+                    Id = containerName,
+                    PartitionKeyPath = partitionKeyPath,
+                };
 
+                if (indexPolicies.TryGetValue(containerName, out var indexPolicy))
+                {
+                    indexPolicy.Invoke(props.IndexingPolicy);
+                }
+
+                ContainerResponse containerResponse =
+                    await database.CreateContainerIfNotExistsAsync(props);
                 if (containerResponse.StatusCode == HttpStatusCode.Created)
                 {
                     _logger.LogInformation("Container {Name} created with pk '{PartitionKeyPath}' successfully.", containerName, partitionKeyPath);
