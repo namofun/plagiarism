@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,20 +11,6 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
 {
     internal class CosmosQuery
     {
-        private static readonly Action<Headers> MakeBatchNotTranscation = c =>
-        {
-            c.Set("x-ms-cosmos-batch-atomic", bool.FalseString);
-            c.Add("x-ms-cosmos-batch-continue-on-error", bool.TrueString);
-        };
-
-        private static readonly Action<TransactionalBatchRequestOptions, Action<Headers>> AddRequestHeadersPropertySetter
-            = typeof(TransactionalBatchRequestOptions)
-                .GetProperty(
-                    "AddRequestHeaders",
-                    BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)!
-                .SetMethod!
-                .CreateDelegate<Action<TransactionalBatchRequestOptions, Action<Headers>>>();
-
         private static readonly EventId EventId = new(10060, "CosmosDbQuery");
         private readonly ITelemetryClient _telemetryClient;
         private readonly ILogger _logger;
@@ -194,7 +179,14 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
             CancellationToken cancellationToken)
         {
             options ??= new();
-            if (!transactional) AddRequestHeadersPropertySetter(options, MakeBatchNotTranscation);
+            if (!transactional)
+            {
+                options.AddRequestHeaders = c =>
+                {
+                    c.Set("x-ms-cosmos-batch-atomic", bool.FalseString);
+                    c.Add("x-ms-cosmos-batch-continue-on-error", bool.TrueString);
+                };
+            }
 
             Stopwatch timer = Stopwatch.StartNew();
             using IDependencyTracker dependencyTracker =
