@@ -15,11 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Azure.Cosmos" Version="$(AzureCosmosSdkVersion)" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="$(AspNetCoreVersion)" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <ProjectReference Include="..\DataAccess.Cosmos\Xylab.DataAccess.Cosmos.csproj" />
     <ProjectReference Include="..\Plag.Backend.Abstraction\Plag.Backend.Abstraction.csproj" />
   </ItemGroup>
 

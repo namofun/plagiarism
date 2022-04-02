@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <RootNamespace>Xylab.DataAccess.Cosmos</RootNamespace>
+    <AssemblyName>Xylab.DataAccess.Cosmos</AssemblyName>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <Import Project="..\..\build\NugetPackage.Common.props" />
+
+  <PropertyGroup>
+    <Authors>yang-er</Authors>
+    <Description>Azure Cosmos DB data access layer</Description>
+    <PackageVersion>1.3.$(PreviewBuild)</PackageVersion>
+    <Version>$(PackageVersion)</Version>
+    <AssemblyVersion>$(PackageVersion).0</AssemblyVersion>
+    <FileVersion>$(PackageVersion).0</FileVersion>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SatelliteSite.Abstraction" Version="$(SubstrateVersion)" />
+    <PackageReference Include="Microsoft.Azure.Cosmos" Version="$(AzureCosmosSdkVersion)" />
+  </ItemGroup>
+
+</Project>

@@ -1,17 +1,14 @@
-﻿using Microsoft.Azure.Cosmos;
-using Newtonsoft.Json;
-using System;
-using System.IO;
+﻿using Newtonsoft.Json;
 using System.Text;
 
-namespace Xylab.PlagiarismDetect.Backend.QueryProvider
+namespace Xylab.DataAccess.Cosmos
 {
-    internal class HybridCosmosSerializer : CosmosSerializer
+    internal class HybridSerializer : CosmosSerializer
     {
         private static readonly Encoding DefaultEncoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
         private readonly JsonSerializerSettings SerializerSettings;
 
-        public HybridCosmosSerializer(JsonSerializerSettings jsonSerializerSettings)
+        public HybridSerializer(JsonSerializerSettings jsonSerializerSettings)
         {
             SerializerSettings = jsonSerializerSettings;
         }

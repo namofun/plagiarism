@@ -362,7 +362,7 @@ namespace Xylab.PlagiarismDetect.Backend
                     new PartitionKey(setGuid.ToString()));
 
             bool? tokenProduced = jobj.Result;
-            if (!tokenProduced.HasValue) throw new ArgumentOutOfRangeException();
+            if (!tokenProduced.HasValue) throw new ArgumentOutOfRangeException(nameof(submitid));
 
             await _database.Submissions
                 .Patch(subGuid.ToString(), new PartitionKey(setGuid.ToString()))
@@ -434,8 +434,7 @@ namespace Xylab.PlagiarismDetect.Backend
         public Task<Submission> DequeueSubmissionAsync()
         {
             return _database.Submissions.SingleOrDefaultAsync<Submission>(
-                "SELECT TOP 1 * FROM Submissions s WHERE s.token_produced = null AND s.type = \"submission\"",
-                default(PartitionKey?));
+                "SELECT TOP 1 * FROM Submissions s WHERE s.token_produced = null AND s.type = \"submission\"");
         }
 
         public async Task<ReportTask> DequeueReportAsync()
@@ -446,8 +445,7 @@ namespace Xylab.PlagiarismDetect.Backend
             {
                 QuickResult<string> topReportId =
                     await _database.Reports.SingleOrDefaultAsync<QuickResult<string>>(
-                        "SELECT TOP 1 r.id AS result FROM Reports r WHERE r.state = \"Pending\" AND r.type = \"report\"",
-                        default(PartitionKey?));
+                        "SELECT TOP 1 r.id AS result FROM Reports r WHERE r.state = \"Pending\" AND r.type = \"report\"");
 
                 if (topReportId == null) return null;
                 ReportGuid reportGuid = ReportGuid.Parse(topReportId.Result);

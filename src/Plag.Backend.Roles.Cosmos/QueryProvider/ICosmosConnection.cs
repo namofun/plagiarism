@@ -1,16 +1,15 @@
-﻿using Microsoft.Azure.Cosmos;
+﻿using System.Threading.Tasks;
+using Xylab.DataAccess.Cosmos;
 using Xylab.PlagiarismDetect.Backend.Entities;
-using Xylab.PlagiarismDetect.Backend.QueryProvider;
-using System.Threading.Tasks;
 
 namespace Xylab.PlagiarismDetect.Backend
 {
     public interface ICosmosConnection
     {
-        CosmosContainer<SetEntity> Sets { get; }
-        CosmosContainer<SubmissionEntity> Submissions { get; }
-        CosmosContainer<ReportEntity> Reports { get; }
-        CosmosContainer<MetadataEntity> Metadata { get; }
+        Container<SetEntity> Sets { get; }
+        Container<SubmissionEntity> Submissions { get; }
+        Container<ReportEntity> Reports { get; }
+        Container<MetadataEntity> Metadata { get; }
         Task MigrateAsync();
     }
 }

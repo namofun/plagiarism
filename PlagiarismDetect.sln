@@ -74,6 +74,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plag.Backend.Roles.Cosmos",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plag.Backend.Worker", "src\Plag.Backend.Worker\Plag.Backend.Worker.csproj", "{E3B6E42C-ADD1-44F3-A4D8-183B39A37927}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xylab.DataAccess.Cosmos", "src\DataAccess.Cosmos\Xylab.DataAccess.Cosmos.csproj", "{9D52AFF3-705D-4BC4-ADD4-8C71947231D7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -166,6 +168,10 @@ Global
 		{E3B6E42C-ADD1-44F3-A4D8-183B39A37927}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E3B6E42C-ADD1-44F3-A4D8-183B39A37927}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E3B6E42C-ADD1-44F3-A4D8-183B39A37927}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9D52AFF3-705D-4BC4-ADD4-8C71947231D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9D52AFF3-705D-4BC4-ADD4-8C71947231D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9D52AFF3-705D-4BC4-ADD4-8C71947231D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9D52AFF3-705D-4BC4-ADD4-8C71947231D7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -193,6 +199,7 @@ Global
 		{E6E22E00-7C6C-4B45-8DB8-79C0A2A869C1} = {C6B49B4C-FEB2-477D-986D-F2216E34BA9C}
 		{3E6C9E31-1A14-402A-8E87-AE4A9C1799C1} = {C6B49B4C-FEB2-477D-986D-F2216E34BA9C}
 		{E3B6E42C-ADD1-44F3-A4D8-183B39A37927} = {C6B49B4C-FEB2-477D-986D-F2216E34BA9C}
+		{9D52AFF3-705D-4BC4-ADD4-8C71947231D7} = {C6B49B4C-FEB2-477D-986D-F2216E34BA9C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2AA9BAB4-9C10-43E7-8722-DEBB04D9924A}

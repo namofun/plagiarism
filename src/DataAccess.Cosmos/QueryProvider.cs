@@ -1,30 +1,29 @@
-﻿using Microsoft.Azure.Cosmos;
-using Microsoft.Extensions.Diagnostics;
+﻿using Microsoft.Extensions.Diagnostics;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace Xylab.PlagiarismDetect.Backend.QueryProvider
+namespace Xylab.DataAccess.Cosmos
 {
-    internal class CosmosQuery
+    internal class QueryProvider
     {
         private static readonly EventId EventId = new(10060, "CosmosDbQuery");
         private readonly ITelemetryClient _telemetryClient;
         private readonly ILogger _logger;
         private readonly Container _container;
 
-        public CosmosQuery(
+        public QueryProvider(
             ITelemetryClient telemetryClient,
             ILogger logger,
-            Container container)
+            Container container,
+            CosmosOptions options)
         {
             _telemetryClient = telemetryClient;
             _logger = logger;
             _container = container;
+            Options = options;
         }
+
+        public CosmosOptions Options { get; }
 
         private static void InjectSuccess<T>(IDependencyTracker dependencyTracker, Response<T> response)
         {
@@ -173,7 +172,7 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
 
         public async Task<TransactionalBatchResponse> Query(
             TransactionalBatch transactionalBatch,
-            TransactionalBatchRequestOptions options,
+            TransactionalBatchRequestOptions? options,
             bool transactional,
             string queryDescription,
             CancellationToken cancellationToken)
@@ -232,7 +231,7 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
             }
         }
 
-        public CosmosBatch<TEntity> CreateBatch<TEntity>(PartitionKey partitionKey)
+        public Batch<TEntity> CreateBatch<TEntity>(PartitionKey partitionKey)
         {
             return new(_container.CreateTransactionalBatch(partitionKey), this, partitionKey);
         }

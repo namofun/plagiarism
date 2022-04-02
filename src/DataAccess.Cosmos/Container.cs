@@ -1,36 +1,22 @@
-﻿#nullable enable
-using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Cosmos.Scripts;
-using Microsoft.Extensions.Diagnostics;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Azure.Cosmos.Scripts;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace Xylab.PlagiarismDetect.Backend.QueryProvider
+namespace Xylab.DataAccess.Cosmos
 {
-    public class CosmosContainer<T> where T : class
+    public class Container<T> where T : class
     {
-        private readonly CosmosQuery _coll;
+        private readonly QueryProvider _coll;
 
-        public CosmosContainer(Container container, ILogger logger, ITelemetryClient telemetryClient)
-            : this(new CosmosQuery(telemetryClient, logger, container))
-        {
-        }
-
-        internal CosmosContainer(CosmosQuery query)
+        internal Container(QueryProvider query)
         {
             _coll = query;
         }
 
-        public CosmosContainer<TEntity> AsType<TEntity>()
+        public Container<TEntity> AsType<TEntity>()
             where TEntity : class, T
         {
-            return new CosmosContainer<TEntity>(_coll);
+            return new Container<TEntity>(_coll);
         }
 
         public Task<TOutput> ExecuteStoredProcedureAsync<TOutput>(
@@ -68,9 +54,14 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
                 coll => coll.CreateItemAsync(entity, partitionKey));
         }
 
-        public CosmosPatch<T> Patch(string id, PartitionKey partitionKey)
+        public Patch<T> Patch(string id, PartitionKey partitionKey)
         {
             return new(_coll, id, partitionKey);
+        }
+
+        public async Task<TEntity?> SingleOrDefaultAsync<TEntity>(string sql) where TEntity : class
+        {
+            return (await GetListAsync<TEntity>(sql).ConfigureAwait(false)).SingleOrDefault();
         }
 
         public async Task<TEntity?> SingleOrDefaultAsync<TEntity>(string sql, PartitionKey? partitionKey) where TEntity : class
@@ -136,7 +127,7 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
         public async Task BatchAsync<TModel>(
             string partitionKey,
             IEnumerable<TModel> source,
-            Action<TModel, CosmosBatch<T>> batchEntryBuilder,
+            Action<TModel, Batch<T>> batchEntryBuilder,
             Func<string, TModel[], TransactionalBatchResponse, Task>? postBatchResponse,
             int batchSize = 50,
             bool allowTooManyRequests = false,
@@ -145,7 +136,7 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
             if (batchSize > 100) throw new ArgumentOutOfRangeException(nameof(batchSize));
             foreach (TModel[] batchModel in source.Chunk(batchSize))
             {
-                CosmosBatch<T> batch = _coll.CreateBatch<T>(new PartitionKey(partitionKey));
+                Batch<T> batch = _coll.CreateBatch<T>(new PartitionKey(partitionKey));
                 foreach (TModel model in batchModel)
                 {
                     batchEntryBuilder.Invoke(model, batch);
@@ -180,7 +171,7 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
         public async Task BatchAsync<TModel>(
             IEnumerable<TModel> source,
             Func<TModel, string> partitionKeySelector,
-            Action<TModel, CosmosBatch<T>> batchEntryBuilder,
+            Action<TModel, Batch<T>> batchEntryBuilder,
             Action<string, TModel[], TransactionalBatchResponse>? postBatchResponse = null,
             int batchSize = 50,
             bool allowTooManyRequests = false,
@@ -195,17 +186,24 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
         public Task BatchAsync<TModel>(
             string partitionKey,
             IEnumerable<TModel> source,
-            Action<TModel, CosmosBatch<T>> batchEntryBuilder,
+            Action<TModel, Batch<T>> batchEntryBuilder,
             Action<string, TModel[], TransactionalBatchResponse>? postBatchResponse = null,
             int batchSize = 50,
             bool allowTooManyRequests = false,
             bool transactional = true)
-            => BatchAsync(partitionKey, source, batchEntryBuilder, postBatchResponse.AsAsync(), batchSize, allowTooManyRequests, transactional);
+            => BatchAsync(
+                partitionKey,
+                source,
+                batchEntryBuilder,
+                postBatchResponse == null ? null : (a, b, c) => { postBatchResponse.Invoke(a, b, c); return Task.CompletedTask; },
+                batchSize,
+                allowTooManyRequests,
+                transactional);
 
         public async Task BatchWithRetryAsync<TModel>(
             IEnumerable<TModel> source,
             Func<TModel, string> partitionKeySelector,
-            Action<TModel, CosmosBatch<T>> batchEntryBuilder,
+            Action<TModel, Batch<T>> batchEntryBuilder,
             Action<string, IEnumerable<(TModel, TransactionalBatchOperationResult)>>? postBatchResponse = null,
             int batchSize = 50)
         {
@@ -232,7 +230,7 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
         public async Task BatchWithRetryAsync<TModel>(
             string partitionKey,
             IEnumerable<TModel> source,
-            Action<TModel, CosmosBatch<T>> batchEntryBuilder,
+            Action<TModel, Batch<T>> batchEntryBuilder,
             Func<string, IEnumerable<(TModel, TransactionalBatchOperationResult)>, Task>? postBatchResponse,
             int batchSize = 50)
         {
@@ -262,9 +260,14 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
         public Task BatchWithRetryAsync<TModel>(
             string partitionKey,
             IEnumerable<TModel> source,
-            Action<TModel, CosmosBatch<T>> batchEntryBuilder,
+            Action<TModel, Batch<T>> batchEntryBuilder,
             Action<string, IEnumerable<(TModel, TransactionalBatchOperationResult)>>? postBatchResponse = null,
             int batchSize = 50)
-            => BatchWithRetryAsync(partitionKey, source, batchEntryBuilder, postBatchResponse.AsAsync(), batchSize);
+            => BatchWithRetryAsync(
+                partitionKey,
+                source,
+                batchEntryBuilder,
+                postBatchResponse == null ? null : (a, b) => { postBatchResponse.Invoke(a, b); return Task.CompletedTask; },
+                batchSize);
     }
 }

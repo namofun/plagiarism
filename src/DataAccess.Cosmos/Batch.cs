@@ -1,22 +1,16 @@
-﻿using Microsoft.Azure.Cosmos;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace Xylab.PlagiarismDetect.Backend.QueryProvider
+namespace Xylab.DataAccess.Cosmos
 {
-    public class CosmosBatch<TEntity>
+    public class Batch<TEntity>
     {
         private readonly TransactionalBatch _batch;
         private readonly PartitionKey _partitionKey;
-        private readonly CosmosQuery _query;
+        private readonly QueryProvider _query;
         private readonly HashSet<string> _queryDesciption;
 
-        internal CosmosBatch(TransactionalBatch batch, CosmosQuery query, PartitionKey partitionKey)
+        internal Batch(TransactionalBatch batch, QueryProvider query, PartitionKey partitionKey)
         {
             _batch = batch;
             _query = query;
@@ -85,24 +79,26 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
         {
             private readonly List<PatchOperation> _operations;
             private readonly TransactionalBatchPatchItemRequestOptions _options;
-            private readonly CosmosBatch<TEntity> _batch;
-            private string _filterPredicate;
+            private readonly Batch<TEntity> _batch;
+            private readonly QueryProvider _queryProvider;
+            private string? _filterPredicate;
 
-            public PatchBuilder(
+            internal PatchBuilder(
                 List<PatchOperation> operations,
                 TransactionalBatchPatchItemRequestOptions options,
-                CosmosBatch<TEntity> batch)
+                Batch<TEntity> batch)
             {
                 _operations = operations;
                 _options = options;
                 _batch = batch;
+                _queryProvider = batch._query;
             }
 
             public PatchBuilder Set<TProperty>(
                 Expression<Func<TEntity, TProperty>> propertySelector,
                 TProperty propertyValue)
             {
-                _operations.SetProperty(propertySelector, propertyValue);
+                InternalExtensions.SetProperty(_queryProvider, _operations, propertySelector, propertyValue);
                 return this;
             }
 
@@ -111,7 +107,7 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
                 string dictionaryKey,
                 TProperty propertyValue)
             {
-                _operations.SetProperty(dictPropSelector, dictionaryKey, propertyValue);
+                InternalExtensions.SetProperty(_queryProvider, _operations, dictPropSelector, dictionaryKey, propertyValue);
                 return this;
             }
 
@@ -119,7 +115,7 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
                 Expression<Func<TEntity, int>> propertySelector,
                 int propertyValue)
             {
-                _operations.IncrementProperty(propertySelector, propertyValue);
+                InternalExtensions.IncrementProperty(_queryProvider, _operations, propertySelector, propertyValue);
                 return this;
             }
 
@@ -127,7 +123,7 @@ namespace Xylab.PlagiarismDetect.Backend.QueryProvider
                 Expression<Func<TEntity, long>> propertySelector,
                 long propertyValue)
             {
-                _operations.IncrementProperty(propertySelector, propertyValue);
+                InternalExtensions.IncrementProperty(_queryProvider, _operations, propertySelector, propertyValue);
                 return this;
             }
 

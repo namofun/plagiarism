@@ -26,16 +26,6 @@ namespace Xylab.PlagiarismDetect.Backend
         public List<LanguageInfo> LanguageSeeds { get; set; }
 
         /// <summary>
-        /// Json serializer options
-        /// </summary>
-        public JsonSerializerSettings Serialization { get; set; } = new()
-        {
-            NullValueHandling = NullValueHandling.Include,
-            Formatting = Formatting.None,
-            ContractResolver = new QueryProvider.EntityJsonContractResolver(),
-        };
-
-        /// <summary>
         /// Configure the cosmos connection with the connection string.
         /// </summary>
         /// <param name="connectionString">The connection string.</param>
