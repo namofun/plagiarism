@@ -61,30 +61,30 @@ namespace Xylab.DataAccess.Cosmos
 
         public async Task<TEntity?> SingleOrDefaultAsync<TEntity>(string sql) where TEntity : class
         {
-            return (await GetListAsync<TEntity>(sql).ConfigureAwait(false)).SingleOrDefault();
+            return (await QueryAsync<TEntity>(sql).ConfigureAwait(false)).SingleOrDefault();
         }
 
         public async Task<TEntity?> SingleOrDefaultAsync<TEntity>(string sql, PartitionKey? partitionKey) where TEntity : class
         {
-            return (await GetListAsync<TEntity>(sql, partitionKey).ConfigureAwait(false)).SingleOrDefault();
+            return (await QueryAsync<TEntity>(sql, partitionKey).ConfigureAwait(false)).SingleOrDefault();
         }
 
         public async Task<TEntity?> SingleOrDefaultAsync<TEntity>(string sql, object param, PartitionKey partitionKey) where TEntity : class
         {
-            return (await GetListAsync<TEntity>(sql, param, partitionKey).ConfigureAwait(false)).SingleOrDefault();
+            return (await QueryAsync<TEntity>(sql, param, partitionKey).ConfigureAwait(false)).SingleOrDefault();
         }
 
-        public Task<List<TEntity>> GetListAsync<TEntity>(QueryDefinition sql, PartitionKey? partitionKey = default, CancellationToken cancellationToken = default) where TEntity : class
+        public Task<List<TEntity>> QueryAsync<TEntity>(QueryDefinition sql, PartitionKey? partitionKey = default, CancellationToken cancellationToken = default) where TEntity : class
         {
             return _coll.Query<TEntity>(sql, partitionKey, cancellationToken);
         }
 
-        public Task<List<TEntity>> GetListAsync<TEntity>(string sql, PartitionKey? partitionKey = default, CancellationToken cancellationToken = default) where TEntity : class
+        public Task<List<TEntity>> QueryAsync<TEntity>(string sql, PartitionKey? partitionKey = default, CancellationToken cancellationToken = default) where TEntity : class
         {
             return _coll.Query<TEntity>(new QueryDefinition(sql), partitionKey, cancellationToken);
         }
 
-        public Task<List<TEntity>> GetListAsync<TEntity>(string sql, object param, PartitionKey? partitionKey = default, CancellationToken cancellationToken = default) where TEntity : class
+        public Task<List<TEntity>> QueryAsync<TEntity>(string sql, object param, PartitionKey? partitionKey = default, CancellationToken cancellationToken = default) where TEntity : class
         {
             QueryDefinition queryDefinition = new(sql);
             foreach ((string paramName, JToken? paramValue) in JObject.FromObject(param))
@@ -95,15 +95,14 @@ namespace Xylab.DataAccess.Cosmos
             return _coll.Query<TEntity>(queryDefinition, partitionKey, cancellationToken);
         }
 
-        public async Task<TEntity?> GetEntityAsync<TEntity>(string id, string partitionKey) where TEntity : class
+        public async Task<TEntity?> FindAsync<TEntity>(string id, PartitionKey partitionKey) where TEntity : class
         {
-            PartitionKey partitionKey1 = new(partitionKey);
             try
             {
                 return await _coll.Query<TEntity, ItemResponse<TEntity>>(
                     "READ",
-                    $"READ FOR @id OVER {partitionKey1}",
-                    coll => coll.ReadItemAsync<TEntity>(id, partitionKey1));
+                    $"READ FOR @id OVER {partitionKey}",
+                    coll => coll.ReadItemAsync<TEntity>(id, partitionKey));
             }
             catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
             {
@@ -111,12 +110,35 @@ namespace Xylab.DataAccess.Cosmos
             }
         }
 
-        public Task<T?> GetEntityAsync(string id, string partitionKey)
+        public Task<T?> FindAsync(string id, PartitionKey partitionKey)
         {
-            return GetEntityAsync<T>(id, partitionKey);
+            return FindAsync<T>(id, partitionKey);
         }
 
-        public Task<IEnumerable<T>> ReadManyItemsAsync(IReadOnlyList<(string id, PartitionKey partitionKey)> keys)
+        public Task ReplaceAsync(T entity, string id, PartitionKey partitionKey, Azure.ETag? etag = default)
+        {
+            return _coll.Query<T, ItemResponse<T>>(
+                "REPLACE",
+                $"REPLACE FOR @id OVER {partitionKey}",
+                coll => coll.ReplaceItemAsync(
+                    entity,
+                    id,
+                    partitionKey,
+                    new() { IfMatchEtag = etag?.ToString(), EnableContentResponseOnWrite = false }));
+        }
+
+        public Task<T> DeleteAsync(string id, PartitionKey partitionKey, Azure.ETag? etag = default)
+        {
+            return _coll.Query<T, ItemResponse<T>>(
+                "DELETE",
+                $"DELETE FOR @id OVER {partitionKey}",
+                coll => coll.DeleteItemAsync<T>(
+                    id,
+                    partitionKey,
+                    new() { IfMatchEtag = etag?.ToString(), EnableContentResponseOnWrite = true }));
+        }
+
+        public Task<IEnumerable<T>> FindAsync(IReadOnlyList<(string id, PartitionKey partitionKey)> keys)
         {
             return _coll.Query<IEnumerable<T>, FeedResponse<T>>(
                 "READ",

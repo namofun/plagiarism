@@ -54,18 +54,18 @@ namespace Xylab.PlagiarismDetect.Backend
         {
             return !ReportGuid.TryParse(id, out var reportId)
                 ? null
-                : await _database.Reports.GetEntityAsync<Report>(
+                : await _database.Reports.FindAsync<Report>(
                     reportId.ToString(),
-                    reportId.GetSetId().ToString());
+                    new PartitionKey(reportId.GetSetId().ToString()));
         }
 
         public async Task<PlagiarismSet> FindSetAsync(string id)
         {
             return !SetGuid.TryParse(id, out var setGuid)
                 ? null
-                : await _database.Sets.GetEntityAsync<PlagiarismSet>(
+                : await _database.Sets.FindAsync<PlagiarismSet>(
                     setGuid.ToString(),
-                    MetadataEntity.SetsTypeKey);
+                    new PartitionKey(MetadataEntity.SetsTypeKey));
         }
 
         private Task<TSubmission> GetSubmissionCoreAsync<TSubmission>(SetGuid setGuid, int submitId, bool includeFiles) where TSubmission : Submission
@@ -94,7 +94,7 @@ namespace Xylab.PlagiarismDetect.Backend
             Vertex vertex = await GetSubmissionCoreAsync<Vertex>(setGuid, submitid, includeFiles);
             if (vertex == null) return null;
 
-            vertex.Comparisons = await _database.Reports.GetListAsync<Comparison>(
+            vertex.Comparisons = await _database.Reports.QueryAsync<Comparison>(
                 "SELECT " +
                     " r.id AS reportid, r.state, r.tokens_matched, r.biggest_match, r.percent, r.justification, " +
                     " ((r.submitid_a = @submitid) ? r.submitid_b : r.submitid_a) AS submitid, " +
@@ -155,9 +155,9 @@ namespace Xylab.PlagiarismDetect.Backend
             else
             {
                 var metadata = await _database.Metadata
-                    .GetEntityAsync<MetadataEntity<List<LanguageInfo>>>(
+                    .FindAsync<MetadataEntity<List<LanguageInfo>>>(
                         MetadataEntity.LanguagesMetadataKey,
-                        MetadataEntity.SettingsTypeKey);
+                        new PartitionKey(MetadataEntity.SettingsTypeKey));
 
                 return metadata.Data;
             }
@@ -304,7 +304,7 @@ namespace Xylab.PlagiarismDetect.Backend
                 param["limit"] = limit.Value;
             }
 
-            return await _database.Submissions.GetListAsync<Submission>(query, param, new(setGuid.ToString()));
+            return await _database.Submissions.QueryAsync<Submission>(query, param, new(setGuid.ToString()));
         }
 
         public async Task<IReadOnlyList<PlagiarismSet>> ListSetsAsync(
@@ -343,7 +343,7 @@ namespace Xylab.PlagiarismDetect.Backend
                 param["limit"] = limit.Value;
             }
 
-            return await _database.Sets.GetListAsync<PlagiarismSet>(
+            return await _database.Sets.QueryAsync<PlagiarismSet>(
                 query,
                 param,
                 new PartitionKey(MetadataEntity.SetsTypeKey));
@@ -520,14 +520,14 @@ namespace Xylab.PlagiarismDetect.Backend
         public async Task RefreshCacheAsync()
         {
             List<SetStatistics> reportAggregate =
-                await _database.Reports.GetListAsync<SetStatistics>(
+                await _database.Reports.QueryAsync<SetStatistics>(
                     "SELECT r.setid, COUNT(1) AS report_count, " +
                           " SUM(r.state = \"Finished\" ? 0 : 1) AS report_pending " +
                     "FROM Reports r WHERE r.type = \"report\" " +
                     "GROUP BY r.setid");
 
             List<SetStatistics> submissionAggregate =
-                await _database.Submissions.GetListAsync<SetStatistics>(
+                await _database.Submissions.QueryAsync<SetStatistics>(
                     "SELECT s.setid, COUNT(1) AS submission_count, " +
                           " SUM(s.token_produced = true ? 1 : 0) AS submission_succeeded, " +
                           " SUM(s.token_produced = false ? 1 : 0) AS submission_failed " +
@@ -559,7 +559,7 @@ namespace Xylab.PlagiarismDetect.Backend
             await RefreshCacheAsync();
 
             List<string> analyzings =
-                await _database.Reports.GetListAsync<string>(
+                await _database.Reports.QueryAsync<string>(
                     "SELECT VALUE r.id FROM Reports r " +
                     "WHERE r.state = \"Analyzing\" AND r.type = \"report\"");
 
@@ -655,7 +655,7 @@ namespace Xylab.PlagiarismDetect.Backend
             while (reportTasks.Count == 0 && retry <= 2)
             {
                 List<string> topReportIds =
-                    await _database.Reports.GetListAsync<string>(
+                    await _database.Reports.QueryAsync<string>(
                         "SELECT TOP " + batchSize + " VALUE r.id FROM Reports r " +
                         "WHERE r.state = \"Pending\" AND r.type = \"report\"");
 
@@ -748,7 +748,7 @@ namespace Xylab.PlagiarismDetect.Backend
             }
 
             Dictionary<string, SubmissionEntity> results =
-                (await _database.Submissions.ReadManyItemsAsync(submissionKeys))
+                (await _database.Submissions.FindAsync(submissionKeys))
                 .ToDictionary(k => k.ExternalId);
 
             return submitExternalIds
@@ -773,7 +773,7 @@ namespace Xylab.PlagiarismDetect.Backend
             }
 
             IEnumerable<SubmissionEntity> results =
-                await _database.Submissions.ReadManyItemsAsync(submissionKeys);
+                await _database.Submissions.FindAsync(submissionKeys);
 
             return results.Select(sub =>
                 new KeyValuePair<Submission, Compilation>(
@@ -811,9 +811,9 @@ namespace Xylab.PlagiarismDetect.Backend
                 throw new KeyNotFoundException();
 
             ServiceGraphEntity graph =
-                await _database.Metadata.GetEntityAsync<ServiceGraphEntity>(
+                await _database.Metadata.FindAsync<ServiceGraphEntity>(
                     setGuid.ToString(),
-                    MetadataEntity.ServiceGraphTypeKey);
+                    new PartitionKey(MetadataEntity.ServiceGraphTypeKey));
 
             if (graph == null)
                 throw new KeyNotFoundException("Unknown set, no service graph found.");
@@ -826,7 +826,7 @@ namespace Xylab.PlagiarismDetect.Backend
             if (!SetGuid.TryParse(set.Id, out var setGuid))
                 throw new KeyNotFoundException();
 
-            return _database.Reports.GetListAsync<ServiceEdge>(
+            return _database.Reports.QueryAsync<ServiceEdge>(
                 "SELECT c.submitid_a AS u, c.submitid_b AS v FROM c",
                 new PartitionKey(setGuid.ToString()));
         }
